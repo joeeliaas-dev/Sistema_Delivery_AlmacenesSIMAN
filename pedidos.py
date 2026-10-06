@@ -25,7 +25,7 @@ _lock = Lock()
 def listar_pedidos() -> list[dict]:
     """Devuelve los pedidos como diccionarios, sin exponer el almacenamiento interno."""
     # TODO: Reemplazar con Firebase: leer la colección "pedidos" y mantener estos campos.
-    # Convertir el ID del documento al campo "id" y conservar un orden estable.
+    # Leer el campo "id" numérico de cada documento y conservar un orden estable.
     with _lock:
         return [pedido.copy() for pedido in _pedidos]
 

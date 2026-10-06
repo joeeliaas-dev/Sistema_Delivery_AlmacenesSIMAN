@@ -40,7 +40,7 @@ def create_app(test_config=None):
             mensajes = {400: "El cuerpo de la solicitud debe ser JSON válido.",
                         413: "La solicitud es demasiado grande.",
                         415: "Usa el tipo de contenido application/json.",
-                        500: "No fue posible guardar los datos. Intenta nuevamente."}
+                        500: "No fue posible procesar la solicitud. Intenta nuevamente."}
             return jsonify(error=mensajes.get(error.code, error.description)), error.code
         return error
 

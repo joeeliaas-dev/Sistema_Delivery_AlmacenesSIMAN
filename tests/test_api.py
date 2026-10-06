@@ -84,6 +84,25 @@ class PedidosApiTest(unittest.TestCase):
                 pedidos.actualizar_estado_pedido(self.first_id, state)
         self.assertIsNone(pedidos.actualizar_estado_pedido(999999, "entregado"))
 
+    def test_la_pantalla_y_sus_recursos_se_sirven_desde_flask(self):
+        page = self.client.get("/")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(b'lang="es"', page.data)
+        self.assertIn(b'viewport', page.data)
+        for path in ["/static/css/styles.css", "/static/js/app.js", "/static/favicon.svg"]:
+            with self.subTest(path=path):
+                with self.client.get(path) as response:
+                    self.assertEqual(response.status_code, 200)
+
+    def test_un_error_de_almacenamiento_no_expone_detalles_internos(self):
+        app = create_app({"TESTING": False, "PROPAGATE_EXCEPTIONS": False})
+        with patch.object(pedidos, "actualizar_estado_pedido", side_effect=RuntimeError("detalle privado")):
+            with self.assertLogs(app.logger, level="ERROR"):
+                response = app.test_client().patch(f"/api/pedidos/{self.first_id}/estado", json={"estado": "entregado"})
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("error", response.json)
+        self.assertNotIn("detalle privado", response.get_data(as_text=True))
+
 
 if __name__ == "__main__":
     unittest.main()

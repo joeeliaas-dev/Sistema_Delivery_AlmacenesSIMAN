@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#a51d35">
+  <meta name="description" content="Gestiona tus entregas de Almacenes Siman. Consulta cada pedido y registra el resultado de tu visita.">
+  <title>Mis entregas · Siman Delivery</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body data-api-url="{{ url_for('obtener_pedidos') }}">
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-box" viewBox="0 0 24 24"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5 M12 13v8 M7.5 5.5l9 5"/></symbol>
+    <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24"><path d="m6 6 12 12 M6 18 18 6"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16 m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5 M4 17v-5h5 M6 7a7 7 0 0 1 12-1l2 6 M4 12l2 6a7 7 0 0 0 12-1"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 6h11v11H3V6Z M14 10h4l3 4v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#entregas">Ir a las entregas</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="Siman Delivery, inicio">
+        <span class="brand-name">siman<span class="brand-dot">.</span></span>
+        <span class="brand-divider"></span>
+        <span class="brand-service">delivery</span>
+      </a>
+      <a class="desktop-nav" href="#entregas"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-box"/></svg>Mis entregas</a>
+      <div class="header-right">
+        <span id="connection-status" class="connection" data-status="loading"><span class="connection-dot"></span><span id="connection-text">Conectando</span></span>
+        <span class="avatar" aria-label="Vista de repartidor">RE</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <div class="page-heading">
+      <div><p class="eyebrow">DE LA TIENDA A SU PUERTA</p><h1>Tus entregas de hoy<span class="heading-dot">.</span></h1><p class="intro">Cada pedido, una persona esperando por ti.</p></div>
+      <div class="today"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-clock"/></svg><time id="today-date"></time></div>
+    </div>
+
+    <div class="workspace">
+      <aside class="route-panel" aria-label="Resumen de la ruta">
+        <section class="route-card">
+          <div class="route-label"><span>RUTA DE PRUEBA</span><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-truck"/></svg></div>
+          <h2>Guatemala <span>01</span></h2>
+          <p class="route-subtitle">Ciudad de Guatemala</p>
+          <div class="route-illustration" aria-hidden="true">
+            <svg viewBox="0 0 260 148" fill="none">
+              <path class="street" d="M-10 34h95l22 23h162 M24-10v78l26 25v70 M173-10v52l-38 38v80 M-10 126h122l31-30h125 M223-10v85l-42 40v48 M76-10v25l54 54h130"/>
+              <path class="route-track" d="M37 39h50l31 32v42h68l39-38"/>
+              <circle cx="37" cy="39" r="10" fill="#fff"/><circle cx="37" cy="39" r="4" fill="#a51d35"/>
+              <circle cx="118" cy="113" r="5" fill="#fff"/><circle cx="186" cy="113" r="5" fill="#fff"/>
+              <path d="M237 59c0 9-12 19-12 19s-12-10-12-19a12 12 0 1 1 24 0Z" fill="#fff"/><circle cx="225" cy="59" r="4" fill="#a51d35"/>
+            </svg>
+            <span>Ilustración de ruta</span>
+          </div>
+          <div class="route-progress-heading"><span>Tu avance</span><strong id="progress-text">0 de 0 visitas</strong></div>
+          <progress id="route-progress" max="1" value="0" aria-label="Visitas registradas"></progress>
+          <p id="progress-description" class="route-footnote">Cargando tu jornada…</p>
+        </section>
+
+        <section class="next-stop" aria-labelledby="next-stop-title">
+          <p class="eyebrow" id="next-stop-title">PRÓXIMA ENTREGA PENDIENTE</p>
+          <div class="next-stop-content"><span class="next-stop-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-pin"/></svg></span><div><h3 id="next-client">Buscando tu siguiente parada…</h3><p id="next-address">Un momento, por favor.</p></div></div>
+        </section>
+        <p class="route-note"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-box"/></svg>Un buen día empieza con una entrega.</p>
+      </aside>
+
+      <section class="deliveries-section" id="entregas" aria-labelledby="deliveries-title">
+        <div class="section-heading"><h2 id="deliveries-title">Mis entregas <span id="total-badge" class="count-badge">—</span></h2><button id="refresh-button" class="refresh-button" type="button" aria-label="Actualizar lista de entregas"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-refresh"/></svg><span>Actualizar</span></button></div>
+
+        <dl class="summary" aria-label="Resumen de entregas">
+          <div><dt><span class="stat-dot pending-dot"></span>Pendientes</dt><dd id="pending-count">—</dd></div>
+          <div><dt><span class="stat-dot delivered-dot"></span>Entregados</dt><dd id="delivered-count">—</dd></div>
+          <div><dt><span class="stat-dot failed-dot"></span>Fallidos</dt><dd id="failed-count">—</dd></div>
+        </dl>
+
+        <div class="list-controls">
+          <div class="filters" role="group" aria-label="Filtrar por estado">
+            <button class="filter-button active" type="button" data-filter="todos" aria-pressed="true">Todos</button>
+            <button class="filter-button" type="button" data-filter="pendiente" aria-pressed="false">Pendientes</button>
+            <button class="filter-button" type="button" data-filter="entregado" aria-pressed="false">Entregados</button>
+            <button class="filter-button" type="button" data-filter="fallido" aria-pressed="false">Fallidos</button>
+          </div>
+          <label class="search-field"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-search"/></svg><input id="search-input" type="search" placeholder="Buscar cliente, pedido o dirección" aria-label="Buscar cliente, pedido o dirección" autocomplete="off"></label>
+        </div>
+
+        <p id="results-description" class="results-description" aria-live="polite">Preparando tus entregas…</p>
+        <div id="list-error" class="list-error" role="alert" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg><div><strong>No pudimos cargar tus entregas.</strong><p id="list-error-message"></p><button id="retry-button" type="button">Volver a intentar</button></div></div>
+        <div id="loading-state" class="skeleton-list" role="status" aria-label="Cargando entregas"><div class="skeleton-card"></div><div class="skeleton-card"></div><span class="sr-only">Cargando entregas…</span></div>
+        <div id="orders-list" class="orders-list" role="list" aria-busy="true"></div>
+        <div id="empty-state" class="empty-state" hidden><span class="empty-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-box"/></svg></span><h3 id="empty-title">No hay entregas aquí</h3><p id="empty-message">Prueba con otro estado o una búsqueda diferente.</p></div>
+        <noscript><p class="list-error">Activa JavaScript para consultar y actualizar las entregas.</p></noscript>
+        <p class="list-footnote"><span class="footnote-line"></span>Hecho para quienes hacen llegar las cosas.</p>
+      </section>
+    </div>
+    <footer class="page-footer"><span>ALMACENES SIMAN <span>·</span> DELIVERY</span><span>Proyecto universitario · Sprint 1</span></footer>
+  </main>
+
+  <template id="order-template">
+    <article class="order-card" role="listitem">
+      <div class="card-top"><span class="order-number"></span><span class="status-badge"><svg class="icon" aria-hidden="true" focusable="false"><use/></svg><span></span></span></div>
+      <h3 class="client-name"></h3>
+      <div class="address-row"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-pin"/></svg><p class="order-address"></p></div>
+      <div class="order-details"><span class="package-detail"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-box"/></svg><span></span></span><span class="time-detail"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-clock"/></svg><span></span></span></div>
+      <div class="card-actions"><button class="action-button failed-button" data-state="fallido" type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg><span>Fallido</span></button><button class="action-button delivered-button" data-state="entregado" type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-check"/></svg><span>Entregado</span></button></div>
+      <p class="card-feedback" aria-live="polite">Actualiza al finalizar la visita.</p>
+    </article>
+  </template>
+  <div id="notification" class="notification" role="status" aria-live="polite" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-check"/></svg><span></span></div>
+</body>
+</html>
