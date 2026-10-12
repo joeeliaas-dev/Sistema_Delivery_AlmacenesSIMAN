@@ -8,3 +8,4 @@ __pycache__/
 .runtime/
 artifacts/
 node_modules/
+.firebase/

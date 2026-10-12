@@ -1,7 +1,8 @@
 "use strict";
 
-// El frontend solo conoce esta API. La integración con Firebase vive en pedidos.py.
-const apiUrl = document.body.dataset.apiUrl;
+// Los pedidos se leen y se guardan directo en Firebase (Cloud Firestore); ver firebase.js.
+import { actualizarEstadoPedido, listarPedidos } from "./firebase.js";
+
 const list = document.querySelector("#orders-list");
 const template = document.querySelector("#order-template");
 const refreshButton = document.querySelector("#refresh-button");
@@ -32,20 +33,22 @@ function setConnection(status) {
   }[status];
 }
 
-async function requestJson(url, options = {}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12000);
+// Espera la respuesta de Firebase con un límite de 12 s y actualiza el indicador de conexión.
+async function conFirebase(operacion) {
+  let timeout;
+  const limite = new Promise((_, reject) => {
+    timeout = setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "deadline-exceeded" })), 12000);
+  });
   try {
-    const response = await fetch(url, { ...options, signal: controller.signal, cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "El servidor no pudo completar la solicitud.");
+    const resultado = await Promise.race([operacion, limite]);
     setConnection("online");
-    return data;
+    return resultado;
   } catch (error) {
-    if (error.name === "AbortError" || error instanceof TypeError) {
+    if (["deadline-exceeded", "unavailable"].includes(error.code)) {
       setConnection("error");
       throw new Error("El servidor no respondió. Revisa tu conexión y vuelve a intentar.");
     }
+    if (error.code === "permission-denied") throw new Error("No fue posible procesar la solicitud. Intenta nuevamente.");
     throw error;
   } finally {
     clearTimeout(timeout);
@@ -143,8 +146,7 @@ async function loadOrders() {
   document.querySelector("#retry-button").disabled = true;
   for (const order of orders) updateCard(cards.get(order.id), order);
   try {
-    const data = await requestJson(apiUrl);
-    orders = data.pedidos;
+    orders = await conFirebase(listarPedidos());
     loaded = true;
     refreshing = false;
     renderOrders();
@@ -189,13 +191,10 @@ async function saveState(orderId, state) {
   card.setAttribute("aria-busy", "true");
   feedback.textContent = "Guardando el resultado…";
   try {
-    const data = await requestJson(`${apiUrl}/${orderId}/estado`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estado: state })
-    });
-    orders[orders.findIndex(item => item.id === orderId)] = data.pedido;
+    const pedido = await conFirebase(actualizarEstadoPedido(orderId, state));
+    orders[orders.findIndex(item => item.id === orderId)] = pedido;
     saving.delete(orderId);
-    updateCard(card, data.pedido);
+    updateCard(card, pedido);
     feedback.textContent = "Guardado en el sistema. Puedes corregir el resultado.";
     feedback.dataset.kind = "success";
     card.classList.remove("saved");
