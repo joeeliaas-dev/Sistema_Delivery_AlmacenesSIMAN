@@ -1,0 +1,20 @@
+rules_version = '2';
+// Reglas de Cloud Firestore de Siman Delivery (sin inicio de sesión: entorno de pruebas del equipo).
+// Mismo contrato que tenía la API Flask: se leen los pedidos y solo se cambia su "estado".
+//   - Lectura abierta.
+//   - Un pedido no se crea ni se borra desde la app; solo cambia "estado" a entregado o fallido
+//     ("pendiente" se permite para reiniciar la prueba con Sprint 1/herramientas/reiniciar-pedidos.mjs).
+//   - Cualquier otra colección está cerrada.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /pedidos/{pedidoId} {
+      allow read: if true;
+      allow create, delete: if false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && request.resource.data.estado in ['entregado', 'fallido', 'pendiente'];
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

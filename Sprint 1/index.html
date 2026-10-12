@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#a51d35">
   <meta name="description" content="Gestiona tus entregas de Almacenes Siman. Consulta cada pedido y registra el resultado de tu visita.">
   <title>Mis entregas · Siman Delivery</title>
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
   <link rel="stylesheet" href="static/css/styles.css">
-  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  <script type="module" src="static/js/app.js"></script>
 </head>
-<body data-api-url="{{ url_for('obtener_pedidos') }}">
+<body>
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <symbol id="icon-box" viewBox="0 0 24 24"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5 M12 13v8 M7.5 5.5l9 5"/></symbol>
     <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
@@ -26,7 +26,7 @@
   <a class="skip-link" href="#entregas">Ir a las entregas</a>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="{{ url_for('index') }}" aria-label="Siman Delivery, inicio">
+      <a class="brand" href="./" aria-label="Siman Delivery, inicio">
         <span class="brand-name">siman<span class="brand-dot">.</span></span>
         <span class="brand-divider"></span>
         <span class="brand-service">delivery</span>
