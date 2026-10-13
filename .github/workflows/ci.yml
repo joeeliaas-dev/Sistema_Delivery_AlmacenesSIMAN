@@ -1,21 +1,28 @@
 name: CI/CD Siman Delivery
 
-# Revisa el código en cada push y pull request a main y lo publica en Firebase Hosting:
-#   - push a main      -> sitio en vivo (https://siman-delivery-app.web.app)
-#   - pull request      -> vista previa con su propio enlace, comentado en el PR (vence en 7 días)
-# La publicación usa una cuenta de servicio limitada al proyecto siman-delivery-app, guardada en el
-# secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP. Si el secreto no existe, solo se revisa.
+# Revisa el código y lo publica en Firebase Hosting:
+#   - push a main o ejecución manual -> sitio en vivo (https://siman-delivery-app.web.app)
+#   - pull request                    -> vista previa con su propio enlace, comentado en el PR (vence en 7 días)
+# Después de publicar, comprueba que el sitio responde con la versión recién publicada.
+# La publicación usa una cuenta de servicio limitada al proyecto siman-delivery-app (solo Hosting),
+# guardada en el secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP. Si el secreto no existe, solo se revisa.
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:   # botón "Run workflow" en la pestaña Actions
 
 permissions:
   contents: read
   pull-requests: write   # para comentar el enlace de la vista previa
   checks: write
+
+# Una publicación a la vez por rama: si llegan dos pushes seguidos, no se pisan
+concurrency:
+  group: publicar-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   revisar:
@@ -50,15 +57,17 @@ jobs:
           for ruta in static/css/styles.css static/js/app.js static/favicon.svg; do
             grep -q "$ruta" index.html && test -f "$ruta" && echo "OK $ruta"
           done
+          grep -q 'from "./firebase.js"' static/js/app.js && test -f static/js/firebase.js && echo "OK static/js/firebase.js"
 
   desplegar:
     name: Publicar en Firebase Hosting
     needs: revisar
     runs-on: ubuntu-latest
     # Las vistas previas solo para PR del mismo repositorio (los forks no reciben secretos)
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     env:
       HAY_CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP != '' }}
+      EN_VIVO: ${{ github.event_name != 'pull_request' }}
     steps:
       - name: Clonar el repositorio principal
         uses: actions/checkout@v4
@@ -68,7 +77,8 @@ jobs:
         run: echo "::notice::No se publicó porque falta el secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP."
 
       - name: Despliegue continuo al sitio en vivo
-        if: env.HAY_CREDENCIAL == 'true' && github.event_name == 'push'
+        id: vivo
+        if: env.HAY_CREDENCIAL == 'true' && env.EN_VIVO == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -77,10 +87,38 @@ jobs:
           channelId: live
 
       - name: Vista previa del pull request
-        if: env.HAY_CREDENCIAL == 'true' && github.event_name == 'pull_request'
+        id: previa
+        if: env.HAY_CREDENCIAL == 'true' && env.EN_VIVO != 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP }}
           projectId: siman-delivery-app
           expires: 7d
+
+      - name: Comprobar que el sitio publicado responde con esta versión
+        if: env.HAY_CREDENCIAL == 'true'
+        env:
+          URL: ${{ env.EN_VIVO == 'true' && 'https://siman-delivery-app.web.app' || steps.previa.outputs.details_url }}
+        run: |
+          URL="${URL%/}"
+          echo "Comprobando $URL"
+          # El CDN puede tardar unos segundos en servir la versión nueva
+          for intento in $(seq 1 12); do
+            if curl -fsS "$URL/?v=$GITHUB_SHA" -o publicado.html && cmp -s publicado.html "Sprint 1/index.html"; then
+              for ruta in static/js/app.js static/js/firebase.js static/css/styles.css static/favicon.svg; do
+                curl -fsS -o /dev/null "$URL/$ruta" && echo "OK /$ruta"
+              done
+              echo "OK: el sitio sirve la versión de este commit"
+              {
+                echo "### Publicado"
+                echo ""
+                echo "$URL"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Intento $intento: todavía no es la versión nueva; espero 10 s"
+            sleep 10
+          done
+          echo "::error::El sitio no respondió con la versión publicada"
+          exit 1
