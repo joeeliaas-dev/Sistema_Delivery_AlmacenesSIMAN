@@ -1,15 +1,26 @@
 name: CI/CD Siman Delivery
 
+# Revisa el código en cada push y pull request a main y lo publica en Firebase Hosting:
+#   - push a main      -> sitio en vivo (https://siman-delivery-app.web.app)
+#   - pull request      -> vista previa con su propio enlace, comentado en el PR (vence en 7 días)
+# La publicación usa una cuenta de servicio limitada al proyecto siman-delivery-app, guardada en el
+# secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP. Si el secreto no existe, solo se revisa.
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  pull-requests: write   # para comentar el enlace de la vista previa
+  checks: write
 
+jobs:
+  revisar:
+    name: Revisar el código
+    runs-on: ubuntu-latest
     steps:
       - name: Clonar el repositorio principal
         uses: actions/checkout@v4
@@ -19,11 +30,57 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Instalar herramientas de Firebase
-        run: npm install -g firebase-tools
+      - name: Revisar la sintaxis de JavaScript
+        run: |
+          for archivo in "Sprint 1"/static/js/*.js "Sprint 1"/herramientas/*.mjs; do
+            echo "Revisando $archivo"
+            node --input-type=module --check < "$archivo"
+          done
 
-      #- name: Despliegue Continuo a Firebase Hosting
-      #  if: github.ref == 'refs/heads/main'
-      #  run: firebase deploy --only hosting
-      #  env:
-      #    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Revisar los archivos JSON
+        run: |
+          for archivo in firebase.json .firebaserc "Sprint 1"/datos/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$archivo"
+            echo "OK $archivo"
+          done
+
+      - name: Revisar que la página use los archivos que existen
+        run: |
+          cd "Sprint 1"
+          for ruta in static/css/styles.css static/js/app.js static/favicon.svg; do
+            grep -q "$ruta" index.html && test -f "$ruta" && echo "OK $ruta"
+          done
+
+  desplegar:
+    name: Publicar en Firebase Hosting
+    needs: revisar
+    runs-on: ubuntu-latest
+    # Las vistas previas solo para PR del mismo repositorio (los forks no reciben secretos)
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      HAY_CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP != '' }}
+    steps:
+      - name: Clonar el repositorio principal
+        uses: actions/checkout@v4
+
+      - name: Avisar si falta la credencial
+        if: env.HAY_CREDENCIAL != 'true'
+        run: echo "::notice::No se publicó porque falta el secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP."
+
+      - name: Despliegue continuo al sitio en vivo
+        if: env.HAY_CREDENCIAL == 'true' && github.event_name == 'push'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP }}
+          projectId: siman-delivery-app
+          channelId: live
+
+      - name: Vista previa del pull request
+        if: env.HAY_CREDENCIAL == 'true' && github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP }}
+          projectId: siman-delivery-app
+          expires: 7d
