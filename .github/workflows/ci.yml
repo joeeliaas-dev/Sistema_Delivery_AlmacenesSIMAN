@@ -27,15 +27,15 @@ concurrency:
 jobs:
   revisar:
     name: Revisar el código
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # versión fija: ubuntu-latest cambia de sistema sin aviso
     steps:
       - name: Clonar el repositorio principal
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instalar entorno Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Revisar la sintaxis de JavaScript
         run: |
@@ -62,7 +62,7 @@ jobs:
   desplegar:
     name: Publicar en Firebase Hosting
     needs: revisar
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # versión fija: ubuntu-latest cambia de sistema sin aviso
     # Las vistas previas solo para PR del mismo repositorio (los forks no reciben secretos)
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     env:
@@ -70,7 +70,7 @@ jobs:
       EN_VIVO: ${{ github.event_name != 'pull_request' }}
     steps:
       - name: Clonar el repositorio principal
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Avisar si falta la credencial
         if: env.HAY_CREDENCIAL != 'true'
