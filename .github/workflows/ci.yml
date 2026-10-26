@@ -39,21 +39,20 @@ jobs:
 
       - name: Revisar la sintaxis de JavaScript
         run: |
-          for archivo in "Sprint 1"/static/js/*.js "Sprint 1"/herramientas/*.mjs; do
+          for archivo in static/js/*.js herramientas/*.mjs; do
             echo "Revisando $archivo"
             node --input-type=module --check < "$archivo"
           done
 
       - name: Revisar los archivos JSON
         run: |
-          for archivo in firebase.json .firebaserc "Sprint 1"/datos/*.json; do
+          for archivo in firebase.json .firebaserc datos/*.json; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$archivo"
             echo "OK $archivo"
           done
 
       - name: Revisar que la página use los archivos que existen
         run: |
-          cd "Sprint 1"
           for ruta in static/css/styles.css static/js/app.js static/favicon.svg; do
             grep -q "$ruta" index.html && test -f "$ruta" && echo "OK $ruta"
           done
@@ -105,7 +104,7 @@ jobs:
           echo "Comprobando $URL"
           # El CDN puede tardar unos segundos en servir la versión nueva
           for intento in $(seq 1 12); do
-            if curl -fsS "$URL/?v=$GITHUB_SHA" -o publicado.html && cmp -s publicado.html "Sprint 1/index.html"; then
+            if curl -fsS "$URL/?v=$GITHUB_SHA" -o publicado.html && cmp -s publicado.html index.html; then
               for ruta in static/js/app.js static/js/firebase.js static/css/styles.css static/favicon.svg; do
                 curl -fsS -o /dev/null "$URL/$ruta" && echo "OK /$ruta"
               done
