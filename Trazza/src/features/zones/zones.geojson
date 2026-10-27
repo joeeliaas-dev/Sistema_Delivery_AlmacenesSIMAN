@@ -1,0 +1,180 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Z1",
+        "name": "San Salvador Centro",
+        "color": "#6B5AA6"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -89.2034,
+              13.6869
+            ],
+            [
+              -89.1794,
+              13.6869
+            ],
+            [
+              -89.1794,
+              13.7109
+            ],
+            [
+              -89.2034,
+              13.7109
+            ],
+            [
+              -89.2034,
+              13.6869
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Z2",
+        "name": "Escalón / San Benito",
+        "color": "#9A5B8A"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -89.252,
+              13.6915
+            ],
+            [
+              -89.228,
+              13.6915
+            ],
+            [
+              -89.228,
+              13.7155
+            ],
+            [
+              -89.252,
+              13.7155
+            ],
+            [
+              -89.252,
+              13.6915
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Z3",
+        "name": "Antiguo Cuscatlán / Santa Tecla",
+        "color": "#2F7D5B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -89.272,
+              13.663
+            ],
+            [
+              -89.248,
+              13.663
+            ],
+            [
+              -89.248,
+              13.687
+            ],
+            [
+              -89.272,
+              13.687
+            ],
+            [
+              -89.272,
+              13.663
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Z4",
+        "name": "Soyapango / Ilopango",
+        "color": "#C26A1B"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -89.162,
+              13.698
+            ],
+            [
+              -89.138,
+              13.698
+            ],
+            [
+              -89.138,
+              13.722
+            ],
+            [
+              -89.162,
+              13.722
+            ],
+            [
+              -89.162,
+              13.698
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Z5",
+        "name": "Mejicanos / Apopa",
+        "color": "#2B6CB0"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -89.225,
+              13.728
+            ],
+            [
+              -89.201,
+              13.728
+            ],
+            [
+              -89.201,
+              13.752
+            ],
+            [
+              -89.225,
+              13.752
+            ],
+            [
+              -89.225,
+              13.728
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

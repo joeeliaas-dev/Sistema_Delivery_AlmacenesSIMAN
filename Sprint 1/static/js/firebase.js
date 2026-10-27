@@ -1,18 +1,9 @@
 // Acceso a los pedidos en Firebase (Cloud Firestore). Reemplaza al backend Flask (app.py + pedidos.py):
 // las mismas dos operaciones, con los mismos campos y mensajes, pero directo desde el navegador.
-// La configuración web de Firebase es pública por diseño; lo que protege los datos son las reglas
-// (firestore.rules en la raíz del repositorio).
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { doc, getDoc, getDocs, getFirestore, collection, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDPi2yn8IUj8RT507m0wT5ke6VX5kY1nvE",
-  authDomain: "siman-delivery-app.firebaseapp.com",
-  projectId: "siman-delivery-app",
-  storageBucket: "siman-delivery-app.firebasestorage.app",
-  messagingSenderId: "504704683075",
-  appId: "1:504704683075:web:e84f9aaa096bc0a90918f6"
-};
+const firebaseConfig = await (await fetch("/__/firebase/init.json")).json();
 
 const db = getFirestore(initializeApp(firebaseConfig));
 const ESTADOS_VALIDOS = ["entregado", "fallido"];

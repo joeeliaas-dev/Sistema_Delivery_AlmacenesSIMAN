@@ -1,0 +1,9 @@
+{
+  "id": "DEP-CENTRO",
+  "name": "Depósito SIMAN Centro",
+  "location": {
+    "lat": 13.699,
+    "lng": -89.22
+  },
+  "address": "Punto ficticio de prueba, San Salvador"
+}

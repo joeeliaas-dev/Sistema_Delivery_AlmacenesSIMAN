@@ -1,0 +1,2896 @@
+[
+  {
+    "id": "SIM-0400",
+    "code": "SIM-0400",
+    "orderNumber": "WEB-886800",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Beatriz Romero",
+      "phone": "+50370000400"
+    },
+    "address": {
+      "text": "Calle Los Almendros #63",
+      "reference": "Portón blanco con buganvilia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6957,
+      "lng": -89.1889
+    },
+    "scheduledTime": "14:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0401",
+    "code": "SIM-0401",
+    "orderNumber": "WEB-886807",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 1,
+    "lastEvidence": null,
+    "lastFailure": {
+      "reason": "Cliente ausente",
+      "photoUrl": "evidence/SIM-0401/intento-1/foto.jpg",
+      "description": "Nadie atendió después de tocar 3 veces",
+      "gps": {
+        "lat": 13.6971,
+        "lng": -89.1882,
+        "accuracyM": 15
+      },
+      "at": "2026-10-12T15:30:00-06:00"
+    },
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T15:30:00-06:00",
+    "customer": {
+      "name": "Oscar Molina",
+      "phone": "+50370000401"
+    },
+    "address": {
+      "text": "Pasaje Los Cipreses #57",
+      "reference": "Portón café",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6971,
+      "lng": -89.1882
+    },
+    "scheduledTime": "08:40",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      }
+    ],
+    "status": "no_entregado"
+  },
+  {
+    "id": "SIM-0402",
+    "code": "SIM-0402",
+    "orderNumber": "WEB-886814",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 1,
+    "lastEvidence": null,
+    "lastFailure": {
+      "reason": "Cliente ausente",
+      "photoUrl": "evidence/SIM-0402/intento-1/foto.jpg",
+      "description": "Nadie atendió después de tocar 3 veces",
+      "gps": {
+        "lat": 13.694,
+        "lng": -89.1813,
+        "accuracyM": 15
+      },
+      "at": "2026-10-12T15:30:00-06:00"
+    },
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T15:30:00-06:00",
+    "customer": {
+      "name": "Mauricio Romero",
+      "phone": "+50370000402"
+    },
+    "address": {
+      "text": "Pasaje San José #31",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.694,
+      "lng": -89.1813
+    },
+    "scheduledTime": "14:30",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      }
+    ],
+    "status": "no_entregado"
+  },
+  {
+    "id": "SIM-0403",
+    "code": "SIM-0403",
+    "orderNumber": "WEB-886821",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "José Guevara",
+      "phone": "+50370000403"
+    },
+    "address": {
+      "text": "Calle Arce #62",
+      "reference": "",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7087,
+      "lng": -89.196
+    },
+    "scheduledTime": "15:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0404",
+    "code": "SIM-0404",
+    "orderNumber": "WEB-886828",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Manuel Orellana",
+      "phone": "+50370000404"
+    },
+    "address": {
+      "text": "Calle El Progreso #44",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.701,
+      "lng": -89.1868
+    },
+    "scheduledTime": "11:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0405",
+    "code": "SIM-0405",
+    "orderNumber": "WEB-886835",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "José López",
+      "phone": "+50370000405"
+    },
+    "address": {
+      "text": "Pasaje San José #68",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7025,
+      "lng": -89.1932
+    },
+    "scheduledTime": "09:30",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0406",
+    "code": "SIM-0406",
+    "orderNumber": "WEB-886842",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Karla Rodríguez",
+      "phone": "+50370000406"
+    },
+    "address": {
+      "text": "Calle Las Rosas #7",
+      "reference": "Portón café",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6994,
+      "lng": -89.1816
+    },
+    "scheduledTime": "09:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      },
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0407",
+    "code": "SIM-0407",
+    "orderNumber": "WEB-886849",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Chávez",
+      "phone": "+50370000407"
+    },
+    "address": {
+      "text": "Av. Bernal #21",
+      "reference": "Portón blanco con buganvilia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6988,
+      "lng": -89.1905
+    },
+    "scheduledTime": "10:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0408",
+    "code": "SIM-0408",
+    "orderNumber": "WEB-886856",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Silvia Chávez",
+      "phone": "+50370000408"
+    },
+    "address": {
+      "text": "Pasaje San José #52",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7002,
+      "lng": -89.1988
+    },
+    "scheduledTime": "14:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0409",
+    "code": "SIM-0409",
+    "orderNumber": "WEB-886863",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Claudia Molina",
+      "phone": "+50370000409"
+    },
+    "address": {
+      "text": "Av. Las Palmeras #31",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6995,
+      "lng": -89.1853
+    },
+    "scheduledTime": "15:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0410",
+    "code": "SIM-0410",
+    "orderNumber": "WEB-886870",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Rosa Ayala",
+      "phone": "+50370000410"
+    },
+    "address": {
+      "text": "Pasaje Los Cipreses #26",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.694,
+      "lng": -89.1923
+    },
+    "scheduledTime": "15:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0411",
+    "code": "SIM-0411",
+    "orderNumber": "WEB-886877",
+    "zoneId": "Z1",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Patricia Guevara",
+      "phone": "+50370000411"
+    },
+    "address": {
+      "text": "Pasaje San José #15",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7042,
+      "lng": -89.1827
+    },
+    "scheduledTime": "14:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0412",
+    "code": "SIM-0412",
+    "orderNumber": "WEB-886884",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Patricia Pérez",
+      "phone": "+50370000412"
+    },
+    "address": {
+      "text": "Pasaje San José #11",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7137,
+      "lng": -89.1567
+    },
+    "scheduledTime": "12:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      },
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0413",
+    "code": "SIM-0413",
+    "orderNumber": "WEB-886891",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Alejandro Escobar",
+      "phone": "+50370000413"
+    },
+    "address": {
+      "text": "Calle Los Almendros #4",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7088,
+      "lng": -89.2505
+    },
+    "scheduledTime": "10:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0414",
+    "code": "SIM-0414",
+    "orderNumber": "WEB-886898",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Alvarado",
+      "phone": "+50370000414"
+    },
+    "address": {
+      "text": "Calle La Mascota #59",
+      "reference": "Frente a la tienda",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7104,
+      "lng": -89.229
+    },
+    "scheduledTime": "10:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0415",
+    "code": "SIM-0415",
+    "orderNumber": "WEB-886905",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Andrea Ramírez",
+      "phone": "+50370000415"
+    },
+    "address": {
+      "text": "Av. Olímpica #80",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7077,
+      "lng": -89.2366
+    },
+    "scheduledTime": "11:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0416",
+    "code": "SIM-0416",
+    "orderNumber": "WEB-886912",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Pérez",
+      "phone": "+50370000416"
+    },
+    "address": {
+      "text": "Av. Bernal #25",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7119,
+      "lng": -89.2292
+    },
+    "scheduledTime": "14:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0417",
+    "code": "SIM-0417",
+    "orderNumber": "WEB-886919",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 1,
+    "etaMin": 0,
+    "attempts": 0,
+    "lastEvidence": {
+      "photoUrl": "evidence/SIM-0417/intento-1/foto.jpg",
+      "signatureUrl": "evidence/SIM-0417/intento-1/firma.png",
+      "description": "Recibió la clienta en la puerta principal",
+      "gps": {
+        "lat": 13.70622,
+        "lng": -89.20513,
+        "accuracyM": 10
+      },
+      "at": "2026-10-12T08:41:00-06:00"
+    },
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T08:41:00-06:00",
+    "customer": {
+      "name": "Elena Fuentes",
+      "phone": "+50370000417"
+    },
+    "address": {
+      "text": "Col. Médica, 25 Av. Norte #14",
+      "reference": "",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7062,
+      "lng": -89.2051
+    },
+    "scheduledTime": "08:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      }
+    ],
+    "status": "entregado"
+  },
+  {
+    "id": "SIM-0418",
+    "code": "SIM-0418",
+    "orderNumber": "WEB-886926",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 2,
+    "etaMin": 0,
+    "attempts": 0,
+    "lastEvidence": {
+      "photoUrl": "evidence/SIM-0418/intento-1/foto.jpg",
+      "signatureUrl": "evidence/SIM-0418/intento-1/firma.png",
+      "description": "Entregado al vigilante de la urbanización",
+      "gps": {
+        "lat": 13.71012,
+        "lng": -89.22893,
+        "accuracyM": 13
+      },
+      "at": "2026-10-12T09:02:00-06:00"
+    },
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T09:02:00-06:00",
+    "customer": {
+      "name": "Fernando Aguilar",
+      "phone": "+50370000418"
+    },
+    "address": {
+      "text": "Urb. Maquilishuat, Calle Principal #3",
+      "reference": "",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7101,
+      "lng": -89.2289
+    },
+    "scheduledTime": "08:52",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      }
+    ],
+    "status": "entregado"
+  },
+  {
+    "id": "SIM-0419",
+    "code": "SIM-0419",
+    "orderNumber": "WEB-886933",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 3,
+    "etaMin": 6,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "María Hernández",
+      "phone": "+50370000419"
+    },
+    "address": {
+      "text": "Colonia Escalón, Calle El Mirador #42",
+      "reference": "Portón negro frente a farmacia",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7035,
+      "lng": -89.24
+    },
+    "scheduledTime": "09:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0420",
+    "code": "SIM-0420",
+    "orderNumber": "WEB-886940",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 4,
+    "etaMin": 14,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Roberto Castellanos",
+      "phone": "+50370000420"
+    },
+    "address": {
+      "text": "Res. Santa Elena, Pasaje 8 #12",
+      "reference": "",
+      "municipio": "Antiguo Cuscatlán"
+    },
+    "location": {
+      "lat": 13.689,
+      "lng": -89.245
+    },
+    "scheduledTime": "09:32",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0421",
+    "code": "SIM-0421",
+    "orderNumber": "WEB-886947",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 5,
+    "etaMin": 28,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Lucía Vásquez",
+      "phone": "+50370000421"
+    },
+    "address": {
+      "text": "Col. San Benito, Blvd. del Hipódromo #78",
+      "reference": "",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.6985,
+      "lng": -89.2342
+    },
+    "scheduledTime": "09:48",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 2
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0422",
+    "code": "SIM-0422",
+    "orderNumber": "WEB-886954",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 6,
+    "etaMin": 41,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carlos Portillo",
+      "phone": "+50370000422"
+    },
+    "address": {
+      "text": "Urb. Lomas Verdes, Casa 14-B",
+      "reference": "",
+      "municipio": "Santa Tecla"
+    },
+    "location": {
+      "lat": 13.6772,
+      "lng": -89.2793
+    },
+    "scheduledTime": "10:05",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0423",
+    "code": "SIM-0423",
+    "orderNumber": "WEB-886961",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 7,
+    "etaMin": 55,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Ana Mejía",
+      "phone": "+50370000423"
+    },
+    "address": {
+      "text": "Col. Flor Blanca, 3a Av. Norte #55",
+      "reference": "",
+      "municipio": "San Salvador Centro"
+    },
+    "location": {
+      "lat": 13.7008,
+      "lng": -89.2125
+    },
+    "scheduledTime": "10:22",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0424",
+    "code": "SIM-0424",
+    "orderNumber": "WEB-886968",
+    "zoneId": "Z2",
+    "scheduledDate": "2026-10-12",
+    "routeId": "R-2026-10-12-Z2",
+    "stopSequence": 8,
+    "etaMin": 70,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Diego Recinos",
+      "phone": "+50370000424"
+    },
+    "address": {
+      "text": "Jardines de Guadalupe, Los Pinos #9",
+      "reference": "",
+      "municipio": "Antiguo Cuscatlán"
+    },
+    "location": {
+      "lat": 13.6823,
+      "lng": -89.2402
+    },
+    "scheduledTime": "10:39",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      }
+    ],
+    "status": "en_ruta"
+  },
+  {
+    "id": "SIM-0425",
+    "code": "SIM-0425",
+    "orderNumber": "WEB-886975",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Rosa Navarro",
+      "phone": "+50370000425"
+    },
+    "address": {
+      "text": "Calle Arce #23",
+      "reference": "Frente a la tienda",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6715,
+      "lng": -89.2547
+    },
+    "scheduledTime": "14:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0426",
+    "code": "SIM-0426",
+    "orderNumber": "WEB-886982",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Cruz",
+      "phone": "+50370000426"
+    },
+    "address": {
+      "text": "Calle Arce #1",
+      "reference": "Portón café",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6793,
+      "lng": -89.2538
+    },
+    "scheduledTime": "13:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0427",
+    "code": "SIM-0427",
+    "orderNumber": "WEB-886989",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Mauricio Ayala",
+      "phone": "+50370000427"
+    },
+    "address": {
+      "text": "Calle La Mascota #48",
+      "reference": "Casa esquinera color crema",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6806,
+      "lng": -89.251
+    },
+    "scheduledTime": "08:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      },
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0428",
+    "code": "SIM-0428",
+    "orderNumber": "WEB-886996",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Rodríguez",
+      "phone": "+50370000428"
+    },
+    "address": {
+      "text": "Av. Olímpica #88",
+      "reference": "Casa esquinera color crema",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.668,
+      "lng": -89.2511
+    },
+    "scheduledTime": "08:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      },
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0429",
+    "code": "SIM-0429",
+    "orderNumber": "WEB-887003",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Ricardo Romero",
+      "phone": "+50370000429"
+    },
+    "address": {
+      "text": "Pasaje San José #8",
+      "reference": "Contiguo a la cancha",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6642,
+      "lng": -89.2639
+    },
+    "scheduledTime": "10:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0430",
+    "code": "SIM-0430",
+    "orderNumber": "WEB-887010",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Ricardo López",
+      "phone": "+50370000430"
+    },
+    "address": {
+      "text": "Calle La Mascota #48",
+      "reference": "",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6755,
+      "lng": -89.2652
+    },
+    "scheduledTime": "08:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0431",
+    "code": "SIM-0431",
+    "orderNumber": "WEB-887017",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Gabriela Guevara",
+      "phone": "+50370000431"
+    },
+    "address": {
+      "text": "Av. Las Palmeras #8",
+      "reference": "Casa esquinera color crema",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6691,
+      "lng": -89.2627
+    },
+    "scheduledTime": "15:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0432",
+    "code": "SIM-0432",
+    "orderNumber": "WEB-887024",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "José López",
+      "phone": "+50370000432"
+    },
+    "address": {
+      "text": "Calle El Progreso #27",
+      "reference": "Contiguo a la cancha",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6722,
+      "lng": -89.2529
+    },
+    "scheduledTime": "08:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0433",
+    "code": "SIM-0433",
+    "orderNumber": "WEB-887031",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Ricardo Escobar",
+      "phone": "+50370000433"
+    },
+    "address": {
+      "text": "Calle La Mascota #8",
+      "reference": "Casa esquinera color crema",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6678,
+      "lng": -89.2576
+    },
+    "scheduledTime": "11:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0434",
+    "code": "SIM-0434",
+    "orderNumber": "WEB-887038",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Héctor Guevara",
+      "phone": "+50370000434"
+    },
+    "address": {
+      "text": "Pasaje Los Cipreses #27",
+      "reference": "A la par de la iglesia",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6783,
+      "lng": -89.263
+    },
+    "scheduledTime": "13:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0435",
+    "code": "SIM-0435",
+    "orderNumber": "WEB-887045",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Gabriela Henríquez",
+      "phone": "+50370000435"
+    },
+    "address": {
+      "text": "Av. Bernal #46",
+      "reference": "Contiguo a la cancha",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6637,
+      "lng": -89.2697
+    },
+    "scheduledTime": "10:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0436",
+    "code": "SIM-0436",
+    "orderNumber": "WEB-887052",
+    "zoneId": "Z3",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Cruz",
+      "phone": "+50370000436"
+    },
+    "address": {
+      "text": "Calle La Mascota #26",
+      "reference": "",
+      "municipio": "La Libertad Sur"
+    },
+    "location": {
+      "lat": 13.6771,
+      "lng": -89.2537
+    },
+    "scheduledTime": "08:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0437",
+    "code": "SIM-0437",
+    "orderNumber": "WEB-887059",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 2,
+    "lastEvidence": null,
+    "lastFailure": {
+      "reason": "Dirección incorrecta",
+      "photoUrl": "evidence/SIM-0437/intento-2/foto.jpg",
+      "description": "La dirección no existe, vecinos no conocen al cliente",
+      "gps": {
+        "lat": 13.7088,
+        "lng": -89.1534,
+        "accuracyM": 15
+      },
+      "at": "2026-10-12T15:30:00-06:00"
+    },
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T15:30:00-06:00",
+    "customer": {
+      "name": "Alejandro Orellana",
+      "phone": "+50370000437"
+    },
+    "address": {
+      "text": "Av. Las Palmeras #72",
+      "reference": "Frente a la tienda",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7088,
+      "lng": -89.1534
+    },
+    "scheduledTime": "10:05",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "devuelto"
+  },
+  {
+    "id": "SIM-0438",
+    "code": "SIM-0438",
+    "orderNumber": "WEB-887066",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Héctor Henríquez",
+      "phone": "+50370000438"
+    },
+    "address": {
+      "text": "Calle Los Almendros #34",
+      "reference": "Portón café",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7129,
+      "lng": -89.1537
+    },
+    "scheduledTime": "08:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0439",
+    "code": "SIM-0439",
+    "orderNumber": "WEB-887073",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Francisco Henríquez",
+      "phone": "+50370000439"
+    },
+    "address": {
+      "text": "Pasaje San José #11",
+      "reference": "Portón café",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7032,
+      "lng": -89.1596
+    },
+    "scheduledTime": "10:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0440",
+    "code": "SIM-0440",
+    "orderNumber": "WEB-887080",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Silvia Molina",
+      "phone": "+50370000440"
+    },
+    "address": {
+      "text": "Av. Olímpica #67",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7013,
+      "lng": -89.1405
+    },
+    "scheduledTime": "08:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0441",
+    "code": "SIM-0441",
+    "orderNumber": "WEB-887087",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "José Chávez",
+      "phone": "+50370000441"
+    },
+    "address": {
+      "text": "Calle El Progreso #23",
+      "reference": "Portón blanco con buganvilia",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.698,
+      "lng": -89.1489
+    },
+    "scheduledTime": "14:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      },
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0442",
+    "code": "SIM-0442",
+    "orderNumber": "WEB-887094",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Mauricio Henríquez",
+      "phone": "+50370000442"
+    },
+    "address": {
+      "text": "Av. Bernal #6",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7148,
+      "lng": -89.1463
+    },
+    "scheduledTime": "14:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0443",
+    "code": "SIM-0443",
+    "orderNumber": "WEB-887101",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Oscar Chávez",
+      "phone": "+50370000443"
+    },
+    "address": {
+      "text": "Av. Las Palmeras #75",
+      "reference": "",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7036,
+      "lng": -89.1517
+    },
+    "scheduledTime": "15:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0444",
+    "code": "SIM-0444",
+    "orderNumber": "WEB-887108",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Andrea Romero",
+      "phone": "+50370000444"
+    },
+    "address": {
+      "text": "Calle Arce #90",
+      "reference": "Portón blanco con buganvilia",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.721,
+      "lng": -89.1539
+    },
+    "scheduledTime": "10:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      },
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0445",
+    "code": "SIM-0445",
+    "orderNumber": "WEB-887115",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Karla Chávez",
+      "phone": "+50370000445"
+    },
+    "address": {
+      "text": "Pasaje San José #68",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7392,
+      "lng": -89.2101
+    },
+    "scheduledTime": "11:20",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0446",
+    "code": "SIM-0446",
+    "orderNumber": "WEB-887122",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Manuel Chávez",
+      "phone": "+50370000446"
+    },
+    "address": {
+      "text": "Calle La Mascota #78",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7424,
+      "lng": -89.2039
+    },
+    "scheduledTime": "08:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "HOG-3344",
+        "name": "Licuadora Oster 3 velocidades",
+        "weightKg": 2.1,
+        "qty": 1
+      },
+      {
+        "sku": "BEL-7720",
+        "name": "Secadora de cabello Remington",
+        "weightKg": 0.7,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0447",
+    "code": "SIM-0447",
+    "orderNumber": "WEB-887129",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Beatriz Guevara",
+      "phone": "+50370000447"
+    },
+    "address": {
+      "text": "Calle Los Almendros #31",
+      "reference": "",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7517,
+      "lng": -89.2042
+    },
+    "scheduledTime": "13:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0448",
+    "code": "SIM-0448",
+    "orderNumber": "WEB-887136",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Rosa Navarro",
+      "phone": "+50370000448"
+    },
+    "address": {
+      "text": "Calle El Progreso #40",
+      "reference": "Portón café",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7381,
+      "lng": -89.205
+    },
+    "scheduledTime": "10:00",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0449",
+    "code": "SIM-0449",
+    "orderNumber": "WEB-887143",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Silvia Pérez",
+      "phone": "+50370000449"
+    },
+    "address": {
+      "text": "Av. Bernal #30",
+      "reference": "Frente a la tienda",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7313,
+      "lng": -89.2168
+    },
+    "scheduledTime": "13:15",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "HOG-8812",
+        "name": "Set de ollas Tramontina 5 piezas",
+        "weightKg": 4.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0450",
+    "code": "SIM-0450",
+    "orderNumber": "WEB-887150",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Mauricio Romero",
+      "phone": "+50370000450"
+    },
+    "address": {
+      "text": "Calle Las Rosas #12",
+      "reference": "Portón blanco con buganvilia",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7491,
+      "lng": -89.2135
+    },
+    "scheduledTime": "13:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0451",
+    "code": "SIM-0451",
+    "orderNumber": "WEB-887157",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "José Romero",
+      "phone": "+50370000451"
+    },
+    "address": {
+      "text": "Calle El Progreso #81",
+      "reference": "Casa esquinera color crema",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.732,
+      "lng": -89.2081
+    },
+    "scheduledTime": "12:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-1201",
+        "name": "Microondas Panasonic 1.2 pies",
+        "weightKg": 12.5,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-4410",
+        "name": "Barra de sonido LG 2.1",
+        "weightKg": 3.4,
+        "qty": 1
+      },
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0452",
+    "code": "SIM-0452",
+    "orderNumber": "WEB-887164",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Ernesto Alvarado",
+      "phone": "+50370000452"
+    },
+    "address": {
+      "text": "Calle La Mascota #53",
+      "reference": "Portón café",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7439,
+      "lng": -89.2162
+    },
+    "scheduledTime": "13:45",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      },
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0453",
+    "code": "SIM-0453",
+    "orderNumber": "WEB-887171",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Francisco Molina",
+      "phone": "+50370000453"
+    },
+    "address": {
+      "text": "Calle Los Almendros #77",
+      "reference": "",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7476,
+      "lng": -89.2093
+    },
+    "scheduledTime": "10:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0454",
+    "code": "SIM-0454",
+    "orderNumber": "WEB-887178",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Beatriz Orellana",
+      "phone": "+50370000454"
+    },
+    "address": {
+      "text": "Calle Arce #57",
+      "reference": "",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7476,
+      "lng": -89.2145
+    },
+    "scheduledTime": "15:30",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-3302",
+        "name": "Mesa de noche de pino",
+        "weightKg": 9,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0455",
+    "code": "SIM-0455",
+    "orderNumber": "WEB-887185",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Karla López",
+      "phone": "+50370000455"
+    },
+    "address": {
+      "text": "Calle Los Almendros #31",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7316,
+      "lng": -89.2226
+    },
+    "scheduledTime": "11:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "MUE-7710",
+        "name": "Silla de oficina ergonómica",
+        "weightKg": 11,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0456",
+    "code": "SIM-0456",
+    "orderNumber": "WEB-887192",
+    "zoneId": "Z5",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Héctor Navarro",
+      "phone": "+50370000456"
+    },
+    "address": {
+      "text": "Calle Arce #41",
+      "reference": "",
+      "municipio": "San Salvador Norte"
+    },
+    "location": {
+      "lat": 13.7468,
+      "lng": -89.2011
+    },
+    "scheduledTime": "11:45",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0457",
+    "code": "SIM-0457",
+    "orderNumber": "WEB-887199",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Beatriz Ramírez",
+      "phone": "+50370000457"
+    },
+    "address": {
+      "text": "Calle La Mascota #82",
+      "reference": "Contiguo a la cancha",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7219,
+      "lng": -89.1411
+    },
+    "scheduledTime": "09:15",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "ELE-9921",
+        "name": "TV Samsung 55\" QLED 4K",
+        "weightKg": 14.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-2230",
+        "name": "Audífonos Sony inalámbricos",
+        "weightKg": 0.3,
+        "qty": 1
+      },
+      {
+        "sku": "DEP-4501",
+        "name": "Bicicleta estática Kettler",
+        "weightKg": 28,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0458",
+    "code": "SIM-0458",
+    "orderNumber": "WEB-887206",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Oscar Orellana",
+      "phone": "+50370000458"
+    },
+    "address": {
+      "text": "Pasaje Los Cipreses #53",
+      "reference": "A la par de la iglesia",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7079,
+      "lng": -89.1588
+    },
+    "scheduledTime": "12:30",
+    "priority": "express",
+    "items": [
+      {
+        "sku": "HOG-5521",
+        "name": "Juego de sábanas queen",
+        "weightKg": 1.5,
+        "qty": 1
+      },
+      {
+        "sku": "HOG-2205",
+        "name": "Cafetera Black+Decker 12 tazas",
+        "weightKg": 2.2,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  },
+  {
+    "id": "SIM-0459",
+    "code": "SIM-0459",
+    "orderNumber": "WEB-887213",
+    "zoneId": "Z4",
+    "scheduledDate": "2026-10-12",
+    "routeId": null,
+    "stopSequence": null,
+    "etaMin": null,
+    "attempts": 0,
+    "lastEvidence": null,
+    "lastFailure": null,
+    "createdAt": "2026-10-12T07:00:00-06:00",
+    "updatedAt": "2026-10-12T07:00:00-06:00",
+    "customer": {
+      "name": "Carmen Pérez",
+      "phone": "+50370000459"
+    },
+    "address": {
+      "text": "Calle Las Rosas #30",
+      "reference": "",
+      "municipio": "San Salvador Este"
+    },
+    "location": {
+      "lat": 13.7121,
+      "lng": -89.1565
+    },
+    "scheduledTime": "15:00",
+    "priority": "normal",
+    "items": [
+      {
+        "sku": "JUG-6610",
+        "name": "Set de bloques de construcción",
+        "weightKg": 1.2,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1192",
+        "name": "Mouse inalámbrico Logitech",
+        "weightKg": 0.1,
+        "qty": 1
+      },
+      {
+        "sku": "ELE-1180",
+        "name": "Laptop HP 15\" Ryzen 5",
+        "weightKg": 1.8,
+        "qty": 1
+      }
+    ],
+    "status": "pendiente"
+  }
+]

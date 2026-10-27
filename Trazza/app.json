@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Trazza",
+    "slug": "siman-logistica",
+    "scheme": "simanlogistica",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FCFAFF",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#5B4A9C",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "Trazza by SIMAN",
+      "shortName": "Trazza",
+      "themeColor": "#6B5AA6",
+      "backgroundColor": "#FCFAFF"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
+  }
+}

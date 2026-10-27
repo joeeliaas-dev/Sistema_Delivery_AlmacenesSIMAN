@@ -1,0 +1,64 @@
+[
+  {
+    "id": "R-2026-10-12-Z2",
+    "code": "Ruta A",
+    "date": "2026-10-12",
+    "zoneId": "Z2",
+    "driverId": "D2",
+    "status": "en_curso",
+    "stops": [
+      {
+        "shipmentId": "SIM-0417",
+        "seq": 1,
+        "etaMin": 0,
+        "kmFromPrev": 2.43
+      },
+      {
+        "shipmentId": "SIM-0418",
+        "seq": 2,
+        "etaMin": 0,
+        "kmFromPrev": 3.52
+      },
+      {
+        "shipmentId": "SIM-0419",
+        "seq": 3,
+        "etaMin": 6,
+        "kmFromPrev": 1.9
+      },
+      {
+        "shipmentId": "SIM-0420",
+        "seq": 4,
+        "etaMin": 14,
+        "kmFromPrev": 2.3
+      },
+      {
+        "shipmentId": "SIM-0421",
+        "seq": 5,
+        "etaMin": 28,
+        "kmFromPrev": 2.12
+      },
+      {
+        "shipmentId": "SIM-0422",
+        "seq": 6,
+        "etaMin": 41,
+        "kmFromPrev": 7.31
+      },
+      {
+        "shipmentId": "SIM-0423",
+        "seq": 7,
+        "etaMin": 55,
+        "kmFromPrev": 10.37
+      },
+      {
+        "shipmentId": "SIM-0424",
+        "seq": 8,
+        "etaMin": 70,
+        "kmFromPrev": 4.9
+      }
+    ],
+    "totalKm": 34.85,
+    "baselineKm": 36.1,
+    "estEnd": "2026-10-12T12:20:00-06:00",
+    "createdAt": "2026-10-12T07:45:00-06:00"
+  }
+]

@@ -1,0 +1,5 @@
+node_modules/
+.expo/
+src/mocks/*.json
+src/features/zones/zones.geojson
+emulator-data/
