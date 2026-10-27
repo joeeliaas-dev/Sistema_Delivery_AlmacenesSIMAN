@@ -1,7 +1,7 @@
 // Vuelve todos los pedidos a "pendiente" para repetir la prueba. Sin dependencias (Node 18 o superior).
 // Uso, desde la raíz del repositorio:  node "Sprint 1/herramientas/reiniciar-pedidos.mjs"
 const PROYECTO = "siman-delivery-app";
-const API_KEY = "AIzaSyDPi2yn8IUj8RT507m0wT5ke6VX5kY1nvE";
+const { apiKey: API_KEY } = await (await fetch(`https://${PROYECTO}.web.app/__/firebase/init.json`)).json();
 const base = `https://firestore.googleapis.com/v1/projects/${PROYECTO}/databases/(default)/documents/pedidos`;
 
 const respuesta = await fetch(`${base}?key=${API_KEY}`);
