@@ -126,7 +126,7 @@ describe('híbrido: por zona y lo que no cupo lo reparte Geoapify (optimizeDayHy
       ]),
     );
     expect(day.unassigned).toHaveLength(2);
-    expect(day.warnings).toContain('1 pedido que no cabía en el vehículo de su zona pasó a otra ruta.');
+    expect(day.warnings).toContain('1 pedido que no cabía en su zona pasó a otra ruta con espacio.');
     // H se escribe con el plan de su zona (createRoutesForDay); R (sin ubicación) queda suelto
     expect(day.plans.find((p) => p.zoneId === 'Z3').unassigned).toContainEqual({
       shipmentId: 'H',
@@ -219,5 +219,80 @@ describe('los 125 pedidos reales del 1 nov, con los tres métodos', () => {
       .filter(([, free, stops]) => free > 0 && stops < 25)
       .map(([id, free]) => [id, free]);
     expect(share.agents.map((a) => [a.id, a.delivery_capacity])).toEqual(expected);
+  });
+});
+
+describe('híbrido: día con espacio de sobra y motoristas que no salen', () => {
+  const { availableDrivers } = require('../src/features/fleet/availability');
+  const fleet5 = [
+    { id: 'D1', name: 'Kevin Rivas', zoneId: 'Z1', vehicleId: 'V1' },
+    { id: 'D2', name: 'Jorge Martínez', zoneId: 'Z2', vehicleId: 'V2' },
+    { id: 'D3', name: 'Daniela Flores', zoneId: 'Z3', vehicleId: 'V4' },
+    { id: 'D4', name: 'Mario Castro', zoneId: 'Z4', vehicleId: 'V5' },
+  ];
+  const fleetVehicles = [
+    { id: 'V1', label: 'Moto 1', maxKg: 40, capabilities: [] },
+    { id: 'V2', label: 'Moto 2', maxKg: 40, capabilities: [] },
+    { id: 'V4', label: 'Pick-up 1', maxKg: 600, capabilities: ['carga_grande'] },
+    { id: 'V5', label: 'Camión 1', maxKg: 2000, capabilities: ['carga_grande'] },
+  ];
+  // Pocos pedidos: la moto de Z1 se pasa por 3 (cada uno de 15 kg) y el camión de Z4 va casi vacío
+  const light = [
+    ...[1, 2, 3, 4, 5].map((i) => ship(`Z1-${i}`, 'Z1', 15, i)),
+    ship('Z2-1', 'Z2', 5, 6),
+    ship('Z3-1', 'Z3', 8, 7),
+    ship('Z4-1', 'Z4', 20, 8),
+  ];
+  const run = (driversIn, list = light) =>
+    opt.optimizeDayHybrid({
+      date: DATE,
+      shipments: list,
+      drivers: driversIn,
+      vehicles: fleetVehicles,
+      depot,
+      now: NOW,
+    });
+
+  it('(a) con espacio de sobra el reparto SÍ mueve pedidos: moved > 0 y nada queda sin asignar', async () => {
+    const day = await run(fleet5);
+    expectConsistent(day, light);
+    expect(day.moved).toBe(3); // la moto lleva 2 de 15 kg; los otros 3 pasan a otra ruta
+    expect(day.unassigned).toEqual([]);
+    const moto = day.plans.find((p) => p.driverId === 'D1');
+    expect(moto.stops).toHaveLength(2);
+    const elsewhere = day.plans
+      .filter((p) => p.driverId !== 'D1')
+      .flatMap((p) => p.stops.map((st) => st.shipmentId))
+      .filter((id) => id.startsWith('Z1-'));
+    expect(elsewhere).toHaveLength(3);
+    expect(day.warnings).toContain('3 pedidos que no cabían en su zona pasaron a otra ruta con espacio.');
+    expect(day.warnings.some((w) => /no caben? en ningún vehículo/.test(w))).toBe(false);
+  });
+
+  it.each([
+    ['ausente ese día', (d) => (d.id === 'D4' ? { ...d, absentDates: [DATE] } : d), fleetVehicles],
+    ['de baja', (d) => (d.id === 'D4' ? { ...d, active: false } : d), fleetVehicles],
+    ['sin vehículo', (d) => (d.id === 'D4' ? { ...d, vehicleId: null } : d), fleetVehicles],
+    ['con el vehículo en taller', (d) => d, fleetVehicles.map((v) => (v.id === 'V5' ? { ...v, status: 'taller' } : v))],
+  ])('(b) el motorista %s no entra al reparto, y sus pedidos los llevan otros', async (_, edit, vehiclesOfDay) => {
+    // Igual que optimizeAndSaveDay: primero availableDrivers (C49), después el optimizador
+    const available = availableDrivers(fleet5.map(edit), vehiclesOfDay, DATE);
+    expect(available.drivers.map((d) => d.id)).toEqual(['D1', 'D2', 'D3']);
+    const day = await opt.optimizeDayHybrid({
+      date: DATE,
+      shipments: light,
+      drivers: available.drivers,
+      vehicles: vehiclesOfDay,
+      depot,
+      now: NOW,
+    });
+    expectConsistent(day, light);
+    for (const [, o] of geo.geoapifyFetch.mock.calls) expect(o.body.agents.map((a) => a.id)).not.toContain('D4');
+    expect(day.plans.map((p) => p.driverId)).not.toContain('D4');
+    // El pedido de su zona (Z4) no se queda pendiente sin motivo: entra al reparto y lo lleva otro
+    const z4 = day.plans.find((p) => p.stops.some((st) => st.shipmentId === 'Z4-1'));
+    expect(z4).toBeDefined();
+    expect(day.warnings).toContain('1 pedido de una zona sin motorista ese día pasó a otra ruta.');
+    expect(day.warnings.some((w) => /no tiene motorista activo/.test(w))).toBe(false);
   });
 });

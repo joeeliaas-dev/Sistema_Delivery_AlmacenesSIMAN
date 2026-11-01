@@ -26,7 +26,8 @@
     "build:cloud": "node scripts/cloud/buildCloud.mjs",
     "deploy:live": "node scripts/cloud/buildCloud.mjs && firebase deploy --config firebase.cloud.json --only hosting --project proyecto-mad-9bdd2",
     "release:cloud": "node scripts/cloud/release.mjs",
-    "smoke:cloud": "node scripts/cloud/smoke.mjs"
+    "smoke:cloud": "node scripts/cloud/smoke.mjs",
+    "emulators:auth": "firebase emulators:start --config firebase.auth-emu.json --only auth --project demo-siman-logistica"
   },
   "jest": {
     "preset": "jest-expo",

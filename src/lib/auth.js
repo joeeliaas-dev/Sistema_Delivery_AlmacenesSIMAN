@@ -263,8 +263,10 @@ export function listenAccounts(cb, onError) {
 /** Pantallas que puede abrir cada rol (la protección de app/_layout.js). */
 export function canOpen(role, pathname) {
   if (pathname === '/login') return true;
-  if (role === ROLE.DESPACHO) return true; // el despacho también revisa la vista del motorista
-  if (role === ROLE.MOTORISTA) return pathname === '/motorista' || pathname.startsWith('/entrega');
+  // Roles estrictos (Andrés, 31 oct): el despacho no abre la vista del motorista, y el motorista solo la suya
+  const driverView = pathname === '/motorista' || pathname.startsWith('/entrega');
+  if (role === ROLE.DESPACHO) return !driverView;
+  if (role === ROLE.MOTORISTA) return driverView;
   return false;
 }
 

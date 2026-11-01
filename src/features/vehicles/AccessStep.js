@@ -9,7 +9,6 @@ import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { createDriverAccess } from '../../lib/auth';
 import { colors, radius, tones, typography } from '../../theme';
-import { markAccess } from '../session/accountsStub';
 import { accessFieldOf } from './fleetMath';
 import { Field, Notice, panelStyles, SheetHead } from './PanelSheet';
 
@@ -31,13 +30,12 @@ export function AccessStep({ driver, intro, onClose, onFieldError }) {
     setSaving(true);
     setError(null);
     try {
-      const { uid, email: saved } = await createDriverAccess({
+      const { email: saved } = await createDriverAccess({
         driverId: driver.id,
         name: driver.name,
         email,
         password,
       });
-      markAccess(uid, true);
       setDone(saved);
     } catch (err) {
       const message = err?.message || 'No se pudo dar el acceso. Intente de nuevo.';

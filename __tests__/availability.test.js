@@ -25,6 +25,7 @@ it('sale quien está activo, no está ausente ese día y su vehículo no está e
 it('la ausencia es solo de ese día; los datos viejos sin campos cuentan como disponibles', () => {
   expect(unavailability(d('D2', { absentDates: ['2026-11-01'] }), vehicles, '2026-11-02')).toBeNull();
   expect(unavailability({ id: 'D9', vehicleId: 'V1' }, vehicles, '2026-11-01')).toBeNull();
+  expect(unavailability({ id: 'D8', name: 'Ana' }, vehicles, '2026-11-01')).toEqual({ reason: 'sin_vehiculo', text: 'Ana no tiene vehículo asignado' });
 });
 
 describe('servicio de flota con datos de prueba', () => {

@@ -17,7 +17,6 @@ import { colors, radius, spacing, tones, typography } from '../../theme';
 import { inService, isAbsent, unavailability } from '../fleet/availability';
 import { setDriverAbsent, setDriverActive, updateDriverSetup } from '../fleet/fleetService';
 import { absentLabel, driverShift, driverWarnings, normalizeTime, shiftError, VEHICLE_TYPES } from './fleetMath';
-import { markAccess } from '../session/accountsStub';
 import { Segmented } from './Segmented';
 import { TimeField } from './TimeField';
 
@@ -104,6 +103,8 @@ export function DriverSetupRow({ driver, drivers = [], zone, vehicles, wide, dat
   const dirty = vehicleId !== saved.vehicleId || start !== saved.shiftStart || end !== saved.shiftEnd;
 
   const why = unavailability(driver, vehicles, date);
+  // "Sin vehículo" ya lo dice el motivo del día (unavailability, en ámbar): no se repite como aviso
+  const shownWarnings = why?.reason === 'sin_vehiculo' ? warnings.filter((w) => !/^Sin vehículo/.test(w)) : warnings;
   const inactive = driver.active === false;
   const first = driver.name.split(' ')[0];
 
@@ -128,7 +129,6 @@ export function DriverSetupRow({ driver, drivers = [], zone, vehicles, wide, dat
   const setAccess = (active) =>
     run('acceso', async () => {
       await setAccessActive(account.uid, active);
-      markAccess(account.uid, active);
       setConfirmAccess(false);
     });
 
@@ -198,7 +198,7 @@ export function DriverSetupRow({ driver, drivers = [], zone, vehicles, wide, dat
         ) : null}
       </View>
 
-      {warnings.map((w) => (
+      {shownWarnings.map((w) => (
         <View key={w} style={styles.warning}>
           <Icon name="warning_amber" size={16} color={tones.warning.fg} />
           <Text style={styles.warningText}>{w}</Text>

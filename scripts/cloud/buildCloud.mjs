@@ -16,8 +16,8 @@ const env = {
   EXPO_PUBLIC_USE_MOCKS: 'false',
   EXPO_PUBLIC_USE_EMULATORS: 'false',
   EXPO_PUBLIC_EVIDENCE_STORE: withStorage ? 'storage' : 'firestore',
-  // "Optimizar día" por zona en la nube hasta que la conjunta gane con Geoapify real (C50); --conjunta la activa
-  EXPO_PUBLIC_DAY_OPTIMIZER: process.argv.includes('--conjunta') ? 'conjunta' : 'zona',
+  // "Optimizar día" en la nube: híbrido (C51, ganó con Geoapify real); -- --metodo=zona|conjunta para cambiarlo
+  EXPO_PUBLIC_DAY_OPTIMIZER: (process.argv.find((x) => x.startsWith('--metodo=')) ?? '--metodo=hibrido').split('=')[1],
   EXPO_PUBLIC_FIREBASE_PROJECT_ID: cfg.projectId,
   EXPO_PUBLIC_FIREBASE_API_KEY: cfg.apiKey,
   EXPO_PUBLIC_FIREBASE_APP_ID: cfg.appId,

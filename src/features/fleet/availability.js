@@ -1,5 +1,5 @@
 // src/features/fleet/availability.js  (dueño: P1) — quién trabaja un día (C49), cálculos puros
-// Un motorista no sale si está dado de baja (active === false), si marcó ausencia ese día
+// Un motorista no sale si está dado de baja (active === false), si no tiene vehículo, si marcó ausencia ese día
 // (absentDates) o si su vehículo está en taller (vehicle.status === 'taller').
 export const VEHICLE_STATUS = { DISPONIBLE: 'disponible', TALLER: 'taller' };
 
@@ -8,14 +8,16 @@ export const inService = (vehicle) => (vehicle?.status ?? VEHICLE_STATUS.DISPONI
 
 /**
  * Por qué un motorista no sale ese día, o null si sale.
- * @returns {{ reason: 'baja'|'ausente'|'taller', text: string }|null}
+ * @returns {{ reason: 'baja'|'ausente'|'sin_vehiculo'|'taller', text: string }|null}
  */
 export function unavailability(driver, vehicles, date) {
   const name = driver?.name ?? driver?.id;
   if (driver?.active === false) return { reason: 'baja', text: `${name}: de baja` };
   if (isAbsent(driver, date)) return { reason: 'ausente', text: `${name} no trabaja ese día` };
   const vehicle = vehicles.find((v) => v.id === driver?.vehicleId);
-  if (vehicle && !inService(vehicle)) return { reason: 'taller', text: `${name}: ${vehicle.label} está en taller` };
+  // Sin vehículo (o con uno que ya no existe) no puede repartir: no sale
+  if (!vehicle) return { reason: 'sin_vehiculo', text: `${name} no tiene vehículo asignado` };
+  if (!inService(vehicle)) return { reason: 'taller', text: `${name}: ${vehicle.label} está en taller` };
   return null;
 }
 

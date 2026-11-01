@@ -1,7 +1,7 @@
 // app/_layout.js  (dueño: P1)
-// Barra superior con las 2 vistas y protección por sesión (C48): sin sesión se va a /login; el motorista
-// solo abre su vista (/motorista y /entrega) y no ve la barra; el despachador ve todo y tiene "Salir".
-// Confirmar entrega (/entrega) es un paso del motorista: se abre con "Llegué al destino" y marca Motorista.
+// Protección por sesión (C48): sin sesión se va a /login. Roles estrictos: el motorista solo abre su vista
+// (/motorista y /entrega, sin barra; "Cerrar sesión" está en su menú Más) y el despachador solo el despacho,
+// con una barra de su cuenta y "Salir".
 // Carga las fuentes (Roboto y los íconos) antes de pintar, para que no salgan cuadrados vacíos.
 import { MaterialIcons } from '@expo/vector-icons';
 import { Roboto_400Regular, Roboto_500Medium, Roboto_700Bold, useFonts } from '@expo-google-fonts/roboto';
@@ -16,37 +16,14 @@ import { USE_MOCKS } from '../src/lib/firebase';
 import { MOCKS_PERSISTED, mockDb } from '../src/mocks';
 import { colors, elevation, radius, spacing, typography } from '../src/theme';
 
-// Textos cortos como en el prototipo: los largos se cortaban a 360 px
-const VIEWS = [
-  { href: '/despacho', label: 'Despacho', icon: 'local_shipping', a11y: 'Centro de despacho', also: [] },
-  { href: '/motorista', label: 'Motorista', icon: 'two_wheeler', a11y: 'Vista motorista', also: ['/entrega'] },
-];
-const under = (pathname, href) => pathname === href || pathname.startsWith(`${href}/`);
-
-function TopBar() {
-  const pathname = usePathname();
-  const router = useRouter();
+// Barra de la cuenta del despachador: quién entró y "Salir" (ya no hay pestaña de motorista: roles estrictos)
+function AccountBar({ user }) {
   return (
-    <View style={styles.bar} accessibilityRole="tablist">
-      {VIEWS.map(({ href, label, icon, a11y, also }) => {
-        const active = [href, ...also].some((h) => under(pathname, h));
-        const color = active ? colors.primary : colors.onSurfaceVariant;
-        return (
-          <Pressable
-            key={href}
-            accessibilityRole="tab"
-            accessibilityLabel={a11y}
-            accessibilityState={{ selected: active }}
-            onPress={() => pathname !== href && router.replace(href)}
-            style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && !active && styles.tabPressed]}
-          >
-            <Icon name={icon} size={20} color={color} />
-            <Text style={[styles.tabText, { color }]} numberOfLines={1}>
-              {label}
-            </Text>
-          </Pressable>
-        );
-      })}
+    <View style={styles.bar}>
+      <Icon name="local_shipping" size={20} color={colors.primary} />
+      <Text style={styles.barText} numberOfLines={1}>
+        {user?.name ?? 'Despacho'} · {user?.email}
+      </Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Cerrar sesión"
@@ -54,6 +31,7 @@ function TopBar() {
         style={({ pressed }) => [styles.logout, pressed && styles.tabPressed]}
       >
         <Icon name="logout" size={20} color={colors.onSurfaceVariant} />
+        <Text style={styles.logoutText}>Salir</Text>
       </Pressable>
     </View>
   );
@@ -142,7 +120,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-        {status === 'signedIn' && role === ROLE.DESPACHO && pathname !== '/login' ? <TopBar /> : null}
+        {status === 'signedIn' && role === ROLE.DESPACHO && pathname !== '/login' ? <AccountBar user={user} /> : null}
         {USE_MOCKS ? <MockBar /> : null}
         {/* El navegador siempre montado (router.replace lo necesita); encima, la espera o el aviso */}
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
@@ -166,7 +144,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.surface },
   bar: {
     flexDirection: 'row',
-    gap: spacing.xs,
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingLeft: spacing.md,
     marginHorizontal: spacing.lg,
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
@@ -192,7 +172,18 @@ const styles = StyleSheet.create({
   tabActive: { backgroundColor: colors.white, ...elevation[1] },
   tabPressed: { backgroundColor: colors.surfaceHigh },
   tabText: { ...typography.bodyStrong },
-  logout: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.lg },
+  barText: { ...typography.bodyStrong, color: colors.onSurface, flex: 1 },
+  logoutText: { ...typography.label, color: colors.onSurfaceVariant },
+  logout: {
+    minWidth: 44,
+    minHeight: 44,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.lg,
+  },
   noAccessTitle: { ...typography.title, color: colors.onSurface },
   noAccessText: { ...typography.body, color: colors.onSurfaceVariant, textAlign: 'center', maxWidth: 320 },
   noAccessButton: { minHeight: 44, justifyContent: 'center' },

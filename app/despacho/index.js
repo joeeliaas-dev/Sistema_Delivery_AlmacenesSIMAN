@@ -89,6 +89,8 @@ const PIN_TONES = {
 };
 const FLASH_MS = 6000;
 const POSTPONED_MS = 10000;
+// Aviso del híbrido (optimizer/index.js, movedWarning): "3 pedidos que no cabían en su zona pasaron…"
+const MOVED_WARNING = /^(\d+) pedidos? que no cabían? en su zona pas/;
 const NBSP = ' '; // "14.7 km" no se parte entre líneas
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const firstName = (name) => (name ?? '').split(' ')[0];
@@ -605,11 +607,17 @@ export default function CentroDespacho() {
   // Aviso de pedidos que no cupieron en la ruta de la zona (C20)
   const skipped = result?.skipped?.length ?? 0;
   const routeDriver = zoneRoute ? driversById[zoneRoute.driverId] : null;
+  // Pedidos que el híbrido pasó a otra ruta con espacio: es una buena noticia, no un problema, así que
+  // va en verde junto a "4 rutas listas" y no en la franja ámbar. Sale de day.moved; si el resultado no
+  // lo trae, del aviso del optimizador ("3 pedidos que no cabían en su zona pasaron a otra ruta…")
+  const isMovedWarning = (w) => MOVED_WARNING.test(w);
+  const movedWarning = (dayResult?.warnings ?? []).find(isMovedWarning);
+  const movedCount = dayResult?.moved ?? Number(MOVED_WARNING.exec(movedWarning ?? '')?.[1] ?? 0);
   const dayWarnings = [
     ...(dayResult && !dayResult.error && dayResult.engine === OPTIMIZER_ENGINE.LOCAL
       ? ['Cálculo local: Geoapify no respondió y la app calculó las rutas sola.']
       : []),
-    ...(dayResult?.warnings ?? []),
+    ...(dayResult?.warnings ?? []).filter((w) => !isMovedWarning(w)),
     ...(result?.warning ? [result.warning] : []),
   ];
 
@@ -617,9 +625,10 @@ export default function CentroDespacho() {
   // "4 rutas listas" junto a la línea de estado durante unos segundos
   useEffect(() => {
     if (!dayOutcome || dayOutcome.error) return undefined;
-    const t = setTimeout(() => setFlashGone(dayOutcome), FLASH_MS);
+    // Con pedidos movidos hay más que leer: se queda lo mismo que "Pasaron al domingo 1 nov"
+    const t = setTimeout(() => setFlashGone(dayOutcome), movedCount ? POSTPONED_MS : FLASH_MS);
     return () => clearTimeout(t);
-  }, [dayOutcome]);
+  }, [dayOutcome, movedCount]);
   const flash =
     dayResult && !dayResult.error && flashGone !== dayOutcome
       ? dayResult.routeIds.length
@@ -1035,6 +1044,12 @@ export default function CentroDespacho() {
           {flash ? (
             <Text style={styles.flash} accessibilityLiveRegion="polite">
               ✓ <Text>{flash}</Text>
+            </Text>
+          ) : null}
+          {flash && movedCount ? (
+            <Text style={styles.flash}>
+              {plural(movedCount, 'pedido que no cabía en su zona pasó', 'pedidos que no cabían en su zona pasaron')} a
+              otra ruta con espacio
             </Text>
           ) : null}
         </View>

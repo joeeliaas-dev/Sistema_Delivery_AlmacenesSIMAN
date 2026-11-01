@@ -26,30 +26,27 @@ async function step(name, fn) {
 }
 
 // ---------- cambiar de persona (C48) ----------
-// Con datos de prueba el despachador "es" cualquier motorista desde el menú Más; con Firebase (emulador o
-// nube) se cierra sesión y se entra con la cuenta del motorista, como en la vida real.
+// Roles estrictos: para ser otra persona se cierra sesión y se entra con su cuenta (con datos de prueba la
+// contraseña no se revisa). El despachador sale con "Salir" de su barra; el motorista, desde su menú Más.
 const PASS = process.env.TRAZZA_CLAVE ?? 'trazza-prueba';
 const pause = (ms) => new Promise((r) => setTimeout(r, ms));
-const hasTabs = () => evaluate(`!!document.querySelector('[role="tab"]')`);
 const lines = async () => ((await evaluate('document.body.innerText')) ?? '').split('\n').map((t) => t.trim());
+async function signOutHere() {
+  if ((await lines()).includes('Salir')) return tap('Salir');
+  await tap('Más');
+  await pause(300);
+  await tap('Cerrar sesión');
+}
 async function goMotorista() {
-  if (await hasTabs()) return tap('Motorista');
   await send('Page.navigate', { url: `${BASE}/motorista` });
   await waitFor(/Más/);
 }
-async function actAs(key, firstName) {
-  await goMotorista();
-  await tap('Más');
-  await pause(300);
-  if ((await lines()).includes(firstName)) return tap(firstName);
-  await tap('Cerrar sesión');
+async function actAs(key) {
+  await signOutHere();
   await signInIfAsked(`${key}@trazzasv.test`, PASS);
 }
 async function asDespacho() {
-  if (await hasTabs()) return tap('Despacho');
-  await goMotorista();
-  await tap('Más');
-  await tap('Cerrar sesión');
+  await signOutHere();
   await signInIfAsked('despacho@trazzasv.test', PASS);
 }
 
@@ -80,7 +77,7 @@ try {
   });
 
   await step('Kevin inicia su ruta', async () => {
-    await actAs('kevin', 'Kevin');
+    await actAs('kevin');
     await tap('Iniciar ruta');
     await waitFor(/En ruta/);
     await waitFor('Llegué al destino');
@@ -105,7 +102,7 @@ try {
   });
 
   await step('Jorge ve la Ruta A del prototipo: 2 de 8, próxima SIM-0419', async () => {
-    await actAs('jorge', 'Jorge');
+    await actAs('jorge');
     await waitFor(/2 de 8/);
     await waitFor('María Hernández');
     await screenshot('jorge');

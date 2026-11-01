@@ -753,6 +753,12 @@ async function optimizeDayFleet({ date, shipments, drivers, vehicles, depot, zon
 
 const NO_ROOM = [UNASSIGNED_REASON.CAPACIDAD, UNASSIGNED_REASON.REQUISITO];
 
+/** "3 pedidos que no cabían en su zona pasaron a otra ruta con espacio" (híbrido; el despacho lo muestra). */
+export const movedWarning = (n) =>
+  n === 1
+    ? '1 pedido que no cabía en su zona pasó a otra ruta con espacio.'
+    : `${n} pedidos que no cabían en su zona pasaron a otra ruta con espacio.`;
+
 /** Aviso de lo que no cabe en ningún vehículo; no dice "todas las rutas van llenas" si quedó uno sin usar. */
 function noRoomWarning(count, idleDrivers) {
   const head = `${count === 1 ? '1 pedido no cabe' : `${count} pedidos no caben`} en ningún vehículo: `;
@@ -770,6 +776,9 @@ function noRoomWarning(count, idleDrivers) {
  *       con espacio (kg libres y menos de maxStops paradas), incluidos los motoristas sin pedidos;
  *   (c) cada motorista que recibe pedidos vuelve a pedir su ruta sola (optimizeRoute) para ordenarla
  *       entera; lo que ese recálculo deja fuera queda sin asignar.
+ * Los pedidos de una zona cuyo motorista no sale ese día (optimizeAndSaveDay ya lo sacó con
+ * availableDrivers) también entran al reparto (b): por zona solo quedarían pendientes.
+ * `moved`: cuántos pedidos que no cabían en su zona pasaron a otra ruta (el despacho lo avisa).
  * Es el "pasar lo que no cabe" de spillOverflow, pero decidido por Geoapify. Si la llamada (b)
  * falla, queda lo de (a) con un aviso. Mismos argumentos y resultado que optimizeDay.
  */
@@ -803,7 +812,24 @@ export async function optimizeDayHybrid(args) {
     if (list.length >= ROUTING.maxStops || freeKg <= 0) return [];
     return [{ ...c, vehicle: c.vehicle ? { ...c.vehicle, maxKg: freeKg } : null }];
   });
-  const leftovers = day.unassigned.filter((u) => NO_ROOM.includes(u.reason)).map((u) => byId[u.shipmentId]);
+  const noRoomLeft = day.unassigned.filter((u) => NO_ROOM.includes(u.reason)).map((u) => byId[u.shipmentId]);
+  // Pedidos de zonas sin motorista que salga: por zona no entran en ningún plan ni en sin asignar
+  const replaceable = new Set(
+    routes.filter((r) => r.status === ROUTE_STATUS.ASIGNADA && r.date === date).map((r) => r.id),
+  );
+  const counted = new Set([
+    ...day.plans.flatMap((p) => p.stops.map((st) => st.shipmentId)),
+    ...day.unassigned.map((u) => u.shipmentId),
+  ]);
+  const orphans = shipments.filter(
+    (s) =>
+      !counted.has(s.id) &&
+      !started.has(s.zoneId) &&
+      (s.status === STATUS.PENDIENTE ||
+        (s.status === STATUS.NO_ENTREGADO && s.attempts < MAX_ATTEMPTS) ||
+        (s.status === STATUS.ASIGNADO && replaceable.has(s.routeId))),
+  );
+  const leftovers = [...noRoomLeft, ...orphans];
 
   // De qué motorista viene cada sin asignar (para que createRoutesForDay lo escriba con su plan)
   const originOf = new Map();
@@ -824,6 +850,12 @@ export async function optimizeDayHybrid(args) {
         maxStops: ROUTING.maxStops,
       });
       shared = true;
+      // Los de zonas sin motorista ya entraron al reparto: ese aviso de por zona ya no aplica
+      if (orphans.length) {
+        const kept = warnings.filter((w) => !/no tiene motorista activo/.test(w));
+        warnings.length = 0;
+        warnings.push(...kept);
+      }
       const replaced = new Map();
       await Promise.all(
         parsed.plans
@@ -871,14 +903,16 @@ export async function optimizeDayHybrid(args) {
   // Sin asignar al final: lo de (a) que no se colocó, más lo que los recálculos dejaron fuera; el
   // motivo de "no cabe" se mide contra lo que lleva cada vehículo de la flota al final
   const routed = new Set(finalPlans.flatMap((p) => p.stops.map((st) => st.shipmentId)));
-  const moved = leftovers.filter((s) => routed.has(s.id)).length;
+  const moved = noRoomLeft.filter((s) => routed.has(s.id)).length;
   const loads = crew.map((c) => {
     const list = listOf(finalPlans.find((p) => p.driverId === c.driver.id));
     return { vehicle: c.vehicle, kg: kgOfList(list), stops: list.length };
   });
   const seen = new Set();
   const unassigned = [];
-  for (const u of [...day.unassigned, ...lost]) {
+  // Los de zonas sin motorista que nadie tomó quedan sin asignar (si se intentó repartirlos)
+  const orphanLeft = shared ? orphans.map((s) => ({ shipmentId: s.id, reason: UNASSIGNED_REASON.CAPACIDAD })) : [];
+  for (const u of [...day.unassigned, ...lost, ...orphanLeft]) {
     if (routed.has(u.shipmentId) || seen.has(u.shipmentId)) continue;
     seen.add(u.shipmentId);
     const s = byId[u.shipmentId];
@@ -899,11 +933,13 @@ export async function optimizeDayHybrid(args) {
     .filter((p) => p.stops.length || p.unassigned.length)
     .sort((a, b) => String(a.zoneId).localeCompare(String(b.zoneId)));
 
-  if (moved)
+  if (moved) warnings.push(movedWarning(moved));
+  const placedOrphans = orphans.filter((s) => routed.has(s.id)).length;
+  if (placedOrphans)
     warnings.push(
-      moved === 1
-        ? '1 pedido que no cabía en el vehículo de su zona pasó a otra ruta.'
-        : `${moved} pedidos que no cabían en el vehículo de su zona pasaron a otra ruta.`,
+      placedOrphans === 1
+        ? '1 pedido de una zona sin motorista ese día pasó a otra ruta.'
+        : `${placedOrphans} pedidos de zonas sin motorista ese día pasaron a otras rutas.`,
     );
   const noRoom = unassigned.filter((u) => NO_ROOM.includes(u.reason)).length;
   if (noRoom) {

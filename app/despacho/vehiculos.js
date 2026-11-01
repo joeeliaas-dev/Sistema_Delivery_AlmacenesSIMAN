@@ -23,13 +23,13 @@ import { listenDrivers, listenZones } from '../../src/features/catalog/catalogSe
 import { ErrorBanner } from '../../src/features/driver/ErrorBanner';
 import { availableDrivers } from '../../src/features/fleet/availability';
 import { listenVehicles } from '../../src/features/fleet/fleetService';
-import { listenAccounts } from '../../src/features/session/accountsStub';
 import { DriverSheet } from '../../src/features/vehicles/DriverSheet';
 import { DriverSetupRow } from '../../src/features/vehicles/DriverSetupRow';
 import { DriverCardsSkeleton, VehicleRowsSkeleton } from '../../src/features/vehicles/FleetSkeletons';
 import { accountForDriver, availabilityLine, driverWarnings } from '../../src/features/vehicles/fleetMath';
 import { VehicleRow } from '../../src/features/vehicles/VehicleRow';
 import { VehicleSheet } from '../../src/features/vehicles/VehicleSheet';
+import { listenAccounts } from '../../src/lib/auth';
 import { todayISO } from '../../src/lib/dates';
 import { useDateStore } from '../../src/store/dateStore';
 import { colors, radius, spacing, tones, typography } from '../../src/theme';

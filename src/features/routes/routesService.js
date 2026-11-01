@@ -11,16 +11,25 @@ import { availableDrivers, unavailability } from '../fleet/availability';
 import { toStoredGeometry } from '../../lib/geometry';
 import { USE_MOCKS, db } from '../../lib/firebase';
 import { mockDb } from '../../mocks';
-import { hasTrustedLocation, isPlannable, optimizeDay, optimizeDayByZone, optimizeRoute } from '../../optimizer';
+import {
+  hasTrustedLocation,
+  isPlannable,
+  optimizeDay,
+  optimizeDayByZone,
+  optimizeDayHybrid,
+  optimizeRoute,
+} from '../../optimizer';
 
 import { getDepot, listenDrivers, listenZones } from '../catalog/catalogService';
 import { listenVehicles } from '../fleet/fleetService';
 import { assignToRoute, changeStatusMany, replanRoutes } from '../shipments/statusMachine';
 import { getShipment, getRouteShipments, listenShipments, listenShipmentsByDate } from '../shipments/shipmentsService';
 
-// Método de "Optimizar día" (C50): 'conjunta' (todos los vehículos en una llamada, P2) o 'zona' (una ruta
-// por zona y reparto de lo que no cabe). La versión nube usa 'zona' hasta que la conjunta gane con Geoapify real.
-const DAY_OPTIMIZER = process.env.EXPO_PUBLIC_DAY_OPTIMIZER === 'zona' ? optimizeDayByZone : optimizeDay;
+// Método de "Optimizar día" (C50): 'zona' (una ruta por zona y reparto de lo que no cabe), 'hibrido' (por zona
+// y una llamada de reparto a Geoapify con lo que no cupo, P2) o, por defecto, 'conjunta' (todos en una llamada).
+// La versión nube usa el que gane con Geoapify real (scripts/cloud/buildCloud.mjs).
+const DAY_OPTIMIZERS = { zona: optimizeDayByZone, hibrido: optimizeDayHybrid, conjunta: optimizeDay };
+const DAY_OPTIMIZER = DAY_OPTIMIZERS[process.env.EXPO_PUBLIC_DAY_OPTIMIZER] ?? optimizeDay;
 
 const CLOSED = [STATUS.ENTREGADO, STATUS.NO_ENTREGADO, STATUS.DEVUELTO];
 export const READ_ERROR = 'No se pudo leer la ruta. Revise la conexión e intente de nuevo.';
@@ -462,7 +471,7 @@ export async function createRoutesForDay(date, dayPlan) {
  * "Optimizar día" de punta a punta (botón del despacho): lee la fecha, pide una ruta por zona
  * (Geoapify o local) y la guarda con createRoutesForDay. Las rutas que no han salido se rehacen.
  * @param {string} date
- * @returns {Promise<{ routeIds: string[], replaced: string[], warnings: string[], engine: string, unassigned: number }>}
+ * @returns {Promise<{ routeIds: string[], replaced: string[], warnings: string[], engine: string, unassigned: number, moved: number }>}
  */
 export async function optimizeAndSaveDay(date) {
   const { zones, drivers, vehicles, shipments, routes, depot } = await readDay(date);
@@ -476,6 +485,7 @@ export async function optimizeAndSaveDay(date) {
     warnings: [...available.skipped.map((x) => `${x.text}: no sale ese día.`), ...day.warnings, ...saved.warnings],
     engine: day.engine,
     unassigned: saved.unassigned,
+    moved: day.moved ?? 0, // híbrido: pedidos que pasaron a otra ruta con espacio (C51)
   };
 }
 

@@ -45,6 +45,28 @@ async function expectDenied(what, fn) {
   }
 }
 
+// Las reglas tardan en aplicarse en todos los servidores (después de seed:cloud quedan abiertas un momento):
+// antes de probar nada se espera a que una escritura inofensiva en una colección sin reglas sea rechazada
+// 5 veces seguidas. Si alguna pasa (reglas aún abiertas), se borra y se sigue esperando, hasta 4 min.
+{
+  const probe = doc(db, 'revision', 'guardia');
+  let streak = 0;
+  const end = Date.now() + 4 * 60000;
+  while (streak < 5) {
+    if (Date.now() > end) throw new Error('Las reglas de la nube no se aplicaron en 4 min: no se revisa para no tocar datos');
+    try {
+      await setDoc(probe, { at: Date.now() });
+      streak = 0;
+      await deleteDoc(probe).catch(() => {});
+      console.log('  … las reglas todavía no se aplican en todos los servidores; espero');
+    } catch (err) {
+      streak = err.code === 'permission-denied' ? streak + 1 : 0;
+    }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  console.log('  reglas de la nube aplicadas');
+}
+
 // Con login (C48): sin sesión no se lee nada; el resto de las pruebas se hace COMO DESPACHADOR,
 // así se comprueba que ni siquiera él puede dejar datos inválidos
 await expectDenied('leer envíos sin sesión', () => getDocs(collection(db, 'shipments')));
@@ -60,7 +82,8 @@ ok += shipments.size > 0 ? 1 : 0;
 await expectDenied('crear un envío incompleto', () =>
   setDoc(doc(db, 'shipments', 'SIM-9999'), { code: 'SIM-9999', status: 'pendiente' }),
 );
-await expectDenied('borrar un envío', () => deleteDoc(doc(db, 'shipments', s.id)));
+// Los borrados se prueban sobre documentos que no existen: la regla los rechaza igual y nunca se pierde nada
+await expectDenied('borrar un envío', () => deleteDoc(doc(db, 'shipments', 'SIM-0000')));
 await expectDenied('cambiar el cliente de un envío', () =>
   updateDoc(doc(db, 'shipments', s.id), { customer: { name: 'X' } }),
 );
@@ -121,7 +144,6 @@ await expectDenied('borrar evidencia', () => deleteDoc(doc(db, 'evidence', `${en
 
 // Sprint 4: importar, libreta, flota, reprogramar y sin asignar (C25–C33)
 const v1 = 'V1';
-const book = (await getDocs(collection(db, 'addresses'))).docs[0];
 const enCurso = (await getDocs(collection(db, 'routes'))).docs.find((d) => d.data().status === 'en_curso');
 await expectDenied('crear un envío ya asignado', () =>
   setDoc(doc(db, 'shipments', 'SIM-9998'), { code: 'SIM-9998', status: 'asignado', attempts: 0, routeId: 'R-x' }),
@@ -149,17 +171,34 @@ await expectDenied('evento con tipo inventado', () =>
 await expectDenied('vehículo con tipo inventado', () =>
   setDoc(doc(db, 'vehicles', 'VX'), { type: 'avion', label: 'X', maxKg: 10, capabilities: [] }),
 );
-await expectDenied('borrar un vehículo', () => deleteDoc(doc(db, 'vehicles', v1)));
+await expectDenied('borrar un vehículo', () => deleteDoc(doc(db, 'vehicles', 'VREVISION')));
 await expectDenied('cambiar el nombre de un motorista', () => updateDoc(doc(db, 'drivers', 'D1'), { name: 'X' }));
 await expectDenied('turno con hora inválida', () => updateDoc(doc(db, 'drivers', 'D1'), { shiftStart: '25:00' }));
+// C48/C49: ni el despachador puede crear cuentas de despacho, motoristas de zonas que no existen ni estados inventados
+await expectDenied('crear una cuenta de despacho', () =>
+  setDoc(doc(db, 'users', 'revision-no-existe'), { role: 'despacho', driverId: null, name: 'X', email: 'x@x.test', active: true }),
+);
+await expectDenied('dar acceso a un motorista que no existe', () =>
+  setDoc(doc(db, 'users', 'revision-no-existe'), { role: 'motorista', driverId: 'D-NO-EXISTE', name: 'X', email: 'x@x.test', active: true }),
+);
+await expectDenied('crear un motorista en una zona que no existe', () =>
+  setDoc(doc(db, 'drivers', 'DREVISION'), {
+    name: 'Revisión', initials: 'RV', phone: null, zoneId: 'Z-NO-EXISTE', active: true, vehicleId: null,
+    shiftStart: '07:00', shiftEnd: '18:00', absentDates: [],
+  }),
+);
+await expectDenied('vehículo con estado inventado', () => updateDoc(doc(db, 'vehicles', v1), { status: 'robado' }));
 await expectDenied('libreta con campos inventados', () => setDoc(doc(db, 'addresses', '70000000_abc'), { hack: true }));
-if (book) await expectDenied('borrar una entrada de la libreta', () => deleteDoc(book.ref));
+await expectDenied('borrar una entrada de la libreta', () => deleteDoc(doc(db, 'addresses', '00000000_revision')));
 if (enCurso)
   await expectDenied('cambiar las paradas de una ruta en curso', () => updateDoc(enCurso.ref, { stops: [] }));
 
 // Nada cambió
 const after = await getDoc(doc(db, 'shipments', s.id));
-if (after.data().status !== 'pendiente') bad += 1;
+if (after.data()?.status !== 'pendiente') {
+  bad += 1;
+  console.log(`  ✗ el envío ${s.id} cambió o ya no existe`);
+}
 
 console.log(`\n${ok} comprobaciones correctas · ${bad} problemas`);
 await terminate(db);
