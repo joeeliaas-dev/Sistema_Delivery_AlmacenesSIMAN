@@ -1,0 +1,20 @@
+// src/features/driver/navigationLinks.js (dueño: P3)
+// Enlaces del plan (sección APIs de mapas) y llamada al cliente. No se construye navegación propia.
+// Si el teléfono no puede abrirlos, la promesa falla con un mensaje listo para mostrar.
+import { Linking } from 'react-native';
+
+export const wazeUrl = ({ lat, lng }) => `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+
+export const googleMapsUrl = ({ lat, lng }) => `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+const open = (url, app) =>
+  Linking.openURL(url).catch(() => {
+    throw new Error(`No se pudo abrir ${app}`);
+  });
+
+export const openWaze = (location) => open(wazeUrl(location), 'Waze');
+export const openGoogleMaps = (location) => open(googleMapsUrl(location), 'Google Maps');
+
+// "+503 7000-0400" → "tel:+50370000400"
+export const phoneUrl = (phone) => `tel:${String(phone).replace(/[^\d+]/g, '')}`;
+export const callCustomer = (phone) => open(phoneUrl(phone), 'el teléfono');

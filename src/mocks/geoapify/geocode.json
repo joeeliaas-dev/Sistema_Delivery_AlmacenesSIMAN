@@ -1,0 +1,697 @@
+{
+  "calle la mascota 26 colonia escalon san salvador el salvador": {
+    "lat": 13.69715,
+    "lon": -89.2311065,
+    "result_type": "building",
+    "formatted": "Calle la Mascota 26, 1101 - San Salvador, SS, El Salvador",
+    "rank": {
+      "importance": 0.0534005851834897,
+      "popularity": 6.6150258154535795,
+      "confidence": 0.45,
+      "confidence_city_level": 1,
+      "confidence_street_level": 1,
+      "confidence_building_level": 0,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle concepcion #75 barrio san miguelito san salvador centro el salvador": {
+    "lat": 13.689753,
+    "lon": -89.200068,
+    "result_type": "building",
+    "formatted": "Calle Concepción #75, Barrio San Miguelito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "paseo general escalon #22 colonia san benito san salvador centro el salvador": {
+    "lat": 13.697577,
+    "lon": -89.244478,
+    "result_type": "building",
+    "formatted": "Paseo General Escalón #22, Colonia San Benito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle las delicias #92 colonia la sultana antiguo cuscatlan el salvador": {
+    "lat": 13.681849,
+    "lon": -89.263976,
+    "result_type": "building",
+    "formatted": "Calle Las Delicias #92, Colonia La Sultana, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle credisa #41 colonia los santos soyapango el salvador": {
+    "lat": 13.712584,
+    "lon": -89.152698,
+    "result_type": "building",
+    "formatted": "Calle Credisa #41, Colonia Los Santos, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida san ramon #116 residencial montebello mejicanos el salvador": {
+    "lat": 13.742004,
+    "lon": -89.205606,
+    "result_type": "building",
+    "formatted": "Avenida San Ramón #116, Residencial Montebello, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida espana #61 centro historico san salvador centro el salvador": {
+    "lat": 13.696368,
+    "lon": -89.201138,
+    "result_type": "building",
+    "formatted": "Avenida España #61, Centro Histórico, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle las palmas #112 colonia escalon san salvador centro el salvador": {
+    "lat": 13.712461,
+    "lon": -89.232019,
+    "result_type": "building",
+    "formatted": "Calle Las Palmas #112, Colonia Escalón, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle jardines de guadalupe #107 urbanizacion madre selva antiguo cuscatlan el salvador": {
+    "lat": 13.682314,
+    "lon": -89.25073,
+    "result_type": "building",
+    "formatted": "Calle Jardines de Guadalupe #107, Urbanización Madre Selva, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida prusia #113 colonia guadalupe soyapango el salvador": {
+    "lat": 13.718308,
+    "lon": -89.148862,
+    "result_type": "building",
+    "formatted": "Avenida Prusia #113, Colonia Guadalupe, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle principal zacamil #120 residencial montebello mejicanos el salvador": {
+    "lat": 13.733886,
+    "lon": -89.210956,
+    "result_type": "building",
+    "formatted": "Calle Principal Zacamil #120, Residencial Montebello, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida cuscatlan #16 barrio la vega san salvador centro el salvador": {
+    "lat": 13.692159,
+    "lon": -89.183383,
+    "result_type": "building",
+    "formatted": "Avenida Cuscatlán #16, Barrio La Vega, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida la revolucion #44 colonia la mascota san salvador centro el salvador": {
+    "lat": 13.698481,
+    "lon": -89.240496,
+    "result_type": "building",
+    "formatted": "Avenida La Revolución #44, Colonia La Mascota, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle el pedregal #116 urbanizacion madre selva antiguo cuscatlan el salvador": {
+    "lat": 13.668637,
+    "lon": -89.263698,
+    "result_type": "building",
+    "formatted": "Calle El Pedregal #116, Urbanización Madre Selva, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los santos #5 reparto las canas soyapango el salvador": {
+    "lat": 13.711618,
+    "lon": -89.146635,
+    "result_type": "building",
+    "formatted": "Calle Los Santos #5, Reparto Las Cañas, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle principal zacamil #79 colonia montreal mejicanos el salvador": {
+    "lat": 13.732474,
+    "lon": -89.219628,
+    "result_type": "building",
+    "formatted": "Calle Principal Zacamil #79, Colonia Montreal, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida espana #56 barrio san miguelito san salvador centro el salvador": {
+    "lat": 13.695191,
+    "lon": -89.199244,
+    "result_type": "building",
+    "formatted": "Avenida España #56, Barrio San Miguelito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle las palmas #107 colonia maquilishuat san salvador centro el salvador": {
+    "lat": 13.704718,
+    "lon": -89.243808,
+    "result_type": "building",
+    "formatted": "Calle Las Palmas #107, Colonia Maquilishuat, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle madre selva #63 santa elena antiguo cuscatlan el salvador": {
+    "lat": 13.666973,
+    "lon": -89.263156,
+    "result_type": "building",
+    "formatted": "Calle Madre Selva #63, Santa Elena, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle credisa #37 ciudad credisa soyapango el salvador": {
+    "lat": 13.701209,
+    "lon": -89.152414,
+    "result_type": "building",
+    "formatted": "Calle Credisa #37, Ciudad Credisa, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle montreal #60 colonia montreal mejicanos el salvador": {
+    "lat": 13.732704,
+    "lon": -89.208057,
+    "result_type": "building",
+    "formatted": "Calle Montreal #60, Colonia Montreal, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle concepcion #38 barrio la vega san salvador centro el salvador": {
+    "lat": 13.698977,
+    "lon": -89.198904,
+    "result_type": "building",
+    "formatted": "Calle Concepción #38, Barrio La Vega, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los castanos #63 colonia maquilishuat san salvador centro el salvador": {
+    "lat": 13.708366,
+    "lon": -89.232335,
+    "result_type": "building",
+    "formatted": "Calle Los Castaños #63, Colonia Maquilishuat, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle jardines de guadalupe #21 colonia la sultana antiguo cuscatlan el salvador": {
+    "lat": 13.683942,
+    "lon": -89.251648,
+    "result_type": "building",
+    "formatted": "Calle Jardines de Guadalupe #21, Colonia La Sultana, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "pasaje bosques de la paz #17 colonia guadalupe soyapango el salvador": {
+    "lat": 13.703638,
+    "lon": -89.146377,
+    "result_type": "building",
+    "formatted": "Pasaje Bosques de la Paz #17, Colonia Guadalupe, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida san ramon #62 colonia zacamil mejicanos el salvador": {
+    "lat": 13.742631,
+    "lon": -89.212843,
+    "result_type": "building",
+    "formatted": "Avenida San Ramón #62, Colonia Zacamil, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida espana #116 centro historico san salvador centro el salvador": {
+    "lat": 13.707768,
+    "lon": -89.200757,
+    "result_type": "building",
+    "formatted": "Avenida España #116, Centro Histórico, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle la mascota #14 colonia san benito san salvador centro el salvador": {
+    "lat": 13.704885,
+    "lon": -89.24233,
+    "result_type": "building",
+    "formatted": "Calle La Mascota #14, Colonia San Benito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle la sultana #72 jardines de guadalupe antiguo cuscatlan el salvador": {
+    "lat": 13.683477,
+    "lon": -89.264391,
+    "result_type": "building",
+    "formatted": "Calle La Sultana #72, Jardines de Guadalupe, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida las canas #23 reparto las canas soyapango el salvador": {
+    "lat": 13.710208,
+    "lon": -89.154339,
+    "result_type": "building",
+    "formatted": "Avenida Las Cañas #23, Reparto Las Cañas, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle el bambu #94 colonia zacamil mejicanos el salvador": {
+    "lat": 13.738973,
+    "lon": -89.205099,
+    "result_type": "building",
+    "formatted": "Calle El Bambú #94, Colonia Zacamil, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle arce #96 barrio la vega san salvador centro el salvador": {
+    "lat": 13.692096,
+    "lon": -89.197314,
+    "result_type": "building",
+    "formatted": "Calle Arce #96, Barrio La Vega, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle loma linda #111 colonia san benito san salvador centro el salvador": {
+    "lat": 13.711152,
+    "lon": -89.24225,
+    "result_type": "building",
+    "formatted": "Calle Loma Linda #111, Colonia San Benito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle madre selva #29 jardines de guadalupe antiguo cuscatlan el salvador": {
+    "lat": 13.68181,
+    "lon": -89.250809,
+    "result_type": "building",
+    "formatted": "Calle Madre Selva #29, Jardines de Guadalupe, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida prusia #106 colonia guadalupe soyapango el salvador": {
+    "lat": 13.714337,
+    "lon": -89.144894,
+    "result_type": "building",
+    "formatted": "Avenida Prusia #106, Colonia Guadalupe, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los pinos #45 colonia san ramon mejicanos el salvador": {
+    "lat": 13.746996,
+    "lon": -89.207963,
+    "result_type": "building",
+    "formatted": "Calle Los Pinos #45, Colonia San Ramón, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle arce #49 barrio candelaria san salvador centro el salvador": {
+    "lat": 13.698808,
+    "lon": -89.19633,
+    "result_type": "building",
+    "formatted": "Calle Arce #49, Barrio Candelaria, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle el mirador #6 colonia escalon san salvador centro el salvador": {
+    "lat": 13.695788,
+    "lon": -89.231114,
+    "result_type": "building",
+    "formatted": "Calle El Mirador #6, Colonia Escalón, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle madre selva #7 urbanizacion madre selva antiguo cuscatlan el salvador": {
+    "lat": 13.684979,
+    "lon": -89.264182,
+    "result_type": "building",
+    "formatted": "Calle Madre Selva #7, Urbanización Madre Selva, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle santa lucia #116 reparto las canas soyapango el salvador": {
+    "lat": 13.708402,
+    "lon": -89.142141,
+    "result_type": "building",
+    "formatted": "Calle Santa Lucía #116, Reparto Las Cañas, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle zacamil #78 residencial montebello mejicanos el salvador": {
+    "lat": 13.731504,
+    "lon": -89.206174,
+    "result_type": "building",
+    "formatted": "Calle Zacamil #78, Residencial Montebello, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle arce #50 barrio san miguelito san salvador centro el salvador": {
+    "lat": 13.707438,
+    "lon": -89.18675,
+    "result_type": "building",
+    "formatted": "Calle Arce #50, Barrio San Miguelito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle loma linda #70 colonia la mascota san salvador centro el salvador": {
+    "lat": 13.701207,
+    "lon": -89.243874,
+    "result_type": "building",
+    "formatted": "Calle Loma Linda #70, Colonia La Mascota, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida las palmeras #37 urbanizacion madre selva antiguo cuscatlan el salvador": {
+    "lat": 13.668737,
+    "lon": -89.260059,
+    "result_type": "building",
+    "formatted": "Avenida Las Palmeras #37, Urbanización Madre Selva, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida las canas #51 ciudad credisa soyapango el salvador": {
+    "lat": 13.703704,
+    "lon": -89.147484,
+    "result_type": "building",
+    "formatted": "Avenida Las Cañas #51, Ciudad Credisa, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los pinos #107 colonia montreal mejicanos el salvador": {
+    "lat": 13.748953,
+    "lon": -89.221674,
+    "result_type": "building",
+    "formatted": "Calle Los Pinos #107, Colonia Montreal, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "2a avenida norte #14 barrio san miguelito san salvador centro el salvador": {
+    "lat": 13.705137,
+    "lon": -89.188442,
+    "result_type": "building",
+    "formatted": "2a Avenida Norte #14, Barrio San Miguelito, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle loma linda #53 colonia maquilishuat san salvador centro el salvador": {
+    "lat": 13.701524,
+    "lon": -89.23509,
+    "result_type": "building",
+    "formatted": "Calle Loma Linda #53, Colonia Maquilishuat, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle madre selva #88 jardines de guadalupe antiguo cuscatlan el salvador": {
+    "lat": 13.67807,
+    "lon": -89.25185,
+    "result_type": "building",
+    "formatted": "Calle Madre Selva #88, Jardines de Guadalupe, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle credisa #49 colonia guadalupe soyapango el salvador": {
+    "lat": 13.713813,
+    "lon": -89.151626,
+    "result_type": "building",
+    "formatted": "Calle Credisa #49, Colonia Guadalupe, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle montreal #45 colonia montreal mejicanos el salvador": {
+    "lat": 13.735644,
+    "lon": -89.213029,
+    "result_type": "building",
+    "formatted": "Calle Montreal #45, Colonia Montreal, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "2a avenida norte #115 barrio la vega san salvador centro el salvador": {
+    "lat": 13.693188,
+    "lon": -89.195073,
+    "result_type": "building",
+    "formatted": "2a Avenida Norte #115, Barrio La Vega, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los castanos #112 colonia maquilishuat san salvador centro el salvador": {
+    "lat": 13.699188,
+    "lon": -89.230105,
+    "result_type": "building",
+    "formatted": "Calle Los Castaños #112, Colonia Maquilishuat, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle las delicias #81 colonia la sultana antiguo cuscatlan el salvador": {
+    "lat": 13.665878,
+    "lon": -89.261746,
+    "result_type": "building",
+    "formatted": "Calle Las Delicias #81, Colonia La Sultana, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "boulevard del ejercito #26 colonia guadalupe soyapango el salvador": {
+    "lat": 13.7135,
+    "lon": -89.152273,
+    "result_type": "building",
+    "formatted": "Boulevard del Ejército #26, Colonia Guadalupe, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle los pinos #24 colonia zacamil mejicanos el salvador": {
+    "lat": 13.738419,
+    "lon": -89.218174,
+    "result_type": "building",
+    "formatted": "Calle Los Pinos #24, Colonia Zacamil, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle ruben dario #35 barrio la vega san salvador centro el salvador": {
+    "lat": 13.693658,
+    "lon": -89.196988,
+    "result_type": "building",
+    "formatted": "Calle Rubén Darío #35, Barrio La Vega, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle la mascota #10 colonia escalon san salvador centro el salvador": {
+    "lat": 13.694881,
+    "lon": -89.23025,
+    "result_type": "building",
+    "formatted": "Calle La Mascota #10, Colonia Escalón, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle madre selva #99 santa elena antiguo cuscatlan el salvador": {
+    "lat": 13.666342,
+    "lon": -89.262916,
+    "result_type": "building",
+    "formatted": "Calle Madre Selva #99, Santa Elena, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida prusia #74 reparto las canas soyapango el salvador": {
+    "lat": 13.71073,
+    "lon": -89.141835,
+    "result_type": "building",
+    "formatted": "Avenida Prusia #74, Reparto Las Cañas, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "pasaje las flores #118 colonia zacamil mejicanos el salvador": {
+    "lat": 13.743063,
+    "lon": -89.206804,
+    "result_type": "building",
+    "formatted": "Pasaje Las Flores #118, Colonia Zacamil, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida espana #36 barrio candelaria san salvador centro el salvador": {
+    "lat": 13.694196,
+    "lon": -89.200163,
+    "result_type": "building",
+    "formatted": "Avenida España #36, Barrio Candelaria, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida las palmeras #88 jardines de guadalupe antiguo cuscatlan el salvador": {
+    "lat": 13.676786,
+    "lon": -89.26171,
+    "result_type": "building",
+    "formatted": "Avenida Las Palmeras #88, Jardines de Guadalupe, Antiguo Cuscatlán, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida prusia #30 ciudad credisa soyapango el salvador": {
+    "lat": 13.702072,
+    "lon": -89.1579,
+    "result_type": "building",
+    "formatted": "Avenida Prusia #30, Ciudad Credisa, Soyapango, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida san ramon #113 colonia montreal mejicanos el salvador": {
+    "lat": 13.738206,
+    "lon": -89.219543,
+    "result_type": "building",
+    "formatted": "Avenida San Ramón #113, Colonia Montreal, Mejicanos, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle las palmas #40 colonia la mascota san salvador centro el salvador": {
+    "lat": 13.703223,
+    "lon": -89.237764,
+    "result_type": "building",
+    "formatted": "Calle Las Palmas #40, Colonia La Mascota, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle principal #14 nuevo cuscatlan la libertad este el salvador": {
+    "lat": 13.648,
+    "lon": -89.268,
+    "result_type": "building",
+    "formatted": "Calle Principal #14, Nuevo Cuscatlán, La Libertad Este, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "avenida los laureles #7 san marcos san salvador centro el salvador": {
+    "lat": 13.659,
+    "lon": -89.183,
+    "result_type": "building",
+    "formatted": "Avenida Los Laureles #7, San Marcos, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  },
+  "calle antigua a tonacatepeque #31 ciudad delgado san salvador centro el salvador": {
+    "lat": 13.724,
+    "lon": -89.172,
+    "result_type": "building",
+    "formatted": "Calle Antigua a Tonacatepeque #31, Ciudad Delgado, San Salvador Centro, El Salvador",
+    "rank": {
+      "confidence": 0.92,
+      "match_type": "match_by_building"
+    }
+  }
+}

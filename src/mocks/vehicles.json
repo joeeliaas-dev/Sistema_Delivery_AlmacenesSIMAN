@@ -1,0 +1,41 @@
+[
+  {
+    "id": "V1",
+    "type": "moto",
+    "label": "Moto 1",
+    "maxKg": 40,
+    "capabilities": []
+  },
+  {
+    "id": "V2",
+    "type": "moto",
+    "label": "Moto 2",
+    "maxKg": 40,
+    "capabilities": []
+  },
+  {
+    "id": "V3",
+    "type": "moto",
+    "label": "Moto 3",
+    "maxKg": 40,
+    "capabilities": []
+  },
+  {
+    "id": "V4",
+    "type": "pickup",
+    "label": "Pick-up 1",
+    "maxKg": 600,
+    "capabilities": [
+      "carga_grande"
+    ]
+  },
+  {
+    "id": "V5",
+    "type": "camion",
+    "label": "Camión 1",
+    "maxKg": 2000,
+    "capabilities": [
+      "carga_grande"
+    ]
+  }
+]
