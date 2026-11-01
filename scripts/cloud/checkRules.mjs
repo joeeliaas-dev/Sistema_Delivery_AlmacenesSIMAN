@@ -97,20 +97,16 @@ await expectDenied('estado inventado', () => updateDoc(doc(db, 'shipments', s.id
 await expectDenied('bajar los intentos', () => updateDoc(doc(db, 'shipments', entregado.id), { attempts: -1 }));
 await expectDenied('modificar una zona', () => updateDoc(doc(db, 'zones', 'Z1'), { driverId: 'D9' }));
 await expectDenied('crear un motorista incompleto', () => setDoc(doc(db, 'drivers', 'D9'), { name: 'X' }));
-await expectDenied('borrar un evento del historial', async () => {
-  const evs = await getDocs(collection(db, 'shipments', entregado.id, 'events'));
-  await deleteDoc(evs.docs[0].ref);
-});
+await expectDenied('borrar un evento del historial', () =>
+  deleteDoc(doc(db, 'shipments', entregado.id, 'events', 'REVISION-NO-EXISTE')),
+);
 await expectDenied('evento con campos inventados', () =>
   addDoc(collection(db, 'shipments', s.id, 'events'), { fromStatus: 'pendiente', toStatus: 'asignado', hack: true }),
 );
 await expectDenied('ruta con id inválido', () =>
   setDoc(doc(db, 'routes', 'cualquiera'), { status: 'asignada', stops: [] }),
 );
-await expectDenied('borrar una ruta', async () => {
-  const r = await getDocs(collection(db, 'routes'));
-  await deleteDoc(r.docs[0].ref);
-});
+await expectDenied('borrar una ruta', () => deleteDoc(doc(db, 'routes', 'R-2000-01-01-Z0')));
 
 // Evidencia (N35): solo se agrega, con id y forma válidos
 await expectDenied('evidencia con id inválido', () =>
@@ -140,7 +136,7 @@ await expectDenied('evidencia de un envío que no existe', () =>
     shipmentId: 'SIM-9999',
   }),
 );
-await expectDenied('borrar evidencia', () => deleteDoc(doc(db, 'evidence', `${entregado.id}_intento-1`)));
+await expectDenied('borrar evidencia', () => deleteDoc(doc(db, 'evidence', 'SIM-0000_intento-1')));
 
 // Sprint 4: importar, motoristas, reprogramar y sin asignar
 const enCurso = (await getDocs(collection(db, 'routes'))).docs.find((d) => d.data().status === 'en_curso');
@@ -182,7 +178,7 @@ await expectDenied('crear un motorista en una zona que no existe', () =>
     shiftStart: '07:00', shiftEnd: '18:00',
   }),
 );
-await expectDenied('borrar un motorista', () => deleteDoc(doc(db, 'drivers', 'D1')));
+await expectDenied('borrar un motorista', () => deleteDoc(doc(db, 'drivers', 'DREVISION')));
 if (enCurso)
   await expectDenied('cambiar las paradas de una ruta en curso', () => updateDoc(enCurso.ref, { stops: [] }));
 

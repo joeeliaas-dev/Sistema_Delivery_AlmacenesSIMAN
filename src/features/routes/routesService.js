@@ -3,7 +3,7 @@
 // createRoutesForDay (Optimizar día, S4-07), moveStop (Pasar a…, S4-08) y startRoute (Iniciar ruta).
 // Única puerta para crear o iniciar rutas. No escribe directo: la ruta se guarda junto con
 // la asignación de sus envíos en statusMachine (P1, C4 y C5). Los listen* devuelven la función para cancelar.
-import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 import { MAX_ATTEMPTS, ROUTE_STATUS, STATUS, UNASSIGNED_REASON } from '../../constants';
 import { combine } from '../../lib/combine';
 import { blocksZoneOn } from '../../lib/routeDay';
@@ -14,7 +14,7 @@ import { mockDb } from '../../mocks';
 import { hasTrustedLocation, isPlannable, optimizeDay, optimizeRoute } from '../../optimizer';
 import { getDepot, listenDrivers, listenZones } from '../catalog/catalogService';
 import { assignToRoute, changeStatusMany, replanRoutes } from '../shipments/statusMachine';
-import { getShipment, getRouteShipments, listenShipments, listenShipmentsByDate } from '../shipments/shipmentsService';
+import { getShipment, getRouteShipments, getShipmentsOfDay } from '../shipments/shipmentsService';
 
 const CLOSED = [STATUS.ENTREGADO, STATUS.NO_ENTREGADO, STATUS.DEVUELTO];
 export const READ_ERROR = 'No se pudo leer la ruta. Revise la conexión e intente de nuevo.';
@@ -25,6 +25,13 @@ const readError = (where_, onError) => (err) => {
   console.error(`[routes] ${where_}:`, err);
   onError?.(new Error(READ_ERROR));
 };
+
+/** Una lectura del servidor con el mismo mensaje de error que los listen* (C18). */
+const readOrFail = (promise) =>
+  promise.catch((err) => {
+    console.error('[routes] lectura:', err);
+    throw new Error(READ_ERROR);
+  });
 
 /**
  * Primer valor de un listen* y cancela; así se lee una vez con las mismas funciones del contrato.
@@ -169,6 +176,25 @@ export function listenRoutes({ date }, cb, onError) {
 }
 
 /**
+ * Las mismas rutas que listenRoutes, leídas del servidor de una vez (el primer aviso de un listener puede
+ * venir de la caché local con solo una parte): las que se reemplazan y sus letras salen de aquí.
+ * @param {string} date
+ * @returns {Promise<object[]>}
+ */
+export async function getRoutesOfDay(date) {
+  const byZone = (a, b) => a.zoneId.localeCompare(b.zoneId) || a.id.localeCompare(b.id);
+  if (USE_MOCKS) return withCarriedRoutes(mockDb.all('routes'), mockDb.all('shipments'), date).sort(byZone);
+  const toDocs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const [ofDate, open, onRoute] = await Promise.all([
+    getDocs(query(collection(db, 'routes'), where('date', '==', date))),
+    getDocs(query(collection(db, 'routes'), where('status', 'in', OPEN_ROUTE_STATUSES))),
+    getDocs(query(collection(db, 'shipments'), where('status', 'in', ON_ROUTE))),
+  ]);
+  const byId = new Map([...toDocs(ofDate), ...toDocs(open)].map((r) => [r.id, r]));
+  return withCarriedRoutes([...byId.values()], toDocs(onRoute), date).sort(byZone);
+}
+
+/**
  * La ruta de un motorista en una fecha (un motorista por zona → una ruta abierta por día).
  * Si tiene varias (la anterior ya cerrada), entrega la más reciente. Si no tiene ruta en la
  * fecha pero le quedó una sin terminar de un día anterior, entrega esa.
@@ -241,10 +267,8 @@ async function readDay(date, zoneId) {
   const [zones, drivers, shipments, routes, depot] = await Promise.all([
     once((cb, onErr) => listenZones(cb, onErr)),
     once((cb, onErr) => listenDrivers(cb, onErr)),
-    zoneId
-      ? once((cb, onErr) => listenShipments({ date, zoneId }, cb, onErr))
-      : once((cb, onErr) => listenShipmentsByDate(date, cb, onErr)),
-    once((cb, onErr) => listenRoutes({ date }, cb, onErr)),
+    readOrFail(getShipmentsOfDay({ date, zoneId })),
+    readOrFail(getRoutesOfDay(date)),
     getDepot().catch(() => null), // sin depósito se avisa con su propio mensaje
   ]);
   if (!depot) throw new Error('Falta el depósito de salida');
@@ -312,8 +336,8 @@ export async function createRoute({ zoneId, date }) {
 export async function createRoutesForDay(date, dayPlan) {
   const [zones, shipments, routes] = await Promise.all([
     once((cb, onErr) => listenZones(cb, onErr)),
-    once((cb, onErr) => listenShipmentsByDate(date, cb, onErr)),
-    once((cb, onErr) => listenRoutes({ date }, cb, onErr)),
+    readOrFail(getShipmentsOfDay({ date })),
+    readOrFail(getRoutesOfDay(date)),
   ]);
   const shipmentsById = Object.fromEntries(shipments.map((s) => [s.id, s]));
   const zoneName = (id) => zones.find((z) => z.id === id)?.name ?? `zona ${id}`;

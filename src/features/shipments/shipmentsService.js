@@ -26,6 +26,22 @@ const readError = (where_, onError) => (err) => {
   onError?.(new Error('No se pudieron leer los envíos. Revise la conexión e intente de nuevo.'));
 };
 
+// Filtro y consultas de listenShipments y getShipmentsOfDay
+function shipmentsQuery({ date, zoneId, priority, statuses }) {
+  const match = (s) =>
+    (s.scheduledDate === date || isCarriedOver(s, date)) &&
+    (!zoneId || s.zoneId === zoneId) &&
+    (!priority || s.priority === priority) &&
+    (!statuses?.length || statuses.includes(s.status));
+  // en función: con datos de prueba no hay Firestore
+  const clauses = () => [
+    where('scheduledDate', '==', date),
+    ...(zoneId ? [where('zoneId', '==', zoneId)] : []),
+    ...(statuses?.length ? [where('status', 'in', statuses)] : []),
+  ];
+  return { match, clauses };
+}
+
 /**
  * Envíos de una fecha más los de días anteriores que siguen abiertos (pendientes,
  * reintentos y paradas de rutas sin cerrar), ordenados por fecha y hora programada.
@@ -34,22 +50,13 @@ const readError = (where_, onError) => (err) => {
  * @returns {() => void} cancelar
  */
 export function listenShipments({ date, zoneId, priority, statuses }, cb, onError) {
-  const match = (s) =>
-    (s.scheduledDate === date || isCarriedOver(s, date)) &&
-    (!zoneId || s.zoneId === zoneId) &&
-    (!priority || s.priority === priority) &&
-    (!statuses?.length || statuses.includes(s.status));
-
+  const { match, clauses } = shipmentsQuery({ date, zoneId, priority, statuses });
   if (USE_MOCKS) return mockDb.listen('shipments', (docs) => docs.filter(match).sort(byTime), cb);
-
-  const clauses = [where('scheduledDate', '==', date)];
-  if (zoneId) clauses.push(where('zoneId', '==', zoneId));
-  if (statuses?.length) clauses.push(where('status', 'in', statuses));
   const onErr = readError('listenShipments', onError);
   // priority, zona y fecha de los abiertos se filtran en el teléfono para no multiplicar índices compuestos
   return combine(
     [
-      (next) => onSnapshot(query(collection(db, 'shipments'), ...clauses), (snap) => next(toDocs(snap)), onErr),
+      (next) => onSnapshot(query(collection(db, 'shipments'), ...clauses()), (snap) => next(toDocs(snap)), onErr),
       (next) =>
         onSnapshot(
           query(collection(db, 'shipments'), where('status', 'in', OPEN_STATUSES)),
@@ -71,6 +78,23 @@ export function listenShipments({ date, zoneId, priority, statuses }, cb, onErro
  * @returns {() => void} cancelar
  */
 export const listenShipmentsByDate = (date, cb, onError) => listenShipments({ date }, cb, onError);
+
+/**
+ * Los mismos envíos que listenShipments, leídos del servidor de una vez (no la primera respuesta de un
+ * listener, que puede venir de la caché local con solo una parte). Para Optimizar día y Generar ruta.
+ * @param {{ date: string, zoneId?: string }} filters
+ * @returns {Promise<object[]>}
+ */
+export async function getShipmentsOfDay({ date, zoneId }) {
+  const { match, clauses } = shipmentsQuery({ date, zoneId });
+  if (USE_MOCKS) return mockDb.all('shipments').filter(match).sort(byTime);
+  const [ofDate, open] = await Promise.all([
+    getDocs(query(collection(db, 'shipments'), ...clauses())),
+    getDocs(query(collection(db, 'shipments'), where('status', 'in', OPEN_STATUSES))),
+  ]);
+  const byId = new Map([...toDocs(ofDate), ...toDocs(open)].map((s) => [s.id, s]));
+  return [...byId.values()].filter(match).sort(byTime);
+}
 
 /** Envíos de una ruta en orden de parada (stopSequence). */
 export function listenRouteShipments(routeId, cb, onError) {
