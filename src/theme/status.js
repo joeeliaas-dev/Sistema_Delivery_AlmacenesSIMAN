@@ -3,7 +3,7 @@
 // Cada tono trae tres colores:
 //   accent  íconos, barras laterales, pines y líneas
 //   fg      texto sobre bg (contraste ≥ 4.5:1, C16)
-//   bg      fondo claro (píldoras, IconTile)
+//   bg      fondo claro (píldoras)
 import { STATUS } from '../constants';
 import { colors } from './colors';
 

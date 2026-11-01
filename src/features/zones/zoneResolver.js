@@ -21,7 +21,7 @@ function toTurf(poly) {
   return turfPolygon([ring]);
 }
 
-// Por defecto, las mismas zonas que siembra el seed (zones.geojson es la copia para editar en geojson.io)
+// Por defecto, las mismas zonas que siembra el seed
 const DEFAULT_ZONES = mockZones.map((z) => ({ id: z.id, shape: toTurf(z.polygon) }));
 
 /**
