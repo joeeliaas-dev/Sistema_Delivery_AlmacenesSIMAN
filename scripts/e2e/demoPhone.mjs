@@ -84,10 +84,10 @@ try {
     await screenshot('kevin-en-ruta');
   });
 
-  await step('Kevin atiende SIM-0402 fuera de orden (N13) y, en su reintento, vuelve a bodega', async () => {
-    // SIM-0402 (12.5 kg) entra en la moto de 40 kg con la grabación real y con el mock; SIM-0401 no siempre (N41)
-    await tap('Mauricio Romero'); // SIM-0402 en "Paradas restantes"
-    await waitFor('SIM-0402');
+  await step('Kevin atiende SIM-0401 fuera de orden (N13) y, en su reintento, vuelve a bodega', async () => {
+    // SIM-0401: reintento normal (sin horario), entra a cualquier hora; SIM-0402 es express (solo hasta las 12:00)
+    await tap('Oscar Molina'); // SIM-0401 en "Paradas restantes"
+    await waitFor('SIM-0401');
     await tap('No se pudo entregar');
     await waitFor('Motivo');
     await waitFor('Este es el reintento');

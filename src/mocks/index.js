@@ -10,12 +10,10 @@ import depot from './depot.json';
 import drivers from './drivers.json';
 import routes from './routes.json';
 import shipments from './shipments.json';
-import vehicles from './vehicles.json';
-import addresses from './addresses.json';
 import zones from './zones.json';
 
 const MOCK_DATE = '2026-10-12';
-const STORAGE_KEY = 'siman-logistica:mocks:v2';
+const STORAGE_KEY = 'siman-logistica:mocks:v3';
 const toToday = (data) => JSON.parse(JSON.stringify(data).replaceAll(MOCK_DATE, todayISO()));
 
 const initialCollections = () => ({
@@ -24,8 +22,6 @@ const initialCollections = () => ({
   drivers: toToday(drivers),
   shipments: toToday(shipments),
   routes: toToday(routes),
-  vehicles: toToday(vehicles),
-  addresses: JSON.parse(JSON.stringify(addresses)), // libreta (S4-03): 10 clientes de pedidos-prueba-100.xlsx
   events: [], // shipments/{id}/events aplanado: cada evento lleva shipmentId
   evidence: [], // fotos y firmas comprimidas (solo con EXPO_PUBLIC_EVIDENCE_STORE=firestore)
 });

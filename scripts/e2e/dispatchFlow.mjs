@@ -25,7 +25,7 @@ async function step(name, fn) {
   }
 }
 
-const mocks = () => evaluate(`JSON.parse(localStorage.getItem('siman-logistica:mocks:v2') || 'null')`);
+const mocks = () => evaluate(`JSON.parse(localStorage.getItem('siman-logistica:mocks:v3') || 'null')`);
 
 console.log(`Flujo del despachador en ${BASE} (1280 px)`);
 let failed = false;
@@ -33,7 +33,7 @@ try {
   await step('abre Importar pedidos con datos de prueba limpios', async () => {
     await send('Page.navigate', { url: `${BASE}/despacho` });
     await waitFor('Centro de despacho');
-    await evaluate(`localStorage.removeItem('siman-logistica:mocks:v2')`);
+    await evaluate(`localStorage.removeItem('siman-logistica:mocks:v3')`);
     await send('Page.navigate', { url: `${BASE}/despacho/importar` });
     await waitFor('Descargar plantilla', 'paso Subir');
   });
@@ -89,26 +89,21 @@ try {
     if (summary !== panel) throw new Error(`el resumen dice ${summary} y el panel ${panel}`);
   });
 
-  await step('reglas: nada sobre capacidad, ninguna línea blanca en moto, motivos válidos', async () => {
+  await step('reglas: una ruta por zona, máximo 25 paradas, motivos válidos', async () => {
     const db = await mocks();
-    const { shipments, routes, vehicles, drivers } = db.collections;
+    const { shipments, routes } = db.collections;
     const date = shipments.find((s) => s.orderNumber?.startsWith('WEB-9')).scheduledDate;
     const dayRoutes = routes.filter((r) => r.date === date);
     if (!dayRoutes.length) throw new Error(`no hay rutas para el ${date}`);
     const byId = Object.fromEntries(shipments.map((s) => [s.id, s]));
+    const zones = dayRoutes.map((r) => r.zoneId);
+    if (new Set(zones).size !== zones.length) throw new Error('hay una zona con dos rutas');
     for (const r of dayRoutes) {
-      const vehicle = vehicles.find(
-        (v) => v.id === (r.vehicleId ?? drivers.find((d) => d.id === r.driverId)?.vehicleId),
-      );
-      const load = r.stops.reduce((kg, st) => kg + (byId[st.shipmentId]?.weightKg ?? 0), 0);
-      if (vehicle && load > vehicle.maxKg) throw new Error(`${r.id}: ${load} kg en un vehículo de ${vehicle.maxKg}`);
-      const big = r.stops.filter((st) => byId[st.shipmentId]?.requires?.includes('carga_grande'));
-      if (big.length && !vehicle?.capabilities?.includes('carga_grande'))
-        throw new Error(`${r.id}: línea blanca en ${vehicle?.label ?? 'un vehículo sin carga grande'}`);
+      if (r.stops.length > 25) throw new Error(`${r.id}: ${r.stops.length} paradas`);
       if (r.stops.some((st) => byId[st.shipmentId]?.location?.status === 'revisar'))
         throw new Error(`${r.id}: entró un pedido con ubicación por revisar`);
     }
-    const reasons = ['capacidad', 'ventana', 'requisito', 'sin_ubicacion'];
+    const reasons = ['capacidad', 'ventana', 'sin_ubicacion'];
     const left = shipments.filter((s) => s.scheduledDate === date && s.status === 'pendiente' && s.unassignedReason);
     if (left.some((s) => !reasons.includes(s.unassignedReason)))
       throw new Error('hay un motivo de sin asignar desconocido');

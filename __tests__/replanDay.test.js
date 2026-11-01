@@ -31,35 +31,16 @@ it('optimizar dos veces deja todo consistente', async () => {
   consistent(date);
 });
 
-it('si un motorista queda ausente, al reoptimizar su ruta sin salir se vacía y sus pedidos van a otros o a pendiente', async () => {
+it('si un motorista se da de baja, al reoptimizar su ruta sin salir se vacía y sus pedidos quedan pendientes', async () => {
   const date = tomorrow();
   await svc.optimizeAndSaveDay(date);
   const before = consistent(date);
   const victim = before.find((r) => r.stops.length && r.driverId);
-  await fleet.setDriverAbsent(victim.driverId, date, true);
+  await fleet.setDriverActive(victim.driverId, false);
   const res = await svc.optimizeAndSaveDay(date);
   const after = consistent(date);
   expect(after.find((r) => r.id === victim.id).stops).toEqual([]);
   expect(res.warnings.some((w) => w.includes(`${victim.code} quedó sin paradas`))).toBe(true);
-  for (const st of victim.stops) {
-    const s = mockDb.get('shipments', st.shipmentId);
-    if (s.status === 'pendiente') expect(s.unassignedReason).toBeTruthy();
-    else expect(s.routeId).not.toBe(victim.id);
-  }
-});
-
-it('EXPO_PUBLIC_DAY_OPTIMIZER=zona: Optimizar día usa el método por zona (versión nube, C50)', async () => {
-  jest.resetModules();
-  process.env.EXPO_PUBLIC_DAY_OPTIMIZER = 'zona';
-  try {
-    const opt = require('../src/optimizer');
-    const byZone = jest.spyOn(opt, 'optimizeDayByZone');
-    const joint = jest.spyOn(opt, 'optimizeDay');
-    const service = require('../src/features/routes/routesService');
-    await service.optimizeAndSaveDay(tomorrow());
-    expect(byZone).toHaveBeenCalledTimes(1);
-    expect(joint).not.toHaveBeenCalled();
-  } finally {
-    delete process.env.EXPO_PUBLIC_DAY_OPTIMIZER;
-  }
+  expect(res.warnings.some((w) => w.includes('no tiene motorista activo'))).toBe(true);
+  for (const st of victim.stops) expect(mockDb.get('shipments', st.shipmentId)).toMatchObject({ status: 'pendiente', routeId: null });
 });

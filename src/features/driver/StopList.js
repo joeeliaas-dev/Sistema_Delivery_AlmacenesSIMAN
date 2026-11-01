@@ -13,6 +13,8 @@ import { colors, motion, spacing, statusTone, tones, typography, useEnter, useRe
 
 // Parada que pasó a otra ruta (reintento): cuenta como cerrada en esta (N4)
 const MOVED = { ...tones.neutral, icon: 'redo', label: 'Reprogramado en otra ruta' };
+// Sin señal: hecha en el teléfono, todavía no llega al despacho
+const QUEUED = { ...tones.warning, icon: 'cloud_upload', label: 'Guardada · por enviar' };
 const CLOSED_LABEL = {
   [STATUS.ENTREGADO]: 'Entregado',
   [STATUS.NO_ENTREGADO]: 'No entregado',
@@ -63,9 +65,10 @@ function OpenRow({ stop, time, index, first, last, onPress, color }) {
 }
 
 function ClosedRow({ stop, first, last }) {
-  const t = stop.moved ? MOVED : statusTone(stop.shipment.status);
-  const label = stop.moved ? MOVED.label : CLOSED_LABEL[stop.shipment.status];
-  const icon = stop.moved ? MOVED.icon : stop.shipment.status === STATUS.ENTREGADO ? 'check' : t.icon;
+  const special = stop.moved ? MOVED : stop.queued ? QUEUED : null;
+  const t = special ?? statusTone(stop.shipment.status);
+  const label = special ? special.label : CLOSED_LABEL[stop.shipment.status];
+  const icon = special ? special.icon : stop.shipment.status === STATUS.ENTREGADO ? 'check' : t.icon;
   return (
     <View style={styles.row}>
       <View style={styles.lead}>

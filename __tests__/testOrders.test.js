@@ -9,11 +9,6 @@ beforeEach(() => {
   mockDb = require('../src/mocks').mockDb;
 });
 
-it('la libreta de prueba usa la misma llave que addressKey', () => {
-  const { djb2 } = require('../src/features/geo/normalize');
-  for (const a of require('../src/mocks/addresses.json')) expect(a.id).toBe(`${a.phone}_${djb2(a.addressNorm)}`);
-});
-
 it('100 filas: 96 se cargan y 4 rojas explicadas; la ubicación sale en capas', async () => {
   const { parseOrdersFile } = require('../src/features/orders/parseOrdersFile');
   const { validateOrders } = require('../src/features/orders/validateOrders');
@@ -33,9 +28,8 @@ it('100 filas: 96 se cargan y 4 rojas explicadas; la ubicación sale en capas', 
   const by = (status, source) =>
     located.filter((r) => r.order.location?.status === status && (!source || r.order.location.source === source))
       .length;
-  expect(by('confirmada', 'libreta')).toBe(10);
   expect(by('alta', 'excel')).toBe(6);
-  expect(by('alta', 'geoapify')).toBe(65);
+  expect(by('alta', 'geoapify')).toBe(75);
   expect(by('revisar')).toBe(15);
   expect(located.filter((r) => r.warnings.some((w) => w.includes('fuera de zona')))).toHaveLength(3);
 
@@ -43,7 +37,4 @@ it('100 filas: 96 se cargan y 4 rojas explicadas; la ubicación sale en capas', 
   const { created, skipped } = await importOrders(located);
   expect({ created, skipped }).toEqual({ created: 96, skipped: 4 });
   expect(mockDb.all('shipments')).toHaveLength(before + 96);
-  expect(
-    mockDb.all('shipments').filter((s) => s.requires?.includes('carga_grande') && s.orderNumber?.startsWith('WEB-9')),
-  ).toHaveLength(5);
 }, 60000);

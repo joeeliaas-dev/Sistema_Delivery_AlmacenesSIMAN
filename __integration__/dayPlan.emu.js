@@ -15,10 +15,8 @@ beforeAll(() => require('./reseed')(), 60000);
 afterAll(() => terminate(db));
 
 test('Optimizar día: una ruta por zona en Firestore, con geometry, motor y motivos de sin asignar', async () => {
-  const [shipments, drivers, vehicles, zones, depots] = await Promise.all(
-    ['shipments', 'drivers', 'vehicles', 'zones', 'depots'].map(all),
-  );
-  const day = await optimizeDay({ date: today, shipments, drivers, vehicles, depot: depots[0], zones });
+  const [shipments, drivers, zones, depots] = await Promise.all(['shipments', 'drivers', 'zones', 'depots'].map(all));
+  const day = await optimizeDay({ date: today, shipments, drivers, depot: depots[0], zones });
   expect(day.plans).toHaveLength(5);
 
   const { routeIds, warnings } = await createRoutesForDay(today, day);
@@ -28,7 +26,7 @@ test('Optimizar día: una ruta por zona en Firestore, con geometry, motor y moti
 
   for (const id of routeIds) {
     const route = (await getDoc(doc(db, 'routes', id))).data();
-    expect(route).toMatchObject({ status: 'asignada', date: today, engine: 'geoapify', vehicleId: expect.any(String) });
+    expect(route).toMatchObject({ status: 'asignada', date: today, engine: 'geoapify' });
     expect(route.geometry.length).toBeGreaterThan(1);
     expect(route.geometry[0]).toEqual({ lat: expect.any(Number), lng: expect.any(Number) });
     expect(route.createdAt?.toMillis?.()).toBeGreaterThan(0);
@@ -38,19 +36,7 @@ test('Optimizar día: una ruta por zona en Firestore, con geometry, motor y moti
     }
   }
 
-  // Ninguna línea blanca en moto, y lo que no cupo tiene su motivo escrito
-  const vehicleOf = Object.fromEntries(drivers.map((d) => [d.id, vehicles.find((v) => v.id === d.vehicleId)]));
-  for (const id of routeIds) {
-    const route = (await getDoc(doc(db, 'routes', id))).data();
-    if (vehicleOf[route.driverId].type !== 'moto') continue;
-    for (const st of route.stops)
-      expect((await getDoc(doc(db, 'shipments', st.shipmentId))).data().requires ?? []).toEqual([]);
-  }
-  // La línea blanca de Z1 (moto) no cabe en su zona: pasa a una ruta con carga grande (regla del 30 oct)
-  const white = (await getDoc(doc(db, 'shipments', 'SIM-0400'))).data();
-  expect(white).toMatchObject({ status: 'asignado', unassignedReason: null });
-  const whiteRoute = (await getDoc(doc(db, 'routes', white.routeId))).data();
-  expect(vehicleOf[whiteRoute.driverId].capabilities).toContain('carga_grande');
+  // Lo que no cupo tiene su motivo escrito
   const notZ2 = day.unassigned.filter((u) => shipments.find((s) => s.id === u.shipmentId)?.zoneId !== 'Z2');
   for (const u of notZ2) {
     const s = (await getDoc(doc(db, 'shipments', u.shipmentId))).data();
@@ -58,11 +44,12 @@ test('Optimizar día: una ruta por zona en Firestore, con geometry, motor y moti
   }
 });
 
-test('Pasar a… (moveStop): la línea blanca pasa entre las rutas con carga grande; Z1 no cambia', async () => {
+test('Pasar a… (moveStop): el pedido pasa de Z1 a Z3; solo esas dos rutas cambian', async () => {
   const { moveStop } = require('../src/features/routes/routesService');
-  const z1Before = (await getDoc(doc(db, 'routes', `R-${today}-Z1`))).data().stops;
-  const from = (await getDoc(doc(db, 'shipments', 'SIM-0400'))).data().routeId;
-  const to = from === `R-${today}-Z3` ? `R-${today}-Z4` : `R-${today}-Z3`;
+  const z4Before = (await getDoc(doc(db, 'routes', `R-${today}-Z4`))).data().stops;
+  const from = `R-${today}-Z1`;
+  const to = `R-${today}-Z3`;
+  expect((await getDoc(doc(db, 'shipments', 'SIM-0400'))).data().routeId).toBe(from);
 
   await moveStop('SIM-0400', to);
 
@@ -74,7 +61,9 @@ test('Pasar a… (moveStop): la línea blanca pasa entre las rutas con carga gra
   const dest = (await getDoc(doc(db, 'routes', to))).data();
   expect(dest.stops.map((st) => st.shipmentId)).toContain('SIM-0400');
   expect(dest.status).toBe('asignada');
-  expect((await getDoc(doc(db, 'routes', `R-${today}-Z1`))).data().stops).toEqual(z1Before);
-  // Rechazos con su motivo
-  await expect(moveStop('SIM-0403', `R-${today}-Z1`)).rejects.toThrow('no lleva carga grande');
+  expect((await getDoc(doc(db, 'routes', from))).data().stops.map((st) => st.shipmentId)).not.toContain('SIM-0400');
+  expect((await getDoc(doc(db, 'routes', `R-${today}-Z4`))).data().stops).toEqual(z4Before);
+  // Rechazo con su motivo: la Ruta A de Z2 ya salió
+  const started = (await getDocs(collection(db, 'routes'))).docs.find((d) => d.data().status === 'en_curso');
+  await expect(moveStop('SIM-0401', started.id)).rejects.toThrow('ya inició');
 });

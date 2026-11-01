@@ -1,7 +1,7 @@
 // src/features/orders/validateOrders.js  (dueño: P1)
 // Reglas de cada columna del Excel (S4-01). Una fila con errores es roja y no se carga;
 // con solo advertencias es amarilla; sin nada es verde. Los mensajes dicen qué corregir.
-import { BIG_LOAD, CAPABILITY, DEFAULT_SERVICE_MIN, PRIORITY, ROW_STATUS } from '../../constants';
+import { DEFAULT_SERVICE_MIN, PRIORITY, ROW_STATUS } from '../../constants';
 import { todayISO } from '../../lib/dates';
 import { MUNICIPIO_TO_ZONE } from '../zones/municipios';
 import { normalizeText, phone8 } from '../geo/normalize';
@@ -57,7 +57,7 @@ function parseNumber(v) {
  * @param {{ existingOrderIds?: Iterable<string>, today?: string }} [opts]
  * @returns {Array<{ rowNumber: number, order: object, status: 'verde'|'amarilla'|'roja', errors: string[], warnings: string[] }>}
  *   order: { orderNumber, customer{name,phone}, address{text,municipio,reference}, scheduledDate, timeWindow,
- *            priority, weightKg, volumeM3, packages, serviceMin, requires, location{lat,lng}|null }
+ *            priority, packages, serviceMin, location{lat,lng}|null }
  */
 export function validateOrders(rows, { existingOrderIds = [], today = todayISO() } = {}) {
   const existing = new Set([...existingOrderIds].map((x) => str(x).toUpperCase()));
@@ -115,18 +115,8 @@ export function validateOrders(rows, { existingOrderIds = [], today = todayISO()
       errors.push(`Prioridad "${str(r.prioridad)}": use normal o express`);
     const priority = prio === PRIORITY.EXPRESS ? PRIORITY.EXPRESS : PRIORITY.NORMAL;
 
-    const nums = {};
-    for (const [col, label] of [
-      ['peso_kg', 'Peso'],
-      ['volumen_m3', 'Volumen'],
-      ['bultos', 'Bultos'],
-      ['minutos_servicio', 'Minutos de servicio'],
-    ]) {
-      nums[col] = parseNumber(r[col]);
-      if (Number.isNaN(nums[col])) errors.push(`${label} "${str(r[col])}": debe ser un número de 0 en adelante`);
-    }
-    if (Number.isFinite(nums.minutos_servicio) && (nums.minutos_servicio < 1 || nums.minutos_servicio > 120))
-      errors.push(`Minutos de servicio ${nums.minutos_servicio}: debe estar entre 1 y 120`);
+    const packages = parseNumber(r.bultos);
+    if (Number.isNaN(packages)) errors.push(`Bultos "${str(r.bultos)}": debe ser un número de 0 en adelante`);
 
     let location = null;
     const hasLat = !isBlank(r.lat);
@@ -140,16 +130,6 @@ export function validateOrders(rows, { existingOrderIds = [], today = todayISO()
       else location = { lat, lng };
     }
 
-    const weightKg = Number.isFinite(nums.peso_kg) ? nums.peso_kg : 0;
-    const volumeM3 = Number.isFinite(nums.volumen_m3) ? nums.volumen_m3 : null;
-    const big = weightKg >= BIG_LOAD.MIN_KG || (volumeM3 ?? 0) >= BIG_LOAD.MIN_M3;
-    const requires = big ? [CAPABILITY.CARGA_GRANDE] : [];
-    const serviceMin = Number.isFinite(nums.minutos_servicio)
-      ? nums.minutos_servicio
-      : big
-        ? DEFAULT_SERVICE_MIN.CARGA_GRANDE
-        : DEFAULT_SERVICE_MIN.NORMAL;
-
     const order = {
       orderNumber,
       customer: { name, phone: phone ? `+503${phone}` : rawPhone },
@@ -157,11 +137,8 @@ export function validateOrders(rows, { existingOrderIds = [], today = todayISO()
       scheduledDate: date,
       timeWindow,
       priority,
-      weightKg,
-      volumeM3,
-      packages: Number.isFinite(nums.bultos) ? Math.round(nums.bultos) : 1,
-      serviceMin,
-      requires,
+      packages: Number.isFinite(packages) && packages > 0 ? Math.round(packages) : 1,
+      serviceMin: DEFAULT_SERVICE_MIN,
       location,
     };
     const status = errors.length ? ROW_STATUS.ROJA : warnings.length ? ROW_STATUS.AMARILLA : ROW_STATUS.VERDE;

@@ -1,16 +1,15 @@
 // src/features/dispatch/dispatchMath.js  (dueño: P2)
 // Cálculos puros del Centro de despacho, sin React ni Firestore, para probarlos con Jest.
 import {
-  CAPABILITY,
   LOCATION_STATUS,
   MAX_ATTEMPTS,
-  OPTIMIZER_ENGINE,
   PRIORITY,
   ROUTE_STATUS,
   SIN_ZONA,
   STATUS,
   UNASSIGNED_REASON,
 } from '../../constants';
+import { ROUTING } from '../../config/routing';
 import { fromStoredGeometry } from '../../lib/geometry';
 import { routeColorOf } from '../../lib/routeColor';
 import { blocksZoneOn } from '../../lib/routeDay';
@@ -38,17 +37,6 @@ export function dateShiftLabel(dateISO, now = new Date()) {
   const h = now.getHours();
   const shift = h < 12 ? 'matutino' : h < 18 ? 'vespertino' : 'nocturno';
   return `${DAYS[day.getDay()]} ${d} de ${MONTHS[m - 1]} · Turno ${shift}`;
-}
-
-/**
- * "2026-11-01" → "domingo 1 de noviembre"; con short, "domingo 1 nov"; con abbr, "dom 1 nov" (el botón
- * "Pasar al dom 1 nov"). Para "Pasar a otro día".
- */
-export function weekdayDate(dateISO, { short = false, abbr = false } = {}) {
-  const [y, m, d] = dateISO.split('-').map(Number);
-  const day = DAYS[new Date(y, m - 1, d).getDay()].toLowerCase();
-  if (abbr) return `${day.slice(0, 3)} ${d} ${MONTHS[m - 1].slice(0, 3)}`;
-  return short ? `${day} ${d} ${MONTHS[m - 1].slice(0, 3)}` : `${day} ${d} de ${MONTHS[m - 1]}`;
 }
 
 /** "2026-10-08" → "8 oct" (envíos arrastrados de días anteriores). */
@@ -191,18 +179,16 @@ export function routeStageLabel(route, progress) {
 
 /** Motivo de un pedido sin asignar, en palabras del despachador. */
 export const REASON_LABEL = {
-  [UNASSIGNED_REASON.CAPACIDAD]: 'No cabe en el vehículo',
+  [UNASSIGNED_REASON.CAPACIDAD]: `La ruta ya lleva ${ROUTING.maxStops} paradas`,
   [UNASSIGNED_REASON.VENTANA]: 'No alcanza su horario',
-  [UNASSIGNED_REASON.REQUISITO]: 'Necesita vehículo de carga grande',
   [UNASSIGNED_REASON.SIN_UBICACION]: 'Sin ubicación confirmada',
 };
 
 /**
- * Motor que calculó la ruta, como se muestra en la lista de rutas. Con la API apagada (mocks) Geoapify
- * responde con la grabación: se dice "(prueba)" para que nadie lo tome por un cálculo real.
+ * Motor que calculó la ruta (siempre Geoapify, C53). Con la API apagada (mocks) Geoapify responde con
+ * la grabación: se dice "(prueba)" para que nadie lo tome por un cálculo real.
  */
-export const engineLabel = (engine, { live = true } = {}) =>
-  engine === OPTIMIZER_ENGINE.LOCAL ? 'Cálculo local' : live ? 'Geoapify' : 'Geoapify (prueba)';
+export const engineLabel = (engine, { live = true } = {}) => (live ? 'Geoapify' : 'Geoapify (prueba)');
 
 const OPEN = [STATUS.PENDIENTE, STATUS.NO_ENTREGADO];
 const REVIEW = [LOCATION_STATUS.REVISAR, LOCATION_STATUS.SIN_UBICACION];
@@ -211,7 +197,7 @@ const REVIEW = [LOCATION_STATUS.REVISAR, LOCATION_STATUS.SIN_UBICACION];
 export const needsLocationReview = (s) =>
   [STATUS.PENDIENTE, STATUS.NO_ENTREGADO].includes(s.status) && REVIEW.includes(s.location?.status);
 
-/** Pedidos que el optimizador dejó fuera, con su motivo (panel "Sin asignar"): primero los que necesitan otro vehículo. */
+/** Pedidos que el optimizador dejó fuera, con su motivo (panel "Sin asignar"): en el orden de REASON_LABEL (ruta llena, horario, ubicación). */
 export function unassignedOf(shipments) {
   const order = Object.keys(REASON_LABEL);
   return shipments
@@ -324,7 +310,7 @@ const routeNotStarted = (r, shipmentsById) =>
 /**
  * Rutas a las que se puede pasar un pedido (menú "Pasar a…", S4-08): las de la fecha que todavía
  * no salen, menos la suya. Ninguna si el pedido no se puede mover, no tiene ubicación confiable o
- * su ruta ya salió. (El requisito y la capacidad del vehículo los valida moveStop con su motivo.)
+ * su ruta ya salió. (El máximo de paradas lo valida moveStop con su motivo.)
  */
 export function moveTargets(shipment, routes, shipmentsById, date) {
   if (!shipment || !trusted(shipment)) return [];
@@ -336,37 +322,17 @@ export function moveTargets(shipment, routes, shipmentsById, date) {
 }
 
 /**
- * Destinos de "Pasar a…" para un pedido de carga grande: los vehículos que no la llevan van al final y
- * se marcan (`lacks`). Sin vehículo no hay límite (como en moveStop).
- * @returns {Array<{ route: object, lacks: boolean }>}
+ * Destinos de "Pasar a…" en orden: primero las rutas con menos de ROUTING.maxStops paradas, de la más
+ * cercana a la más lejana; al final, marcadas `full`, las que ya van llenas (moveStop las rechaza).
+ * @returns {Array<{ route: object, stops: number, full: boolean, km: number|null }>}
  */
-export function rankMoveTargets(shipment, targets, vehicleOfRoute, shipmentsById = null) {
-  const needs = (shipment?.requires ?? []).includes(CAPABILITY.CARGA_GRANDE);
+export function rankMoveTargets(shipment, targets, shipmentsById) {
   const marked = targets.map((route) => {
-    const v = vehicleOfRoute(route);
-    const lacks = Boolean(needs && v && !(v.capabilities ?? []).includes(CAPABILITY.CARGA_GRANDE));
-    if (!shipmentsById) return { route, lacks };
-    const load = routeLoad(route, v, shipmentsById);
-    const full = Boolean(load && load.usedKg + Math.ceil(shipment?.weightKg ?? 0) > load.maxKg);
-    return { route, lacks, full, ...load, km: kmToRoute(shipment, route, shipmentsById) };
+    const stops = (route.stops ?? []).length;
+    return { route, stops, full: stops >= ROUTING.maxStops, km: kmToRoute(shipment, route, shipmentsById ?? {}) };
   });
-  if (!shipmentsById) return [...marked.filter((t) => !t.lacks), ...marked.filter((t) => t.lacks)];
-  // Primero donde cabe, de la más cercana a la más lejana; al final las llenas y las que no llevan carga grande
   const near = (a, b) => (a.km ?? Infinity) - (b.km ?? Infinity);
-  const ok = marked.filter((t) => !t.lacks && !t.full).sort(near);
-  return [...ok, ...marked.filter((t) => t.lacks || t.full).sort(near)];
-}
-
-/** Kilos que lleva la ruta y los del vehículo; null si falta algún envío de la ruta o el vehículo no tiene límite. */
-function routeLoad(route, vehicle, shipmentsById) {
-  if (!Number.isFinite(vehicle?.maxKg)) return null;
-  let usedKg = 0;
-  for (const st of route.stops ?? []) {
-    const s = shipmentsById[st.shipmentId];
-    if (!s) return null;
-    if (s.routeId === route.id && s.status === STATUS.ASIGNADO) usedKg += Math.ceil(s.weightKg ?? 0);
-  }
-  return { usedKg, maxKg: vehicle.maxKg };
+  return [...marked.filter((t) => !t.full).sort(near), ...marked.filter((t) => t.full).sort(near)];
 }
 
 function haversine(a, b) {
@@ -389,10 +355,9 @@ function kmToRoute(shipment, route, shipmentsById) {
   return Math.round(Math.min(...line.map((p) => haversine(from, p))) * 10) / 10;
 }
 
-/** Texto corto de un destino de "Pasar a…": "a 1.2 km", "llena: 38 de 40 kg" o "no lleva carga grande". */
+/** Texto corto de un destino de "Pasar a…": "a 1.2 km" o "llena: 25 paradas". */
 export function moveTargetNote(t) {
-  if (t.lacks) return 'no lleva carga grande';
-  if (t.full) return `llena: ${t.usedKg} de ${t.maxKg} kg`;
+  if (t.full) return `llena: ${ROUTING.maxStops} paradas`;
   return t.km == null ? '' : `a ${t.km} km`;
 }
 

@@ -68,7 +68,7 @@ test('una ruta de 25 paradas: la inicia y entrega SU motorista, dentro del lími
     stops,
     driverId: 'D3',
     route: { code: 'Ruta Z', date: today, zoneId: 'Z3', driverId: 'D3', status: 'asignada', stops, totalKm: 0,
-      baselineKm: 0, estEnd: null, vehicleId: null, engine: 'local', geometry: null, minutes: 0 },
+      baselineKm: 0, estEnd: null, engine: 'geoapify', geometry: null, minutes: 0 },
   });
   const { startRoute } = require('../src/features/routes/routesService');
   await as('mario');

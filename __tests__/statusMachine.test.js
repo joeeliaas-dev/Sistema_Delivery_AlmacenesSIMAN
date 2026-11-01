@@ -208,25 +208,3 @@ describe('changeStatusMany', () => {
     await expect(sm.changeStatusMany({ shipmentIds: ['SIM-0419'], to: 'entregado' })).rejects.toThrow('changeStatus');
   });
 });
-
-describe('postponeShipments: "Pasar a otro día" (C44)', () => {
-  const pending = () => mockDb.all('shipments').filter((s) => s.status === 'pendiente' && !s.routeId);
-
-  it('pasa los pendientes sin ruta a una fecha posterior, sin motivo y con su evento', async () => {
-    const [a, b] = pending();
-    mockDb.upsert('shipments', { id: a.id, unassignedReason: 'capacidad' });
-    const later = '2099-01-02';
-    expect(await sm.postponeShipments([a.id, b.id, a.id], later)).toEqual({ moved: 2 });
-    expect(get(a.id)).toMatchObject({ status: 'pendiente', scheduledDate: later, unassignedReason: null, routeId: null });
-    expect(eventsOf(a.id).at(-1)).toMatchObject({ kind: 'reprogramado', fromStatus: 'pendiente', toStatus: 'pendiente' });
-  });
-
-  it('todos o ninguno: no mueve si alguno tiene ruta, no está pendiente o la fecha no es posterior', async () => {
-    const [a] = pending();
-    const routed = mockDb.all('shipments').find((s) => s.routeId);
-    await expect(sm.postponeShipments([a.id, routed.id], '2099-01-02')).rejects.toThrow(/No se pueden pasar/);
-    expect(get(a.id).scheduledDate).toBe(a.scheduledDate);
-    await expect(sm.postponeShipments([a.id], a.scheduledDate)).rejects.toThrow(/No se pueden pasar/);
-    await expect(sm.postponeShipments([a.id], 'mañana')).rejects.toThrow('Fecha inválida');
-  });
-});

@@ -171,7 +171,7 @@ describe('dispatchMath', () => {
 });
 
 describe('fechas del selector', () => {
-  const { addDays, shortDate, weekdayDate } = require('../src/features/dispatch/dispatchMath');
+  const { addDays, shortDate } = require('../src/features/dispatch/dispatchMath');
 
   it('addDays cruza meses y años', () => {
     expect(addDays('2026-10-31', 1)).toBe('2026-11-01');
@@ -180,12 +180,5 @@ describe('fechas del selector', () => {
 
   it('shortDate da "8 oct"', () => {
     expect(shortDate('2026-10-08')).toBe('8 oct');
-  });
-
-  it('weekdayDate da el día de la semana para "Pasar a otro día"', () => {
-    expect(weekdayDate('2026-11-01')).toBe('domingo 1 de noviembre');
-    expect(weekdayDate('2026-11-01', { short: true })).toBe('domingo 1 nov');
-    expect(weekdayDate('2026-11-01', { abbr: true })).toBe('dom 1 nov');
-    expect(weekdayDate('2026-11-04', { abbr: true })).toBe('mié 4 nov');
   });
 });

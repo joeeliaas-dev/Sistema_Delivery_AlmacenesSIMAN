@@ -1,5 +1,5 @@
-// src/features/vehicles/PanelSheet.js (dueño: P3)
-// Contenedor de los paneles de Vehículos y turnos ("Agregar vehículo", "Agregar motorista"): en
+// src/features/drivers/PanelSheet.js (dueño: P3)
+// Contenedor de los paneles de Motoristas ("Agregar motorista", "Darle acceso a la app"): en
 // teléfono sube como hoja desde abajo (igual que "Pasar a…" del despacho), en escritorio es un panel
 // a la derecha. Se cierra con la X o tocando afuera. Con el teclado abierto en el teléfono (web) la
 // hoja sube lo que tapa el teclado, para que "Guardar" quede a la vista.

@@ -1,4 +1,5 @@
 // app/entrega/no-entregado/[id].js (dueño: P3) — No se pudo entregar
+// Sin señal: se guarda en el teléfono (queueStatusChange de P1) y se envía sola después.
 // Motivo de FAIL_REASONS, foto y descripción. changeStatus (P1) decide si queda no_entregado
 // (se programa el reintento) o pasa solo a devuelto en el 2.º fallo.
 // Tarjetas blancas y chips de lo que falta.
@@ -21,13 +22,22 @@ import { useEvidenceDraft } from '../../../src/features/driver/useEvidenceDraft'
 import { useKeyboardInset } from '../../../src/features/driver/useKeyboardInset';
 import { useShipment } from '../../../src/features/driver/useShipment';
 import { changeStatus } from '../../../src/features/shipments/statusMachine';
-import { useAppStore } from '../../../src/store/useAppStore';
+import { useCurrentDriverId } from '../../../src/features/driver/useDriverRoute';
+import { useOnline } from '../../../src/features/driver/OutboxBanner';
+import { sendOrQueue } from '../../../src/features/driver/sendOrQueue';
 import { colors, radius, spacing, tones, typography } from '../../../src/theme';
 
 const TITLE = 'No se pudo entregar';
 
 // Mensaje según el status que devuelve changeStatus
+const QUEUED = 'guardada'; // sin señal: todavía no se sabe si queda no_entregado o devuelto
 const RESULTS = {
+  [QUEUED]: {
+    icon: 'cloud_off',
+    tone: 'warning',
+    title: 'No entrega guardada en el teléfono',
+    body: (s) => `${s.code} · se envía sola cuando vuelva la señal`,
+  },
   [STATUS.NO_ENTREGADO]: {
     icon: 'replay',
     tone: 'warning',
@@ -43,7 +53,8 @@ const RESULTS = {
 };
 
 function FailureForm({ shipment, onBack, onDone, keyboardOpen }) {
-  const driverId = useAppStore((s) => s.currentDriverId);
+  const driverId = useCurrentDriverId();
+  const online = useOnline();
   const [draft, update, clearDraft] = useEvidenceDraft(`no-entregado:${shipment.id}`, {
     reason: null,
     photoUri: null,
@@ -80,15 +91,15 @@ function FailureForm({ shipment, onBack, onDone, keyboardOpen }) {
     savingRef.current = true;
     setSaving(true);
     setError(null);
+    const payload = { reason, photoUri, description };
     try {
-      const { status } = await changeStatus({
-        shipment,
-        to: STATUS.NO_ENTREGADO,
-        payload: { reason, photoUri, description },
-        driverId,
+      const { queued, result } = await sendOrQueue({
+        online,
+        send: () => changeStatus({ shipment, to: STATUS.NO_ENTREGADO, payload, driverId }),
+        change: { shipmentId: shipment.id, code: shipment.code, to: STATUS.NO_ENTREGADO, payload, driverId },
       });
       clearDraft();
-      setResultStatus(status);
+      setResultStatus(queued ? QUEUED : result.status);
     } catch (err) {
       setError(err.message);
     } finally {

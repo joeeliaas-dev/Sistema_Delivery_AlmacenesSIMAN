@@ -6,28 +6,18 @@
 // grande con el selector de zona encima y, a la derecha, pestañas Rutas | Sin asignar (agrupado por
 // motivo). El pedido elegido se abre en el panel lateral (escritorio) o en una hoja desde abajo
 // (teléfono). "Ver todos los pedidos" (Más) cambia el mapa por la lista compacta con su filtro.
-// La lógica (cuentas, reglas de "Optimizar día" y "Pasar a…") no cambió: viene de dispatchMath (C41).
-// "Pasar al dom 1 nov" (C44): los que no caben en ningún vehículo pasan al día siguiente con
-// postponeShipments (P1), después de confirmar; todos o ninguno.
+// La lógica (cuentas, reglas de "Optimizar día" y "Pasar a…") viene de dispatchMath.
+// Depuración (C53): una ruta por zona con Geoapify; sin vehículos, kilos, carga grande, cálculo local,
+// "Pasar al día siguiente" ni reporte. Lo que no cabe (25 paradas u horario) se mueve con "Pasar a…".
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Alert,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { DateSelector } from '../../src/components/DateSelector';
 import { DispatchMap } from '../../src/components/DispatchMap';
 import { Icon } from '../../src/components/Icon';
 import { Skeleton } from '../../src/components/Skeleton';
-import { OPTIMIZER_ENGINE, UNASSIGNED_REASON } from '../../src/constants';
+import { UNASSIGNED_REASON } from '../../src/constants';
 import { getDepot, listenDrivers, listenZones } from '../../src/features/catalog/catalogService';
 import { Counters } from '../../src/features/dispatch/Counters';
 import { EmptyNote } from '../../src/features/dispatch/EmptyNote';
@@ -35,7 +25,6 @@ import { Menu } from '../../src/features/dispatch/Menu';
 import { MoveMenu } from '../../src/features/dispatch/MoveMenu';
 import {
   REASON_LABEL,
-  addDays,
   assignmentLabel,
   countByStage,
   droppedNote,
@@ -57,12 +46,10 @@ import {
   unassignedCount,
   unassignedOf,
   waitingOf,
-  weekdayDate,
 } from '../../src/features/dispatch/dispatchMath';
 import { PriorityFilter, ZoneSelect } from '../../src/features/dispatch/PriorityFilter';
 import { RouteToast } from '../../src/features/dispatch/RouteToast';
 import { ShipmentCard, ShipmentDetail } from '../../src/features/dispatch/ShipmentCard';
-import { listenVehicles } from '../../src/features/fleet/fleetService';
 import {
   createRoute,
   isRouteOpen,
@@ -71,11 +58,11 @@ import {
   optimizeAndSaveDay,
 } from '../../src/features/routes/routesService';
 import { carryOverRetries, pendingRetries } from '../../src/features/shipments/carryOver';
-import { postponeShipments } from '../../src/features/shipments/statusMachine';
 import { listenShipments } from '../../src/features/shipments/shipmentsService';
 import { todayISO } from '../../src/lib/dates';
 import { routeTimes } from '../../src/lib/eta';
 import { useNow } from '../../src/lib/useNow';
+import { ROUTING } from '../../src/config/routing';
 import { useAppStore } from '../../src/store/useAppStore';
 import { colors, fonts, radius, routeColors, spacing, tones, typography } from '../../src/theme';
 
@@ -88,9 +75,6 @@ const PIN_TONES = {
   fallback: colors.outline,
 };
 const FLASH_MS = 6000;
-const POSTPONED_MS = 10000;
-// Aviso del híbrido (optimizer/index.js, movedWarning): "3 pedidos que no cabían en su zona pasaron…"
-const MOVED_WARNING = /^(\d+) pedidos? que no cabían? en su zona pas/;
 const NBSP = ' '; // "14.7 km" no se parte entre líneas
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const firstName = (name) => (name ?? '').split(' ')[0];
@@ -100,14 +84,7 @@ const REASON_GROUPS = [
   {
     reason: UNASSIGNED_REASON.CAPACIDAD,
     tone: 'error',
-    title: (n) => `${n} sin espacio en los vehículos`,
-    postpone: true,
-  },
-  {
-    reason: UNASSIGNED_REASON.REQUISITO,
-    tone: 'error',
-    title: (n) => `${n} ${n === 1 ? 'necesita' : 'necesitan'} carga grande`,
-    postpone: true,
+    title: (n) => `${n} no ${n === 1 ? 'entra' : 'entran'} en su ruta (${ROUTING.maxStops} paradas)`,
   },
   {
     reason: UNASSIGNED_REASON.VENTANA,
@@ -124,7 +101,8 @@ const REASON_GROUPS = [
 
 // Aviso del optimizador en una línea: lo que va antes de ":" (el resto se lee al desplegar)
 const shortWarning = (m) => m.split(':')[0].replace(/\.$/, '');
-const warningRank = (m) => (/ningún vehículo|no caben?/.test(m) ? 0 : /^Cálculo local/.test(m) ? 1 : 2);
+// Primero lo que no cabe en su ruta (con "Ver"); después lo demás
+const warningRank = (m) => (/no caben?/.test(m) ? 0 : 1);
 
 function ErrorBox({ message }) {
   if (!message) return null;
@@ -236,8 +214,8 @@ function Tabs({ tabs, value, onChange }) {
   );
 }
 
-// Una ruta de la lista: punto de color, "Ruta B · Kevin · Moto 1" y debajo paradas, km, fin y ahorro
-function RouteRow({ route, end, color, driver, vehicle, carriedFrom, onPress }) {
+// Una ruta de la lista: punto de color, "Ruta B · Kevin" y debajo paradas, km, fin y ahorro
+function RouteRow({ route, end, color, driver, carriedFrom, onPress }) {
   const saved = savedKm(route);
   const meta = [
     plural(route.stops?.length ?? 0, 'parada', 'paradas'),
@@ -257,15 +235,11 @@ function RouteRow({ route, end, color, driver, vehicle, carriedFrom, onPress }) 
         <View style={styles.rowHead}>
           <Text style={[styles.rowTitle, styles.shrink]} numberOfLines={1}>
             {route.code} · {firstName(driver?.name) || route.driverId}
-            {vehicle ? ` · ${vehicle.label}` : ''}
           </Text>
           {carriedFrom ? <Text style={styles.rowAside}>Desde el {carriedFrom}</Text> : null}
         </View>
         <Text style={styles.rowMeta} numberOfLines={2}>
           {meta.join(' · ')}
-          {route.engine === OPTIMIZER_ENGINE.LOCAL ? (
-            <Text style={{ color: tones.warning.fg }}> · Cálculo local</Text>
-          ) : null}
         </Text>
       </View>
       <Text style={styles.chevron}>›</Text>
@@ -273,14 +247,10 @@ function RouteRow({ route, end, color, driver, vehicle, carriedFrom, onPress }) 
   );
 }
 
-// Un pedido sin asignar dentro de su grupo: código y cliente; abajo, municipio, peso y "desde el …"
+// Un pedido sin asignar dentro de su grupo: código y cliente; abajo, municipio y "desde el …"
 function UnassignedRow({ shipment, carriedFrom, selected, onPress }) {
   const s = shipment;
-  const meta = [
-    s.address?.municipio,
-    s.weightKg ? `${Math.round(s.weightKg)} kg` : null,
-    carriedFrom ? `desde el ${carriedFrom}` : null,
-  ].filter(Boolean);
+  const meta = [s.address?.municipio, carriedFrom ? `desde el ${carriedFrom}` : null].filter(Boolean);
   return (
     <Pressable
       onPress={onPress}
@@ -338,7 +308,6 @@ export default function CentroDespacho() {
   const { width, height } = useWindowDimensions();
   const wide = width >= WIDE;
   const date = useAppStore((s) => s.date);
-  const setDate = useAppStore((s) => s.setDate);
   const today = todayISO();
   const isToday = date === today;
   const isPast = date < today;
@@ -346,7 +315,6 @@ export default function CentroDespacho() {
 
   const [zones, setZones] = useState([]);
   const [drivers, setDrivers] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
   const [depot, setDepot] = useState(null);
   const [depotMissing, setDepotMissing] = useState(false);
   // Las rutas se guardan con la fecha que las pidió: hasta la primera respuesta de esa fecha, "cargando"
@@ -359,10 +327,6 @@ export default function CentroDespacho() {
   const [tab, setTab] = useState('mapa');
   const [openGroups, setOpenGroups] = useState({});
   const [showAll, setShowAll] = useState(false);
-  // Pasar a mañana: en curso, último resultado ({ from, to, moved } | { from, error }) y si ya se fue
-  const [postponeBusy, setPostponeBusy] = useState(false);
-  const [postponed, setPostponed] = useState(null);
-  const [postponedGone, setPostponedGone] = useState(null);
   const [flashGone, setFlashGone] = useState(null); // resultado de "Optimizar día" ya mostrado (se va solo)
 
   // Los envíos se guardan con la consulta que los produjo: si cambia la zona o la
@@ -387,7 +351,6 @@ export default function CentroDespacho() {
   const onReadError = useCallback((err) => setReadError(err.message), []);
   useEffect(() => listenZones(setZones, onReadError), [onReadError]);
   useEffect(() => listenDrivers(setDrivers, onReadError), [onReadError]);
-  useEffect(() => listenVehicles(setVehicles, onReadError), [onReadError]);
   useEffect(() => {
     getDepot()
       .then((d) => (d ? setDepot(d) : setDepotMissing(true)))
@@ -430,7 +393,6 @@ export default function CentroDespacho() {
 
   const routesById = useMemo(() => indexBy(routes), [routes]);
   const driversById = useMemo(() => indexBy(drivers), [drivers]);
-  const vehiclesById = useMemo(() => indexBy(vehicles), [vehicles]);
   const colorsById = useMemo(() => routeColorMap(routes, routeColors), [routes]);
   const zone = zones.find((z) => z.id === zoneId) ?? null;
   const zoneNameOf = (id) => zones.find((z) => z.id === id)?.name ?? `La zona ${id}`;
@@ -471,20 +433,16 @@ export default function CentroDespacho() {
   const pins = useMemo(() => toDispatchPins(all, colorsById, PIN_TONES), [all, colorsById]);
 
   const selected = all.find((s) => s.id === selectedId) ?? null;
-  const vehicleOfRoute = (r) => vehiclesById[r.vehicleId ?? driversById[r.driverId]?.vehicleId];
-  const targets = rankMoveTargets(
-    selected,
-    moveTargets(selected, routes, shipmentsById, date),
-    vehicleOfRoute,
-    shipmentsById,
-  ).map((t) => ({
-    id: t.route.id,
-    code: t.route.code,
-    color: colorsById[t.route.id],
-    driverName: driversById[t.route.driverId]?.name ?? t.route.driverId,
-    lacks: t.lacks || t.full,
-    note: moveTargetNote(t),
-  }));
+  const targets = rankMoveTargets(selected, moveTargets(selected, routes, shipmentsById, date), shipmentsById).map(
+    (t) => ({
+      id: t.route.id,
+      code: t.route.code,
+      color: colorsById[t.route.id],
+      driverName: driversById[t.route.driverId]?.name ?? t.route.driverId,
+      lacks: t.full, // llena (25 paradas): en gris y sin tocar
+      note: moveTargetNote(t),
+    }),
+  );
   const moveLocked = moveLockedNote(selected, routes, shipmentsById);
   const moveMessage = moveOutcome && moveOutcome.shipmentId === selectedId ? moveOutcome : null;
 
@@ -547,44 +505,6 @@ export default function CentroDespacho() {
     }
   }
 
-  // Pasar a mañana (C44): solo los que no caben en ningún vehículo ('capacidad' y 'requisito');
-  // ni los de dirección por revisar ni los que esperan otra ruta. Confirma antes, como "Reiniciar datos".
-  const nextDay = addDays(date, 1);
-  const postponable = isPast
-    ? []
-    : unassigned.filter((s) => [UNASSIGNED_REASON.CAPACIDAD, UNASSIGNED_REASON.REQUISITO].includes(s.unassignedReason));
-  async function postpone(list) {
-    const from = date;
-    const to = addDays(from, 1);
-    setPostponeBusy(true);
-    try {
-      const { moved } = await postponeShipments(
-        list.map((s) => s.id),
-        to,
-      );
-      setPostponed({ from, to, moved });
-    } catch (err) {
-      setPostponed({ from, error: err.message });
-    } finally {
-      setPostponeBusy(false);
-    }
-  }
-  function confirmPostpone(list) {
-    if (!list.length || postponeBusy) return;
-    const title = `¿Pasar ${plural(list.length, 'pedido', 'pedidos')} al ${weekdayDate(nextDay)}?`;
-    const message = 'Quedan como nuevos ese día.';
-    if (Platform.OS === 'web') {
-      if (window.confirm(`${title} ${message}`)) postpone(list);
-    } else {
-      Alert.alert(title, message, [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Pasar', onPress: () => postpone(list) },
-      ]);
-    }
-  }
-  // El botón dice la fecha (decisión de Andrés): "Pasar al dom 1 nov"
-  const postponeLabel = postponeBusy ? 'Pasando…' : `Pasar al ${weekdayDate(nextDay, { abbr: true })}`;
-
   async function bringRetries() {
     setRetryBusy(true);
     try {
@@ -607,48 +527,27 @@ export default function CentroDespacho() {
   // Aviso de pedidos que no cupieron en la ruta de la zona (C20)
   const skipped = result?.skipped?.length ?? 0;
   const routeDriver = zoneRoute ? driversById[zoneRoute.driverId] : null;
-  // Pedidos que el híbrido pasó a otra ruta con espacio: es una buena noticia, no un problema, así que
-  // va en verde junto a "4 rutas listas" y no en la franja ámbar. Sale de day.moved; si el resultado no
-  // lo trae, del aviso del optimizador ("3 pedidos que no cabían en su zona pasaron a otra ruta…")
-  const isMovedWarning = (w) => MOVED_WARNING.test(w);
-  const movedWarning = (dayResult?.warnings ?? []).find(isMovedWarning);
-  const movedCount = dayResult?.moved ?? Number(MOVED_WARNING.exec(movedWarning ?? '')?.[1] ?? 0);
-  const dayWarnings = [
-    ...(dayResult && !dayResult.error && dayResult.engine === OPTIMIZER_ENGINE.LOCAL
-      ? ['Cálculo local: Geoapify no respondió y la app calculó las rutas sola.']
-      : []),
-    ...(dayResult?.warnings ?? []).filter((w) => !isMovedWarning(w)),
-    ...(result?.warning ? [result.warning] : []),
-  ];
+  const dayWarnings = [...(dayResult?.warnings ?? []), ...(result?.warning ? [result.warning] : [])];
 
   // ——— Presentación ———
   // "4 rutas listas" junto a la línea de estado durante unos segundos
   useEffect(() => {
     if (!dayOutcome || dayOutcome.error) return undefined;
-    // Con pedidos movidos hay más que leer: se queda lo mismo que "Pasaron al domingo 1 nov"
-    const t = setTimeout(() => setFlashGone(dayOutcome), movedCount ? POSTPONED_MS : FLASH_MS);
+    const t = setTimeout(() => setFlashGone(dayOutcome), FLASH_MS);
     return () => clearTimeout(t);
-  }, [dayOutcome, movedCount]);
+  }, [dayOutcome]);
   const flash =
     dayResult && !dayResult.error && flashGone !== dayOutcome
       ? dayResult.routeIds.length
         ? plural(dayResult.routeIds.length, 'ruta lista', 'rutas listas')
         : 'Ninguna ruta nueva'
       : null;
-  // "44 pedidos pasaron al domingo 1 nov · Ver" un rato más largo, para alcanzar a tocar "Ver"
-  useEffect(() => {
-    if (!postponed || postponed.error) return undefined;
-    const t = setTimeout(() => setPostponedGone(postponed), POSTPONED_MS);
-    return () => clearTimeout(t);
-  }, [postponed]);
-  const postponedHere = postponed?.from === date ? postponed : null;
-  const postponedDone = postponedHere && !postponedHere.error && postponedGone !== postponed ? postponedHere : null;
   const panelTab = wide && tab === 'mapa' ? 'rutas' : tab;
   const toggleGroup = (key) => setOpenGroups((g) => ({ ...g, [key]: !g[key] }));
   function seeUnassigned() {
     setShowAll(false);
     setTab('sin');
-    setOpenGroups((g) => ({ ...g, [UNASSIGNED_REASON.CAPACIDAD]: true, [UNASSIGNED_REASON.REQUISITO]: true }));
+    setOpenGroups((g) => ({ ...g, [UNASSIGNED_REASON.CAPACIDAD]: true, [UNASSIGNED_REASON.VENTANA]: true }));
   }
   const routesCount = shownRoutes.length;
   const statusParts = [
@@ -664,36 +563,16 @@ export default function CentroDespacho() {
   ];
   const mapHeight = wide ? Math.max(480, height - 230) : Math.max(320, Math.round(height * 0.55));
 
-  // Avisos en orden: pedidos que no caben, los que no cupieron en la ruta de la zona, direcciones por
-  // revisar, cálculo local y el resto del optimizador
-  // El aviso de los que no caben en ningún vehículo se va cuando ya no queda ninguno (se pasaron)
-  const noRoom = (m) => /ningún vehículo/.test(m);
-  const sortedWarnings = [...dayWarnings]
-    .filter(
-      (m) =>
-        !noRoom(m) ||
-        unassigned.some(
-          (s) =>
-            s.unassignedReason === UNASSIGNED_REASON.CAPACIDAD || s.unassignedReason === UNASSIGNED_REASON.REQUISITO,
-        ),
-    )
-    .sort((a, b) => warningRank(a) - warningRank(b));
+  // Avisos en orden: pedidos que no caben en su ruta (con "Ver"), los que no cupieron en la ruta de la
+  // zona, direcciones por revisar y el resto del optimizador
+  const sortedWarnings = [...dayWarnings].sort((a, b) => warningRank(a) - warningRank(b));
   const warningItem = (m) => ({
     key: m,
     text: shortWarning(m),
     full: m,
-    actions:
-      warningRank(m) === 0
-        ? [
-            { label: 'Ver', onPress: seeUnassigned },
-            ...(noRoom(m) && postponable.length
-              ? [{ label: postponeLabel, onPress: () => confirmPostpone(postponable), disabled: postponeBusy }]
-              : []),
-          ]
-        : [],
+    actions: warningRank(m) === 0 ? [{ label: 'Ver', onPress: seeUnassigned }] : [],
   });
   const alerts = [
-    ...(postponedHere?.error ? [{ key: 'postpone-error', text: postponedHere.error }] : []),
     ...sortedWarnings.filter((m) => warningRank(m) === 0).map(warningItem),
     ...(skipped > 0
       ? [
@@ -743,8 +622,7 @@ export default function CentroDespacho() {
       align="right"
       items={[
         { key: 'importar', label: 'Importar pedidos', onPress: () => router.push('/despacho/importar') },
-        { key: 'vehiculos', label: 'Vehículos y turnos', onPress: () => router.push('/despacho/vehiculos') },
-        { key: 'reporte', label: 'Reporte del día', onPress: () => router.push('/despacho/reporte') },
+        { key: 'motoristas', label: 'Motoristas', onPress: () => router.push('/despacho/motoristas') },
         {
           key: 'reintentos',
           label: retryBusy ? 'Trayendo…' : `Traer reintentos (${retryCount})`,
@@ -818,7 +696,6 @@ export default function CentroDespacho() {
           end={routeTimes(r, shipmentsById, now).end}
           color={colorsById[r.id]}
           driver={driversById[r.driverId]}
-          vehicle={vehiclesById[r.vehicleId ?? driversById[r.driverId]?.vehicleId]}
           carriedFrom={r.date < date ? shortDate(r.date) : undefined}
           onPress={() => openRoute(r.id)}
         />
@@ -862,9 +739,8 @@ export default function CentroDespacho() {
             tone={g.tone}
             open={Boolean(openGroups[g.reason])}
             onToggle={() => toggleGroup(g.reason)}
-            action={g.review ? 'Revisar' : g.postpone && !isPast ? postponeLabel : null}
-            onAction={g.review ? openReview : () => confirmPostpone(g.list)}
-            actionDisabled={!g.review && postponeBusy}
+            action={g.review ? 'Revisar' : null}
+            onAction={openReview}
           >
             {rowsOf(g.list)}
           </UnassignedGroup>
@@ -1029,27 +905,9 @@ export default function CentroDespacho() {
           ) : (
             <Counters parts={statusParts} narrow={!wide} />
           )}
-          {postponedDone ? (
-            <View style={styles.flashRow} accessibilityLiveRegion="polite">
-              <Text style={styles.flash}>
-                ✓{' '}
-                <Text>
-                  {plural(postponedDone.moved, 'pedido pasó', 'pedidos pasaron')} al{' '}
-                  {weekdayDate(postponedDone.to, { short: true })}
-                </Text>
-              </Text>
-              <NoticeAction label="Ver" color={tones.success.fg} onPress={() => setDate(postponedDone.to)} />
-            </View>
-          ) : null}
           {flash ? (
             <Text style={styles.flash} accessibilityLiveRegion="polite">
               ✓ <Text>{flash}</Text>
-            </Text>
-          ) : null}
-          {flash && movedCount ? (
-            <Text style={styles.flash}>
-              {plural(movedCount, 'pedido que no cabía en su zona pasó', 'pedidos que no cabían en su zona pasaron')} a
-              otra ruta con espacio
             </Text>
           ) : null}
         </View>
@@ -1142,7 +1000,6 @@ const styles = StyleSheet.create({
   noticeActionText: { ...typography.label, textDecorationLine: 'underline' },
   statusRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: spacing.md },
   flash: { ...typography.label, color: tones.success.fg },
-  flashRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   disabledText: { color: colors.onSurfaceVariant, textDecorationLine: 'none' },
   dayState: {
     flexDirection: 'row',

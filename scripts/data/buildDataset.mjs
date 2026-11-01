@@ -93,7 +93,6 @@ const initials = (name) =>
     .join('')
     .slice(0, 2)
     .toUpperCase();
-const DRIVER_VEHICLE = { D1: 'V1', D2: 'V2', D3: 'V4', D4: 'V5', D5: 'V3' };
 export const drivers = ZONE_DEFS.map(({ id, driver: [driverId, name] }, i) => ({
   id: driverId,
   name,
@@ -101,20 +100,9 @@ export const drivers = ZONE_DEFS.map(({ id, driver: [driverId, name] }, i) => ({
   phone: `+50370000${pad(i + 1, 3)}`,
   zoneId: id,
   active: true,
-  vehicleId: DRIVER_VEHICLE[driverId],
   shiftStart: '07:00',
   shiftEnd: '18:00',
 }));
-
-// ---------- vehículos (Sprint 4, C24) ----------
-// 3 motos de 40 kg sin capacidades, 1 pick-up de 600 kg y 1 camión de 2 000 kg con carga_grande
-export const vehicles = [
-  { id: 'V1', type: 'moto', label: 'Moto 1', maxKg: 40, capabilities: [] },
-  { id: 'V2', type: 'moto', label: 'Moto 2', maxKg: 40, capabilities: [] },
-  { id: 'V3', type: 'moto', label: 'Moto 3', maxKg: 40, capabilities: [] },
-  { id: 'V4', type: 'pickup', label: 'Pick-up 1', maxKg: 600, capabilities: ['carga_grande'] },
-  { id: 'V5', type: 'camion', label: 'Camión 1', maxKg: 2000, capabilities: ['carga_grande'] },
-];
 
 const CATALOG = [
   ['ELE-9921', 'TV Samsung 55" QLED 4K', 14.2],
@@ -134,8 +122,8 @@ const CATALOG = [
   ['BEL-7720', 'Secadora de cabello Remington', 0.7],
 ];
 const item = (sku, qty = 1) => {
-  const [, name, weightKg] = CATALOG.find(([s]) => s === sku);
-  return { sku, name, weightKg, qty };
+  const [, name] = CATALOG.find(([s]) => s === sku);
+  return { sku, name, qty };
 };
 
 const FIRST = [
@@ -510,23 +498,10 @@ export function buildDataset({ date = MOCK_DATE, seed = 419 } = {}) {
     },
   ];
 
-  // Campos del Sprint 4 (C24): carga, requisitos, servicio y ubicación con su estado.
-  // Línea blanca (más de 30 kg) en los 2 primeros pendientes de Z1 (moto) y de Z3 (pick-up).
-  for (const zoneId of ['Z1', 'Z3']) {
-    shipments
-      .filter((s) => s.zoneId === zoneId && s.status === STATUS.PENDIENTE)
-      .slice(0, 2)
-      .forEach((s) => s.items.push({ sku: 'LB-REF14', name: 'Refrigeradora Mabe 14 pies', weightKg: 62, qty: 1 }));
-  }
+  // Campos del Sprint 4: bultos, servicio y ubicación con su estado.
   for (const s of shipments) {
-    s.weightKg = round(
-      s.items.reduce((sum, it) => sum + it.weightKg * it.qty, 0),
-      1,
-    );
-    s.volumeM3 = null;
     s.packages = s.items.reduce((sum, it) => sum + it.qty, 0);
-    s.requires = s.weightKg >= 30 ? ['carga_grande'] : [];
-    s.serviceMin = s.requires.length ? 20 : 5;
+    s.serviceMin = 5;
     s.timeWindow = null;
     s.unassignedReason = null;
     s.location = {
@@ -539,7 +514,7 @@ export function buildDataset({ date = MOCK_DATE, seed = 419 } = {}) {
     };
   }
 
-  return { depot, zones, drivers, vehicles, shipments, routes };
+  return { depot, zones, drivers, shipments, routes };
 }
 
 // ---------- historial (shipments/{id}/events) ----------

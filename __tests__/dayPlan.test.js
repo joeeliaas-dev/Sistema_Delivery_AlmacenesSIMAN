@@ -1,98 +1,93 @@
 // __tests__/dayPlan.test.js  (dueño: P2)
-// Optimizar día (S4-06 y S4-07): optimizeRoute con respaldo local, optimizeDay y createRoutesForDay.
-// Modo mocks: Geoapify responde la grabación de Z1 o el sintético de P1; las fallas se simulan.
+// Optimizar día (S4-06 y S4-07): una ruta por zona con Geoapify, optimizeDay, createRoutesForDay y "Pasar a…".
+// Modo mocks: Geoapify responde el Route Planner sintético de P1; las fallas se simulan.
 import { todayISO } from '../src/lib/dates';
+import { ROUTING } from '../src/config/routing';
 
 let opt, svc, geo, mockDb;
 const today = todayISO();
 const tomorrow = () => require('../src/features/dispatch/dispatchMath').addDays(today, 1);
 
+// Reloj fijo a las 08:00 de hoy: Geoapify respeta el horario de los express (hasta las 12:00) y el
+// turno, así que lo que entra en una ruta de hoy no puede depender de la hora a la que se corre la prueba
+const at8 = () => {
+  const d = new Date();
+  d.setHours(8, 0, 0, 0);
+  return d;
+};
+const ONLY_DATE = [
+  'nextTick',
+  'setImmediate',
+  'queueMicrotask',
+  'setTimeout',
+  'clearTimeout',
+  'setInterval',
+  'clearInterval',
+];
+afterEach(() => jest.useRealTimers());
 beforeEach(() => {
+  jest.useFakeTimers({ now: at8(), doNotFake: ONLY_DATE });
   jest.resetModules();
   opt = require('../src/optimizer');
   svc = require('../src/features/routes/routesService');
   geo = require('../src/lib/geoapify');
   mockDb = require('../src/mocks').mockDb;
-  // Se cuentan las llamadas a Geoapify; responde el mock de P1 (con varios agentes, su fleetPlanner)
+  // Se cuentan las llamadas a Geoapify; responde el mock de P1
   jest.spyOn(geo, 'geoapifyFetch');
 });
 
 const data = () => ({
   shipments: mockDb.all('shipments'),
   drivers: mockDb.all('drivers'),
-  vehicles: mockDb.all('vehicles'),
   depot: mockDb.all('depots')[0],
   zones: mockDb.all('zones'),
 });
 const zoneArgs = (zoneId) => {
   const d = data();
-  const driver = d.drivers.find((x) => x.zoneId === zoneId);
   return {
     shipments: d.shipments.filter((s) => s.zoneId === zoneId && opt.isPlannable(s)),
-    driver,
-    vehicle: d.vehicles.find((v) => v.id === driver.vehicleId),
+    driver: d.drivers.find((x) => x.zoneId === zoneId),
     depot: d.depot,
     date: tomorrow(),
     zoneId,
-    zoneName: d.zones.find((z) => z.id === zoneId).name,
   };
 };
 const failWith = (code) =>
   jest.spyOn(geo, 'geoapifyFetch').mockRejectedValue(new geo.GeoapifyError(code, `falla simulada: ${code}`));
+const plannerCalls = () => geo.geoapifyFetch.mock.calls.filter(([path]) => path.startsWith('/v1/routeplanner'));
 
-describe('optimizeRoute: Geoapify y respaldo local por zona', () => {
-  it('con Geoapify: RoutePlan del contrato (motor, paradas con ETA, km, línea por calles)', async () => {
+describe('optimizeRoute: una zona con Geoapify', () => {
+  it('RoutePlan del contrato (motor, paradas con ETA, km, línea por calles)', async () => {
     const plan = await opt.optimizeRoute(zoneArgs('Z1'));
-    expect(plan).toMatchObject({ zoneId: 'Z1', driverId: 'D1', vehicleId: 'V1', engine: 'geoapify', warning: null });
-    expect(plan.stops).toHaveLength(6);
+    expect(plan).toMatchObject({ zoneId: 'Z1', driverId: 'D1', engine: 'geoapify', warning: null });
+    expect(plan.stops).toHaveLength(12);
+    expect(plan.unassigned).toEqual([]);
     expect(plan.stops[0]).toMatchObject({ stopSequence: 1, etaISO: expect.stringMatching(/T07:\d\d:\d\d-06:00$/) });
-    expect(plan.geometry.length).toBeGreaterThan(2);
-    expect(plan.baselineKm).toBeGreaterThan(0);
-  });
-
-  it.each([
-    ['timeout', 'Geoapify no respondió a tiempo'],
-    ['quota', 'Se acabaron los créditos de Geoapify por hoy'],
-    ['offline', 'No hay conexión a internet'],
-  ])('si Geoapify falla con %s, la zona se calcula local y avisa', async (code, why) => {
-    failWith(code);
-    const plan = await opt.optimizeRoute(zoneArgs('Z1'));
-    expect(plan.engine).toBe('local');
-    expect(plan.geometry).toBeNull();
-    expect(plan.warning).toBe(`${why}; la San Salvador Centro se calculó en el teléfono, sin calles ni horarios.`);
-    // El respaldo también saca lo que la moto no puede llevar, con el mismo criterio
-    const reasons = Object.fromEntries(plan.unassigned.map((u) => [u.shipmentId, u.reason]));
-    expect(reasons['SIM-0400']).toBe('requisito');
-    const kg = plan.stops.reduce((s, st) => s + Math.ceil(mockDb.get('shipments', st.shipmentId).weightKg), 0);
-    expect(kg).toBeLessThanOrEqual(40);
-    expect(plan.stops.length + plan.unassigned.length).toBe(12);
     expect(plan.stops.map((s) => s.stopSequence)).toEqual(plan.stops.map((_, i) => i + 1));
+    expect(plan.geometry.length).toBeGreaterThan(2);
+    expect(plan.baselineKm).toBeGreaterThanOrEqual(plan.km);
+    expect(plannerCalls()).toHaveLength(1);
   });
 
-  it('una respuesta inesperada también cae al cálculo local (no rompe el día)', async () => {
-    const err = jest.spyOn(console, 'error').mockImplementation(() => {});
-    jest.spyOn(geo, 'geoapifyFetch').mockResolvedValue({ features: [{ properties: { actions: 'no-es-lista' } }] });
-    const plan = await opt.optimizeRoute(zoneArgs('Z3'));
-    expect(plan.engine).toBe('local');
-    expect(plan.warning).toMatch(/Geoapify no pudo calcular la ruta; la Antiguo Cuscatlán/);
-    err.mockRestore();
+  it('si Geoapify falla, lanza el error (no hay cálculo en el teléfono)', async () => {
+    failWith('timeout');
+    await expect(opt.optimizeRoute(zoneArgs('Z1'))).rejects.toThrow('falla simulada: timeout');
   });
 
-  it('fitToVehicle: requisito, capacidad llenando primero express, y máximo de paradas', () => {
-    const s = (id, kg, extra = {}) => ({ id, weightKg: kg, requires: [], priority: 'normal', ...extra });
-    const moto = { maxKg: 40, capabilities: [] };
-    const { fits, unassigned } = opt.fitToVehicle(
-      [s('a', 30), s('b', 15, { priority: 'express' }), s('c', 5, { requires: ['carga_grande'] }), s('d', 20)],
-      moto,
-    );
-    expect(fits.map((x) => x.id)).toEqual(['b', 'd']);
-    expect(unassigned).toEqual([
-      { shipmentId: 'a', reason: 'capacidad' },
-      { shipmentId: 'c', reason: 'requisito' },
-    ]);
-    expect(opt.fitToVehicle([s('a', 1), s('b', 1)], null, 1).unassigned).toEqual([
-      { shipmentId: 'b', reason: 'capacidad' },
-    ]);
+  it(`más de ${ROUTING.maxStops} pedidos: entran los primeros por prioridad y hora; el resto queda por capacidad`, async () => {
+    const args = zoneArgs('Z1');
+    const extra = Array.from({ length: 20 }, (_, i) => ({
+      ...args.shipments[0],
+      id: `X${i}`,
+      code: `X${i}`,
+      priority: 'normal',
+      scheduledTime: '17:00',
+    }));
+    const plan = await opt.optimizeRoute({ ...args, shipments: [...args.shipments, ...extra] });
+    expect(plannerCalls()[0][1].body.jobs).toHaveLength(ROUTING.maxStops);
+    const over = plan.unassigned.filter((u) => u.reason === 'capacidad');
+    expect(over).toHaveLength(12 + 20 - ROUTING.maxStops);
+    expect(over.every((u) => u.shipmentId.startsWith('X'))).toBe(true);
   });
 
   it('departureSec: hoy dentro del turno sale ahora; otro día o fuera del turno, al inicio del turno', () => {
@@ -106,25 +101,21 @@ describe('optimizeRoute: Geoapify y respaldo local por zona', () => {
 });
 
 describe('optimizeDay', () => {
-  it('una ruta por zona con motorista; ninguna línea blanca va en moto', async () => {
+  it('una ruta por zona, una llamada por zona; ningún pedido se pierde ni se cuenta dos veces', async () => {
     const d = data();
     const day = await opt.optimizeDay({ date: tomorrow(), ...d });
     expect(day.engine).toBe('geoapify');
-    expect(day.plans.map((p) => p.zoneId).sort()).toEqual(['Z1', 'Z2', 'Z3', 'Z4', 'Z5']);
-    const vehicleOf = (p) => d.vehicles.find((v) => v.id === p.vehicleId);
-    for (const p of day.plans) {
-      const v = vehicleOf(p);
-      const big = p.stops.filter((st) => mockDb.get('shipments', st.shipmentId).requires?.length);
-      if (v.type === 'moto') expect(big).toEqual([]);
-      const kg = p.stops.reduce((s, st) => s + Math.ceil(mockDb.get('shipments', st.shipmentId).weightKg), 0);
-      expect(kg).toBeLessThanOrEqual(v.maxKg);
-    }
+    expect(day.plans.map((p) => p.zoneId)).toEqual(['Z1', 'Z2', 'Z3', 'Z4', 'Z5']);
+    expect(day.plans.map((p) => p.driverId)).toEqual(['D1', 'D2', 'D3', 'D4', 'D5']);
+    expect(plannerCalls()).toHaveLength(5);
     // Cada pedido abierto queda en una ruta o en sin asignar, nunca en los dos ni en ninguno
     const routed = day.plans.flatMap((p) => p.stops.map((s) => s.shipmentId));
     const left = day.unassigned.map((u) => u.shipmentId);
     expect(new Set([...routed, ...left]).size).toBe(routed.length + left.length);
     const open = d.shipments.filter((s) => s.status === 'pendiente' || (s.status === 'no_entregado' && s.attempts < 2));
     expect(routed.length + left.length).toBe(open.length);
+    for (const pl of day.plans)
+      expect(pl.stops.every((st) => mockDb.get('shipments', st.shipmentId).zoneId === pl.zoneId)).toBe(true);
   });
 
   it('no entra ningún pedido con ubicación "revisar" o "sin_ubicacion": vuelven como sin_ubicacion', async () => {
@@ -145,37 +136,33 @@ describe('optimizeDay', () => {
     );
   });
 
-  it('si Geoapify no está, todas las zonas salen local, con un aviso por zona', async () => {
+  it('si Geoapify falla, el día no se guarda a medias: avisa que se intente de nuevo', async () => {
     failWith('offline');
-    const day = await opt.optimizeDay({ date: tomorrow(), ...data() });
-    expect(day.engine).toBe('local');
-    // Optimización conjunta caída: el día sale por zona en el teléfono, con UN aviso
-    expect(day.warnings[0]).toBe(
-      'No hay conexión a internet; las rutas se calcularon en el teléfono, por zona, sin calles ni horarios.',
+    await expect(opt.optimizeDay({ date: tomorrow(), ...data() })).rejects.toThrow(
+      'Geoapify no pudo calcular las rutas (falla simulada: offline). Intente de nuevo en un momento.',
     );
-    expect(day.warnings.filter((w) => /calcul(ó|aron) en el teléfono/.test(w))).toHaveLength(1);
-    expect(day.plans.every((p) => p.engine === 'local' && p.geometry === null)).toBe(true);
   });
 
-  it('motorista inactivo: no entra al reparto, y los pedidos de su zona los llevan los demás', async () => {
+  it('motorista dado de baja: su zona no tiene ruta y lo dice; las demás siguen igual', async () => {
     mockDb.upsert('drivers', { id: 'D5', active: false });
     const day = await opt.optimizeDay({ date: tomorrow(), ...data() });
-    expect(day.plans.map((p) => p.driverId)).not.toContain('D5');
-    const routed = new Set(day.plans.flatMap((p) => p.stops.map((st) => st.shipmentId)));
-    const z5 = data().shipments.filter((s) => s.zoneId === 'Z5' && opt.isPlannable(s));
-    expect(z5.some((s) => routed.has(s.id))).toBe(true);
-    expect(day.warnings.some((w) => /no tiene motorista/.test(w))).toBe(false);
+    expect(day.plans.map((p) => p.zoneId)).toEqual(['Z1', 'Z2', 'Z3', 'Z4']);
+    expect(day.warnings.some((w) => /no tiene motorista activo/.test(w))).toBe(true);
+  });
+
+  it('hoy la zona cuya ruta ya salió no se toca ni se le pregunta a Geoapify', async () => {
+    const day = await opt.optimizeDay({ date: today, ...data(), routes: mockDb.all('routes') });
+    expect(day.plans.map((p) => p.zoneId)).not.toContain('Z2');
+    expect(day.warnings.some((w) => /ya salió con la Ruta A; no se cambió\./.test(w))).toBe(true);
+    expect(plannerCalls()).toHaveLength(4);
   });
 });
 
 describe('createRoutesForDay', () => {
-  it('guarda una ruta por zona (N3), con motivos de lo que no cupo; salta Z2, que ya salió', async () => {
+  it('guarda una ruta por zona (N3); salta Z2, que ya salió', async () => {
     const date = today;
     const day = await opt.optimizeDay({ date, ...data(), routes: mockDb.all('routes') });
     const { routeIds, warnings } = await svc.createRoutesForDay(date, day);
-
-    // Jorge (Z2) sigue en ruta: no entra como agente; un plan por cada motorista libre
-    expect(day.warnings).toContain('Jorge sigue en ruta (Ruta A): no recibe pedidos nuevos.');
     expect(routeIds.sort()).toEqual(['Z1', 'Z3', 'Z4', 'Z5'].map((z) => `R-${date}-${z}`));
     expect(warnings).toEqual([]);
     const codes = routeIds.map((id) => mockDb.get('routes', id).code).sort();
@@ -183,18 +170,12 @@ describe('createRoutesForDay', () => {
 
     for (const id of routeIds) {
       const r = mockDb.get('routes', id);
-      expect(r).toMatchObject({ status: 'asignada', date, engine: expect.any(String) });
+      expect(r).toMatchObject({ status: 'asignada', date, engine: 'geoapify' });
+      expect(r).not.toHaveProperty('vehicleId');
       expect(r.stops.every((st) => mockDb.get('shipments', st.shipmentId).status === 'asignado')).toBe(true);
       expect(r.stops.every((st) => Number.isInteger(st.seq) && st.etaISO)).toBe(true);
       // Sin arreglos anidados (Firestore no los acepta)
-      expect(r.geometry === null || r.geometry.every((p) => typeof p.lat === 'number')).toBe(true);
-    }
-    // Lo que no cupo queda pendiente con su motivo escrito
-    for (const u of day.unassigned.filter((x) => mockDb.get('shipments', x.shipmentId).zoneId !== 'Z2')) {
-      expect(mockDb.get('shipments', u.shipmentId)).toMatchObject({
-        status: expect.any(String),
-        unassignedReason: u.reason,
-      });
+      expect(r.geometry.every((p) => typeof p.lat === 'number')).toBe(true);
     }
   });
 
@@ -227,19 +208,24 @@ describe('createRoutesForDay', () => {
   it('al rehacer, lo que ya no entra vuelve a pendiente sin ruta y con su motivo (evento liberado)', async () => {
     const date = tomorrow();
     await svc.optimizeAndSaveDay(date);
-    const z5 = mockDb.get('routes', `R-${date}-Z5`); // Z5 va en moto
-    const victim = z5.stops[0].shipmentId;
-    mockDb.upsert('shipments', { id: victim, requires: ['carga_grande'] }); // ahora pide carga grande
-    // y ningún otro vehículo la lleva: no puede pasar a otra zona
-    for (const id of ['V4', 'V5']) mockDb.upsert('vehicles', { id, capabilities: [] });
-    await svc.optimizeAndSaveDay(date);
-    expect(mockDb.get('shipments', victim)).toMatchObject({
+    const z5 = mockDb.get('routes', `R-${date}-Z5`);
+    // Llega un pedido nuevo (así se puede volver a optimizar) y el turno de Z5 se acorta
+    mockDb.upsert('shipments', {
+      ...mockDb.get('shipments', z5.stops[0].shipmentId),
+      id: 'SIM-0991',
+      code: 'SIM-0991',
       status: 'pendiente',
       routeId: null,
-      unassignedReason: 'requisito',
+      stopSequence: null,
     });
-    expect(mockDb.get('routes', z5.id).stops.map((st) => st.shipmentId)).not.toContain(victim);
-    expect(mockDb.all('events').some((e) => e.shipmentId === victim && e.kind === 'liberado')).toBe(true);
+    mockDb.upsert('drivers', { id: 'D5', shiftStart: '07:00', shiftEnd: '07:40' });
+    await svc.optimizeAndSaveDay(date);
+    const left = z5.stops.map((st) => st.shipmentId).filter((id) => mockDb.get('shipments', id).status === 'pendiente');
+    expect(left.length).toBeGreaterThan(0);
+    for (const id of left) {
+      expect(mockDb.get('shipments', id)).toMatchObject({ routeId: null, unassignedReason: 'ventana' });
+      expect(mockDb.all('events').some((e) => e.shipmentId === id && e.kind === 'liberado')).toBe(true);
+    }
   });
 
   it('routeGeometry devuelve [[lat, lng]] para DispatchMap, venga como objetos o como pares', () => {
@@ -383,32 +369,41 @@ describe('despacho S4-09: cálculos del mapa y de los paneles', () => {
       { id: 'c', code: 'C', status: 'asignado', routeId: 'R', unassignedReason: null },
       { id: 'd', code: 'D', status: 'pendiente', unassignedReason: null },
     ];
+    // Orden de REASON_LABEL: ruta llena (25 paradas), horario, ubicación
     expect(dm.unassignedOf(list).map((s) => s.id)).toEqual(['b', 'a']);
-    expect(dm.REASON_LABEL.capacidad).toBe('No cabe en el vehículo');
+    expect(dm.REASON_LABEL).toEqual({
+      capacidad: 'La ruta ya lleva 25 paradas',
+      ventana: 'No alcanza su horario',
+      sin_ubicacion: 'Sin ubicación confirmada',
+    });
     expect(dm.needsLocationReview({ status: 'pendiente', location: { status: 'revisar' } })).toBe(true);
     expect(dm.needsLocationReview({ status: 'entregado', location: { status: 'revisar' } })).toBe(false);
     expect(dm.needsLocationReview({ status: 'pendiente', location: { status: 'alta' } })).toBe(false);
-    expect(dm.engineLabel('local')).toBe('Cálculo local');
+    // Siempre Geoapify (C53); "(prueba)" con la API apagada
     expect(dm.engineLabel('geoapify')).toBe('Geoapify');
     expect(dm.engineLabel('geoapify', { live: false })).toBe('Geoapify (prueba)');
-    expect(dm.engineLabel('local', { live: false })).toBe('Cálculo local');
   });
 });
 
 describe('optimizeAndSaveDay (botón "Optimizar día")', () => {
-  it('una sola llamada al Route Planner con los motoristas libres; quien sigue en ruta no entra', async () => {
+  it('hoy: una llamada por zona libre; la zona en ruta no entra y sus pendientes esperan otra ruta', async () => {
     const r = await svc.optimizeAndSaveDay(today);
-    const fleetCalls = geo.geoapifyFetch.mock.calls.filter(([, opts]) => (opts?.body?.agents?.length ?? 0) > 1);
-    expect(fleetCalls).toHaveLength(1);
-    expect(fleetCalls[0][1].body.agents.map((a) => a.id)).toEqual(['D1', 'D3', 'D4', 'D5']); // sin Jorge
-    expect(r.warnings).toContain('Jorge sigue en ruta (Ruta A): no recibe pedidos nuevos.');
-    // Los pedidos de Escalón NO quedan bloqueados: entran al reparto general (ninguno "espera otra ruta")
+    expect(
+      plannerCalls()
+        .map(([, o]) => o.body.agents[0].id)
+        .sort(),
+    ).toEqual(['D1', 'D3', 'D4', 'D5']); // sin Jorge
+    expect(r.warnings.some((w) => /ya salió con la Ruta A/.test(w))).toBe(true);
     const list = mockDb.all('shipments');
     const byId = Object.fromEntries(list.map((x) => [x.id, x]));
     const waiting = require('../src/features/dispatch/dispatchMath').waitingOf(list, mockDb.all('routes'), byId);
-    expect(waiting).toEqual([]);
-    const z2Open = list.filter((x) => x.zoneId === 'Z2' && x.status === 'pendiente');
-    for (const x of z2Open) expect(x.unassignedReason).toEqual(expect.any(String));
+    const z2Open = list.filter((x) => x.zoneId === 'Z2' && x.status === 'pendiente' && !x.routeId);
+    expect(
+      waiting
+        .flatMap((g) => g.shipments)
+        .map((x) => x.id)
+        .sort(),
+    ).toEqual(z2Open.map((x) => x.id).sort());
   });
 
   it('mañana no repite la letra de la ruta que sigue abierta desde hoy (N37): ninguna "Ruta A" doble', async () => {
@@ -440,7 +435,13 @@ describe('optimizeAndSaveDay (botón "Optimizar día")', () => {
     expect(r.routeIds).toHaveLength(4);
     expect(r.engine).toBe('geoapify');
     expect(r.unassigned).toBeGreaterThanOrEqual(0);
-    expect(r.warnings).toEqual(expect.arrayContaining([expect.stringMatching(/sigue en ruta \(Ruta A\)/)]));
+  });
+
+  it('si Geoapify falla no se guarda nada', async () => {
+    const before = JSON.stringify(mockDb.all('routes'));
+    failWith('quota');
+    await expect(svc.optimizeAndSaveDay(tomorrow())).rejects.toThrow('Intente de nuevo');
+    expect(JSON.stringify(mockDb.all('routes'))).toBe(before);
   });
 
   it('resumen y panel salen de la misma cuenta: con motivo + los que esperan otra ruta', async () => {
@@ -459,16 +460,12 @@ describe('optimizeAndSaveDay (botón "Optimizar día")', () => {
     const waiting = dm.waitingOf(list, routes, byId);
     // Lo que optimizeAndSaveDay dice que escribió es lo que el panel ve con motivo
     expect(r.unassigned).toBe(unassigned.length);
-    // Con la optimización conjunta los pendientes de Escalón (Z2, Ruta A en curso) entran al reparto:
-    // ninguno queda "esperando otra ruta" sin motivo
-    expect(waiting).toEqual([]);
     // Ningún pendiente abierto queda fuera de la cuenta
     const open = list.filter((x) => ['pendiente', 'no_entregado'].includes(x.status) && !x.routeId);
     const counted = new Set([...unassigned, ...waiting.flatMap((g) => g.shipments)].map((x) => x.id));
-    expect(open.filter((x) => !counted.has(x.id) && x.zoneId === 'Z2')).toEqual([]);
+    expect(open.filter((x) => !counted.has(x.id))).toEqual([]);
     const c = dm.unassignedCount(unassigned, waiting, today);
     expect(c.total).toBe(counted.size);
-    expect(c.waiting).toBe(0);
   });
 });
 
@@ -476,31 +473,35 @@ describe('moveStop (Pasar a…, S4-08)', () => {
   let date, routeOf;
   beforeEach(async () => {
     date = tomorrow();
-    // Sin pasar pedidos entre zonas al optimizar, para que queden sin asignar los casos que se mueven a mano
-    for (const id of ['V4', 'V5']) mockDb.upsert('vehicles', { id, capabilities: [] });
     await svc.optimizeAndSaveDay(date);
-    for (const id of ['V4', 'V5']) mockDb.upsert('vehicles', { id, capabilities: ['carga_grande'] });
     routeOf = (zone) => mockDb.get('routes', `R-${date}-${zone}`);
   });
   const snapshot = (zone) => JSON.stringify(routeOf(zone).stops);
 
-  it('de Sin asignar a otra ruta: la línea blanca de Z1 entra en la pick-up de Z3; las demás rutas no cambian', async () => {
-    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'requisito' });
+  it('de Sin asignar a otra ruta: entra en esa ruta; las demás rutas no cambian', async () => {
+    mockDb.upsert('shipments', {
+      ...mockDb.get('shipments', 'SIM-0400'),
+      id: 'SIM-0992',
+      code: 'SIM-0992',
+      status: 'pendiente',
+      routeId: null,
+      stopSequence: null,
+      unassignedReason: 'capacidad',
+    });
     const untouched = { Z1: snapshot('Z1'), Z4: snapshot('Z4'), Z5: snapshot('Z5') };
-    const { routeIds } = await svc.moveStop('SIM-0400', routeOf('Z3').id);
+    const { routeIds } = await svc.moveStop('SIM-0992', routeOf('Z3').id);
     expect(routeIds).toEqual([routeOf('Z3').id]);
-    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({
+    expect(mockDb.get('shipments', 'SIM-0992')).toMatchObject({
       status: 'asignado',
       routeId: routeOf('Z3').id,
       unassignedReason: null,
     });
-    expect(routeOf('Z3').stops.map((st) => st.shipmentId)).toContain('SIM-0400');
+    expect(routeOf('Z3').stops.map((st) => st.shipmentId)).toContain('SIM-0992');
     expect({ Z1: snapshot('Z1'), Z4: snapshot('Z4'), Z5: snapshot('Z5') }).toEqual(untouched);
   });
 
   it('entre rutas: sale de una y entra en la otra; solo esas dos se reoptimizan', async () => {
-    const from = routeOf('Z3');
-    const moved = from.stops.find((st) => !mockDb.get('shipments', st.shipmentId).requires?.length).shipmentId;
+    const moved = routeOf('Z3').stops[0].shipmentId;
     const untouched = { Z1: snapshot('Z1'), Z5: snapshot('Z5') };
     const { routeIds } = await svc.moveStop(moved, routeOf('Z4').id);
     expect(routeIds.sort()).toEqual([routeOf('Z3').id, routeOf('Z4').id].sort());
@@ -512,22 +513,16 @@ describe('moveStop (Pasar a…, S4-08)', () => {
     expect({ Z1: snapshot('Z1'), Z5: snapshot('Z5') }).toEqual(untouched);
   });
 
-  it('no deja pasar carga grande a una moto', async () => {
-    await expect(svc.moveStop('SIM-0400', routeOf('Z1').id)).rejects.toThrow(
-      'Moto 1 de la Ruta B no lleva carga grande',
-    );
-  });
-
-  it('no deja pasar lo que no cabe en lo libre del vehículo, y dice cuánto lleva', async () => {
-    // La moto de Z1 va casi llena; SIM-0401 pesa 12 kg y no entra en lo libre
-    const kg = routeOf('Z1').stops.reduce(
-      (sum, st) => sum + Math.ceil(mockDb.get('shipments', st.shipmentId).weightKg ?? 0),
-      0,
-    );
-    expect(kg + 12).toBeGreaterThan(40);
-    await expect(svc.moveStop('SIM-0401', routeOf('Z1').id)).rejects.toThrow(
-      `No cabe en Moto 1: lleva ${kg} de 40 kg y SIM-0401 pesa 12 kg`,
-    );
+  it('no deja pasar a una ruta que ya lleva el máximo de paradas', async () => {
+    const full = routeOf('Z4');
+    const tpl = mockDb.get('shipments', full.stops[0].shipmentId);
+    const filler = Array.from({ length: ROUTING.maxStops - full.stops.length }, (_, i) => `F${i}`);
+    for (const id of filler)
+      mockDb.upsert('shipments', { ...tpl, id, code: id, status: 'pendiente', routeId: null, stopSequence: null });
+    await svc.optimizeAndSaveDay(date);
+    expect(routeOf('Z4').stops).toHaveLength(ROUTING.maxStops);
+    const mover = routeOf('Z3').stops[0].shipmentId;
+    await expect(svc.moveStop(mover, routeOf('Z4').id)).rejects.toThrow('la ruta ya lleva el máximo de paradas');
   });
 
   it('no mueve hacia (ni desde) una ruta ya iniciada', async () => {
@@ -647,47 +642,25 @@ describe('Pasar a… · textos de la revisión de P3', () => {
     expect(dm().moveLockedNote({ id: 'p', status: 'pendiente' }, routes, ships)).toBeNull();
   });
 
-  it('rankMoveTargets: con carga grande, las motos al final y marcadas; sin carga grande, igual que antes', () => {
-    const moto = { capabilities: [] };
-    const pick = { capabilities: ['carga_grande'] };
-    const targets = [{ id: 'M' }, { id: 'P' }, { id: 'N' }];
-    const veh = (r) => ({ M: moto, P: pick, N: null })[r.id];
-    const big = dm().rankMoveTargets({ requires: ['carga_grande'] }, targets, veh);
-    expect(big.map((t) => [t.route.id, t.lacks])).toEqual([
-      ['P', false],
-      ['N', false],
-      ['M', true],
+  it('rankMoveTargets: sin vehículo; las rutas con 25 paradas al final, marcadas full', () => {
+    const stops = (n) => Array.from({ length: n }, (_, i) => ({ shipmentId: `x${i}` }));
+    const targets = [
+      { id: 'LLENA', stops: stops(25) },
+      { id: 'A', stops: stops(3) },
+      { id: 'B', stops: stops(24) },
+    ];
+    // Sin ubicación del pedido no hay distancia: queda el orden recibido, las llenas al final
+    const ranked = dm().rankMoveTargets({ id: 'p' }, targets, {});
+    expect(ranked.map((t) => [t.route.id, t.full, t.stops])).toEqual([
+      ['A', false, 3],
+      ['B', false, 24],
+      ['LLENA', true, 25],
     ]);
-    const small = dm().rankMoveTargets({ requires: [] }, targets, veh);
-    expect(small.map((t) => [t.route.id, t.lacks])).toEqual([
-      ['M', false],
-      ['P', false],
-      ['N', false],
-    ]);
+    expect(dm().moveTargetNote(ranked[2])).toBe('llena: 25 paradas');
   });
 });
 
-describe('reglas del 30 oct: lo que no cabe pasa a otra zona, "Pasar a…" por espacio y cercanía', () => {
-  it('respaldo local (por zona): lo que no cabe en la moto de su zona pasa a la ruta con espacio', async () => {
-    const date = tomorrow();
-    const before = await (async () => {
-      for (const id of ['V4', 'V5']) mockDb.upsert('vehicles', { id, capabilities: [], maxKg: 40 });
-      const d = await opt.optimizeDay({ date, ...data(), engine: 'local' });
-      for (const id of ['V4', 'V5']) mockDb.upsert('vehicles', { id, capabilities: ['carga_grande'] });
-      mockDb.upsert('vehicles', { id: 'V4', maxKg: 600 });
-      mockDb.upsert('vehicles', { id: 'V5', maxKg: 2000 });
-      return d;
-    })();
-    const after = await opt.optimizeDay({ date, ...data(), engine: 'local' });
-    const spill = (d) => d.unassigned.filter((u) => ['capacidad', 'requisito'].includes(u.reason)).length;
-    expect(spill(after)).toBeLessThan(spill(before));
-    expect(after.warnings.some((w) => /pas(ó|aron) a la ruta con espacio/.test(w))).toBe(true);
-    // ningún pedido queda en dos rutas, ni en una ruta y sin asignar a la vez
-    const routed = after.plans.flatMap((p) => p.stops.map((st) => st.shipmentId));
-    expect(new Set(routed).size).toBe(routed.length);
-    expect(after.unassigned.filter((u) => routed.includes(u.shipmentId))).toEqual([]);
-  });
-
+describe('reglas del 30 oct: cada pedido en una sola ruta', () => {
   it('guardar el día con pedidos de otra zona deja cada pedido en una sola ruta', async () => {
     const date = tomorrow();
     await svc.optimizeAndSaveDay(date);
@@ -699,21 +672,24 @@ describe('reglas del 30 oct: lo que no cabe pasa a otra zona, "Pasar a…" por e
       expect(mockDb.get('shipments', id)).toMatchObject({ status: 'asignado', routeId });
   });
 
-  it('rankMoveTargets con envíos: las llenas al final con sus kilos, las demás de la más cercana a la más lejana', () => {
+  it('rankMoveTargets con envíos: de la más cercana a la más lejana; la llena (25 paradas) al final', () => {
     const dm = require('../src/features/dispatch/dispatchMath');
     const at = (lat, lng) => ({ lat, lng, status: 'alta' });
     const byId = {
-      a: { id: 'a', routeId: 'LEJOS', status: 'asignado', weightKg: 5, location: at(13.8, -89.0) },
-      b: { id: 'b', routeId: 'CERCA', status: 'asignado', weightKg: 5, location: at(13.701, -89.2) },
-      c: { id: 'c', routeId: 'LLENA', status: 'asignado', weightKg: 38, location: at(13.7, -89.2) },
+      a: { id: 'a', routeId: 'LEJOS', status: 'asignado', location: at(13.8, -89.0) },
+      b: { id: 'b', routeId: 'CERCA', status: 'asignado', location: at(13.701, -89.2) },
+      c: { id: 'c', routeId: 'LLENA', status: 'asignado', location: at(13.7, -89.2) },
     };
-    const route = (id, sid) => ({ id, stops: [{ shipmentId: sid }] });
-    const targets = [route('LEJOS', 'a'), route('LLENA', 'c'), route('CERCA', 'b')];
-    const moto = { maxKg: 40, capabilities: [] };
-    const ranked = dm.rankMoveTargets({ weightKg: 4, location: at(13.7, -89.2) }, targets, () => moto, byId);
+    const route = (id, sid, n = 1) => ({
+      id,
+      stops: Array.from({ length: n }, (_, i) => ({ shipmentId: i === 0 ? sid : `${sid}${i}` })),
+    });
+    // La llena está justo encima del pedido, pero va al final porque ya lleva 25 paradas
+    const targets = [route('LEJOS', 'a'), route('LLENA', 'c', 25), route('CERCA', 'b')];
+    const ranked = dm.rankMoveTargets({ location: at(13.7, -89.2) }, targets, byId);
     expect(ranked.map((t) => t.route.id)).toEqual(['CERCA', 'LEJOS', 'LLENA']);
-    expect(ranked[2]).toMatchObject({ full: true, usedKg: 38, maxKg: 40 });
-    expect(dm.moveTargetNote(ranked[2])).toBe('llena: 38 de 40 kg');
+    expect(ranked[2]).toMatchObject({ full: true, stops: 25 });
+    expect(dm.moveTargetNote(ranked[2])).toBe('llena: 25 paradas');
     expect(dm.moveTargetNote(ranked[0])).toMatch(/^a 0\.\d km$/);
   });
 });
@@ -756,8 +732,6 @@ it('optimizar un día no toca las rutas sin salir de otro día (bug del 30 oct)'
       scheduledDate: sun,
       status: 'pendiente',
       attempts: 0,
-      weightKg: 1,
-      requires: [],
       routeId: null,
       stopSequence: null,
       unassignedReason: null,

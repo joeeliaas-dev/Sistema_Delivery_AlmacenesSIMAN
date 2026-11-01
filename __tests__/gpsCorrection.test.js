@@ -1,6 +1,6 @@
 // __tests__/gpsCorrection.test.js  (dueño: P3) — corrección de ubicación por GPS al entregar (S4-14)
 const mockConfirm = jest.fn();
-jest.mock('../src/features/geo/addressBook', () => ({ confirmLocation: (...a) => mockConfirm(...a) }));
+jest.mock('../src/features/geo/confirmLocation', () => ({ confirmLocation: (...a) => mockConfirm(...a) }));
 
 const { confirmFromDelivery, shouldConfirmFromGps } = require('../src/features/driver/gpsCorrection');
 

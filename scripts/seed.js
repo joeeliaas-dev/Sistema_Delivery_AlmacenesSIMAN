@@ -61,10 +61,6 @@ async function main() {
   put('depots', data.depot);
   data.zones.forEach((z) => put('zones', z));
   data.drivers.forEach((d) => put('drivers', d));
-  data.vehicles.forEach((v) => put('vehicles', v));
-  JSON.parse(readFileSync(join(__dirname, '..', 'src', 'mocks', 'addresses.json'), 'utf8')).forEach((x) =>
-    put('addresses', x),
-  );
   data.routes.forEach((r) => put('routes', r));
   const driverOfZone = Object.fromEntries(data.zones.map((z) => [z.id, z.driverId]));
   let events = 0;

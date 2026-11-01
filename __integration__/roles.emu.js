@@ -67,10 +67,9 @@ test('el despachador optimiza el día (crea rutas y asigna)', async () => {
   expect(Object.keys(routes).length).toBeGreaterThan(0);
 }, 60000);
 
-test('un motorista no importa, no planifica ni toca la flota', async () => {
+test('un motorista no importa, no planifica ni toca a los motoristas', async () => {
   await as('kevin');
   await denied(setDoc(doc(db, 'shipments', 'SIM-9999'), { code: 'SIM-9999', status: 'pendiente' }));
-  await denied(updateDoc(doc(db, 'vehicles', 'V1'), { maxKg: 999 }));
   await denied(updateDoc(doc(db, 'drivers', 'D1'), { shiftStart: '06:00' }));
   const anyRoute = Object.values(routes)[0];
   await denied(updateDoc(doc(db, 'routes', anyRoute.id), { stops: [] }));
@@ -133,7 +132,7 @@ test('el despacho da acceso a un motorista; nadie más crea cuentas ni cuentas d
   const { createDriverAccess, signIn: enter } = require('../src/lib/auth');
   const { createDriver } = require('../src/features/fleet/fleetService');
   await as('despacho');
-  const driverId = await createDriver({ name: 'Ana Pérez', zoneId: 'Z1', vehicleId: 'V1' });
+  const driverId = await createDriver({ name: 'Ana Pérez', zoneId: 'Z1' });
   const anaEmail = `ana-${Date.now()}@trazzasv.test`; // el emulador de cuentas guarda las de corridas anteriores
   const { uid } = await createDriverAccess({ driverId, name: 'Ana Pérez', email: anaEmail, password: 'clave-de-ana' });
   expect(uid).toBeTruthy();

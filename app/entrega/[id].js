@@ -1,5 +1,6 @@
 // app/entrega/[id].js (dueño: P3) — Confirmar entrega
 // Resumen de artículos, foto, firma y descripción obligatorias; guarda con changeStatus (P1).
+// Sin señal: la entrega se guarda en el teléfono (queueStatusChange de P1) y se envía sola después.
 // Rediseño (30 oct): artículos en lista simple (sin íconos de categoría), pasos foto → firma → nota
 // con un check al completarse, y "Completar entrega" bloqueado con lo que falta ("Falta la firma").
 // El formulario guarda un borrador por envío y lo borra al completar (N26).
@@ -18,12 +19,14 @@ import { NotDeliverable } from '../../src/features/driver/NotDeliverable';
 import { PhotoCapture } from '../../src/features/driver/PhotoCapture';
 import { ScreenHeader } from '../../src/features/driver/ScreenHeader';
 import { SignaturePad } from '../../src/features/driver/SignaturePad';
+import { useOnline } from '../../src/features/driver/OutboxBanner';
+import { sendOrQueue } from '../../src/features/driver/sendOrQueue';
 import { SubmitBar } from '../../src/features/driver/SubmitBar';
 import { useEvidenceDraft } from '../../src/features/driver/useEvidenceDraft';
 import { useKeyboardInset } from '../../src/features/driver/useKeyboardInset';
 import { useShipment } from '../../src/features/driver/useShipment';
 import { changeStatus } from '../../src/features/shipments/statusMachine';
-import { useAppStore } from '../../src/store/useAppStore';
+import { useCurrentDriverId } from '../../src/features/driver/useDriverRoute';
 import { colors, spacing, typography } from '../../src/theme';
 
 const TITLE = 'Confirmar entrega';
@@ -46,9 +49,7 @@ function ItemsSummary({ items }) {
                 <Text style={styles.itemName} numberOfLines={1}>
                   {item.name}
                 </Text>
-                <Text style={styles.itemMeta}>
-                  {item.sku} · {item.weightKg} kg
-                </Text>
+                <Text style={styles.itemMeta}>{item.sku}</Text>
               </View>
               <Text style={styles.qty}>×{item.qty}</Text>
             </View>
@@ -60,7 +61,8 @@ function ItemsSummary({ items }) {
 }
 
 function DeliveryForm({ shipment, onBack, onDone, onFail, keyboardOpen }) {
-  const driverId = useAppStore((s) => s.currentDriverId);
+  const driverId = useCurrentDriverId();
+  const online = useOnline();
   const [draft, update, clearDraft] = useEvidenceDraft(`entrega:${shipment.id}`, {
     photoUri: null,
     signatureBase64: null,
@@ -70,20 +72,25 @@ function DeliveryForm({ shipment, onBack, onDone, onFail, keyboardOpen }) {
   const [signing, setSigning] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(null); // 'enviada' | 'guardada' (sin señal, en el teléfono)
   const savingRef = useRef(false); // evita dobles toques antes de que React repinte
   const scrollRef = useRef(null);
   // La descripción es el último campo: al enfocarla se baja hasta ella (queda sobre el teclado)
   const scrollToDescription = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 250);
 
   if (done) {
+    const offline = done === 'guardada';
     return (
       <EmptyState
-        icon="check_circle"
-        tone="success"
+        icon={offline ? 'cloud_off' : 'check_circle'}
+        tone={offline ? 'warning' : 'success'}
         large
-        title="Entrega completada"
-        body={[shipment.code, shipment.customer?.name].filter(Boolean).join(' · ')}
+        title={offline ? 'Entrega guardada en el teléfono' : 'Entrega completada'}
+        body={
+          offline
+            ? `${shipment.code} · se envía sola cuando vuelva la señal`
+            : [shipment.code, shipment.customer?.name].filter(Boolean).join(' · ')
+        }
       >
         <Button title="Siguiente parada" onPress={onDone} style={styles.next} />
       </EmptyState>
@@ -103,17 +110,17 @@ function DeliveryForm({ shipment, onBack, onDone, onFail, keyboardOpen }) {
     savingRef.current = true;
     setSaving(true);
     setError(null);
+    const payload = { photoUri, signatureBase64, description };
     try {
-      const result = await changeStatus({
-        shipment,
-        to: STATUS.ENTREGADO,
-        payload: { photoUri, signatureBase64, description },
-        driverId,
+      const { queued, result } = await sendOrQueue({
+        online,
+        send: () => changeStatus({ shipment, to: STATUS.ENTREGADO, payload, driverId }),
+        change: { shipmentId: shipment.id, code: shipment.code, to: STATUS.ENTREGADO, payload, driverId },
       });
       clearDraft();
-      // S4-14: con GPS preciso, la casa del cliente queda confirmada en la libreta (sin esperar ni avisar)
-      confirmFromDelivery(shipment, result?.gps);
-      setDone(true);
+      // S4-14: con GPS preciso, la casa del cliente queda confirmada en el pedido (sin esperar ni avisar)
+      if (!queued) confirmFromDelivery(shipment, result?.gps);
+      setDone(queued ? 'guardada' : 'enviada');
     } catch (err) {
       setError(err.message);
     } finally {

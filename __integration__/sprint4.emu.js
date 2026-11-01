@@ -1,6 +1,6 @@
 // __integration__/sprint4.emu.js  (dueño: P1)
 // Sprint 4 contra el emulador (Firestore real, Geoapify en mocks): importar el Excel de prueba,
-// libreta, flota, reintentos y sin asignar. Arranca con el seed limpio (reseed).
+// motoristas, reintentos y sin asignar. Arranca con el seed limpio (reseed).
 import { readFileSync } from 'node:fs';
 import { collection, doc, getDoc, getDocs, terminate } from 'firebase/firestore';
 import { db } from '../src/lib/firebase';
@@ -9,8 +9,8 @@ import { parseOrdersFile } from '../src/features/orders/parseOrdersFile';
 import { validateOrders } from '../src/features/orders/validateOrders';
 import { importOrders, listOrderNumbers } from '../src/features/orders/importOrders';
 import { resolveLocations } from '../src/features/geo/resolveLocations';
-import { confirmLocation } from '../src/features/geo/addressBook';
-import { updateDriverSetup, upsertVehicle } from '../src/features/fleet/fleetService';
+import { confirmLocation } from '../src/features/geo/confirmLocation';
+import { updateDriverShift } from '../src/features/fleet/fleetService';
 import { carryOverRetries } from '../src/features/shipments/carryOver';
 import { assignToRoute, replanRoutes } from '../src/features/shipments/statusMachine';
 import { getShipment } from '../src/features/shipments/shipmentsService';
@@ -28,7 +28,7 @@ afterAll(() => terminate(db));
 
 let imported = [];
 
-test('importa pedidos-prueba-100.xlsx: 96 en menos de 10 s, 4 rojos, evento importado y libreta usada', async () => {
+test('importa pedidos-prueba-100.xlsx: 96 en menos de 10 s, 4 rojos y evento importado', async () => {
   const file = readFileSync(require.resolve('../assets/pedidos-prueba-100.xlsx'));
   const { rows } = await parseOrdersFile(new Uint8Array(file).buffer);
   const validated = validateOrders(rows, { existingOrderIds: await listOrderNumbers() });
@@ -48,16 +48,12 @@ test('importa pedidos-prueba-100.xlsx: 96 en menos de 10 s, 4 rojos, evento impo
   const ev = (await getDocs(collection(db, 'shipments', ids[0], 'events'))).docs.map((d) => d.data());
   expect(ev).toEqual([expect.objectContaining({ kind: 'importado', toStatus: 'pendiente' })]);
 
-  const book = (await getDocs(collection(db, 'addresses'))).docs.map((d) => d.data());
-  expect(book).toHaveLength(10);
-  expect(book.every((a) => a.uses === 2)).toBe(true);
-
   // El mismo archivo otra vez: los 96 pedidos ya existen y salen rojos
   const again = validateOrders(rows, { existingOrderIds: await listOrderNumbers() });
   expect(again.filter((r) => r.status === 'roja')).toHaveLength(100);
 }, 60000);
 
-test('confirmLocation: confirma, guarda en la libreta y el mismo cliente ya no pasa por Geoapify', async () => {
+test('confirmLocation: confirma la ubicación del pedido y recalcula su zona', async () => {
   const toReview = [];
   for (const id of imported) {
     const s = await getShipment(id);
@@ -65,35 +61,14 @@ test('confirmLocation: confirma, guarda en la libreta y el mismo cliente ya no p
   }
   expect(toReview).toHaveLength(15);
   const s = toReview[0];
-  const { addressId } = await confirmLocation(s.id, { lat: 13.6989, lng: -89.1914 }, 'despacho');
-  expect((await getShipment(s.id)).location).toMatchObject({ status: 'confirmada', source: 'despacho' });
-  expect(data(await getDoc(doc(db, 'addresses', addressId)))).toMatchObject({ lat: 13.6989, source: 'despacho' });
-
-  const [again] = await resolveLocations(
-    validateOrders([
-      {
-        __row: 2,
-        pedido: 'WEB-OTRO-1',
-        cliente: s.customer.name,
-        telefono: s.customer.phone,
-        direccion: s.address.text,
-        municipio: s.address.municipio,
-        fecha: tomorrow,
-      },
-    ]),
-  );
-  expect(again.order.location).toMatchObject({ status: 'confirmada', source: 'libreta', lat: 13.6989 });
+  const { zoneId } = await confirmLocation(s.id, { lat: 13.6989, lng: -89.1914 }, 'despacho');
+  expect((await getShipment(s.id)).location).toMatchObject({ status: 'confirmada', source: 'despacho', lat: 13.6989 });
+  expect(zoneId).toBeTruthy();
 });
 
-test('flota: vehículo nuevo y turno del motorista', async () => {
-  const id = await upsertVehicle({ type: 'pickup', label: 'Pick-up 2', maxKg: 700, capabilities: ['carga_grande'] });
-  expect(data(await getDoc(doc(db, 'vehicles', id)))).toMatchObject({ maxKg: 700, capabilities: ['carga_grande'] });
-  await updateDriverSetup('D5', { vehicleId: id, shiftStart: '08:00', shiftEnd: '16:00' });
-  expect(data(await getDoc(doc(db, 'drivers', 'D5')))).toMatchObject({
-    vehicleId: id,
-    shiftStart: '08:00',
-    shiftEnd: '16:00',
-  });
+test('turno del motorista', async () => {
+  await updateDriverShift('D5', { shiftStart: '08:00', shiftEnd: '16:00' });
+  expect(data(await getDoc(doc(db, 'drivers', 'D5')))).toMatchObject({ shiftStart: '08:00', shiftEnd: '16:00' });
 });
 
 test('carryOverRetries: los reintentos de hoy pasan a mañana como pendientes', async () => {

@@ -34,29 +34,22 @@ export const LOCATION_STATUS = {
   SIN_UBICACION: 'sin_ubicacion',
 };
 export const LOCATION_SOURCE = {
-  LIBRETA: 'libreta',
   EXCEL: 'excel',
   GEOAPIFY: 'geoapify',
   DESPACHO: 'despacho',
   GPS_ENTREGA: 'gps_entrega',
 };
 export const ROW_STATUS = { VERDE: 'verde', AMARILLA: 'amarilla', ROJA: 'roja' };
-export const VEHICLE_TYPE = { MOTO: 'moto', PICKUP: 'pickup', CAMION: 'camion' };
-export const CAPABILITY = { CARGA_GRANDE: 'carga_grande' };
-export const BIG_LOAD = { MIN_KG: 30, MIN_M3: 0.15 }; // desde aquí el pedido pide carga_grande
-export const DEFAULT_SERVICE_MIN = { NORMAL: 5, CARGA_GRANDE: 20 };
+export const DEFAULT_SERVICE_MIN = 5; // minutos por parada si el pedido no trae los suyos
 export const GEOCODE_MIN_CONFIDENCE = 0.8;
 export const GEOCODE_OK_TYPES = ['building', 'street', 'amenity'];
-export const OPTIMIZER_ENGINE = { GEOAPIFY: 'geoapify', LOCAL: 'local' };
 export const UNASSIGNED_REASON = {
   CAPACIDAD: 'capacidad',
   VENTANA: 'ventana',
-  REQUISITO: 'requisito',
   SIN_UBICACION: 'sin_ubicacion',
 };
 export const DEFAULT_SHIFT = { START: '07:00', END: '18:00' };
 export const API_TIMEOUT_MS = 15000;
 // Tope diario de llamadas reales a Geoapify por equipo (N50). Importar 100 pedidos ≈ 80 búsquedas;
-// un "Optimizar día" ≈ 5-9 llamadas al Route Planner (las rutas que reciben pedidos de otra zona se
-// recalculan). Al llegar al tope se comporta como sin créditos.
+// un "Optimizar día" = 1 llamada al Route Planner por zona. Al llegar al tope se comporta como sin créditos.
 export const GEOAPIFY_DAILY_LIMIT = { geocode: 300, routeplanner: 50 };

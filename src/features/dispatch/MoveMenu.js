@@ -1,7 +1,7 @@
 // src/features/dispatch/MoveMenu.js  (dueño: P2)
 // Menú "Pasar a…" (S4-08), rediseño 30 oct: una fila por ruta, con el punto de su color, la ruta y
-// el motorista a la izquierda y la distancia ("a 1.2 km") a la derecha. Las que no sirven (llena, sin
-// carga grande) van al final en gris y no se pueden tocar. El resultado de moveStop va debajo.
+// el motorista a la izquierda y la distancia ("a 1.2 km") a la derecha. Las que ya llevan el máximo de
+// paradas (25) van al final en gris y no se pueden tocar. El resultado de moveStop va debajo.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '../../components/Icon';
 import { colors, radius, spacing, tones, typography } from '../../theme';
@@ -9,10 +9,10 @@ import { colors, radius, spacing, tones, typography } from '../../theme';
 /**
  * @param {{ targets: Array<{ id, code, color, driverName, lacks?: boolean, note?: string }>, busyId: string|null,
  *   message: { ok: boolean, text: string }|null, note?: string|null, onMove: (routeId: string) => void }} props
- *   lacks: no se puede elegir (no lleva carga grande o va llena): va al final, atenuado y desactivado
- *   targets[].note: "a 1.2 km", "llena: 38 de 40 kg"…; note: por qué no se puede mover
+ *   lacks: no se puede elegir (va llena): va al final, atenuado y desactivado
+ *   targets[].note: "a 1.2 km" o "llena: 25 paradas"; note: por qué no se puede mover
  */
-const targetNote = (t) => t.note ?? (t.lacks ? 'no lleva carga grande' : '');
+const targetNote = (t) => t.note ?? (t.lacks ? 'llena' : '');
 
 export function MoveMenu({ targets, busyId, message, note, onMove }) {
   if (!targets.length && !message && !note) return null;

@@ -5,6 +5,7 @@
 // El cambio de motorista es una herramienta de prueba: queda escondido en "Más", y solo en modo datos de
 // prueba con sesión de despachador (con sesión de motorista se ve su ruta, la de user.driverId).
 // "Cerrar sesión" también va en "Más".
+// Sin señal: aviso arriba (OutboxBanner) y las paradas guardadas en el teléfono cuentan como hechas.
 // Horas: routeTimes (P1, C42) una vez para toda la pantalla: sin salir, todo planeado; ya salió,
 // todo en vivo. Las mismas que ve el despacho.
 // Color de la ruta: routeColorOf (letra de la ruta), el mismo que en el mapa del despacho.
@@ -24,9 +25,11 @@ import { StartRouteCard } from '../../src/features/driver/StartRouteCard';
 import { StopList } from '../../src/features/driver/StopList';
 import { SubmitBar } from '../../src/features/driver/SubmitBar';
 import { splitStops } from '../../src/features/driver/routeMath';
+import { OutboxBanner } from '../../src/features/driver/OutboxBanner';
 import { useDriverRoute } from '../../src/features/driver/useDriverRoute';
 import { ROLE, signOut, useSession } from '../../src/lib/auth';
 import { routeTimes } from '../../src/lib/eta';
+import { useOutbox } from '../../src/lib/outbox';
 import { USE_MOCKS } from '../../src/lib/firebase';
 import { useNow } from '../../src/lib/useNow';
 import { routeColorOf } from '../../src/lib/routeColor';
@@ -86,7 +89,9 @@ export default function VistaMotorista() {
   };
 
   const color = route ? routeColorOf(route) : colors.primary;
-  const split = route ? splitStops(route, shipments) : null;
+  const outbox = useOutbox();
+  const queued = new Set(outbox.items.map((x) => x.shipmentId));
+  const split = route ? splitStops(route, shipments, queued) : null;
   const openStop = (id) => router.push(`/entrega/${id}`);
   const arriveAt = !loading && route?.status === ROUTE_STATUS.EN_CURSO ? split?.next : null;
 
@@ -134,6 +139,9 @@ export default function VistaMotorista() {
             onPress={() => setMenuOpen(!menuOpen)}
           />
         ) : null}
+      </View>
+      <View style={styles.column}>
+        <OutboxBanner />
       </View>
       {menuOpen ? (
         <View style={styles.column}>

@@ -1,4 +1,5 @@
 // app/entrega/index.js (dueño: P3) — abre la próxima parada del motorista elegido
+// (sin contar las guardadas en el teléfono sin señal, que ya están hechas)
 import { Redirect, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../../src/components/Button';
@@ -6,11 +7,13 @@ import { EmptyState } from '../../src/features/driver/EmptyState';
 import { EvidenceSkeleton } from '../../src/features/driver/LoadingSkeletons';
 import { splitStops } from '../../src/features/driver/routeMath';
 import { useDriverRoute } from '../../src/features/driver/useDriverRoute';
+import { useOutbox } from '../../src/lib/outbox';
 import { colors, spacing } from '../../src/theme';
 
 export default function EntregaIndex() {
   const router = useRouter();
   const { driver, route, shipments, loading } = useDriverRoute();
+  const outbox = useOutbox();
 
   if (loading) {
     return (
@@ -20,7 +23,8 @@ export default function EntregaIndex() {
     );
   }
 
-  const next = route ? splitStops(route, shipments).next : null;
+  const queued = new Set(outbox.items.map((x) => x.shipmentId));
+  const next = route ? splitStops(route, shipments, queued).next : null;
   if (next) return <Redirect href={`/entrega/${next.shipmentId}`} />;
 
   return (

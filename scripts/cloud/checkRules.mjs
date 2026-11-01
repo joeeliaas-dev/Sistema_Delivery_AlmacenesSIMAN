@@ -142,14 +142,13 @@ await expectDenied('evidencia de un envío que no existe', () =>
 );
 await expectDenied('borrar evidencia', () => deleteDoc(doc(db, 'evidence', `${entregado.id}_intento-1`)));
 
-// Sprint 4: importar, libreta, flota, reprogramar y sin asignar (C25–C33)
-const v1 = 'V1';
+// Sprint 4: importar, motoristas, reprogramar y sin asignar
 const enCurso = (await getDocs(collection(db, 'routes'))).docs.find((d) => d.data().status === 'en_curso');
 await expectDenied('crear un envío ya asignado', () =>
   setDoc(doc(db, 'shipments', 'SIM-9998'), { code: 'SIM-9998', status: 'asignado', attempts: 0, routeId: 'R-x' }),
 );
-// Pasar a otro día (C44) solo mueve un pendiente sin ruta HACIA ADELANTE: hacia atrás se bloquea
-await expectDenied('pasar un pendiente a una fecha anterior', () =>
+// la fecha de un pedido solo cambia al reprogramar un reintento
+await expectDenied('cambiar la fecha de un pendiente', () =>
   updateDoc(doc(db, 'shipments', s.id), { scheduledDate: '2020-01-01' }),
 );
 const conRuta = shipments.docs.find((d) => d.data().routeId && d.data().status === 'asignado');
@@ -168,10 +167,6 @@ await expectDenied('ubicación fuera de El Salvador', () =>
 await expectDenied('evento con tipo inventado', () =>
   addDoc(collection(db, 'shipments', s.id, 'events'), { fromStatus: 'pendiente', toStatus: 'pendiente', kind: 'hack' }),
 );
-await expectDenied('vehículo con tipo inventado', () =>
-  setDoc(doc(db, 'vehicles', 'VX'), { type: 'avion', label: 'X', maxKg: 10, capabilities: [] }),
-);
-await expectDenied('borrar un vehículo', () => deleteDoc(doc(db, 'vehicles', 'VREVISION')));
 await expectDenied('cambiar el nombre de un motorista', () => updateDoc(doc(db, 'drivers', 'D1'), { name: 'X' }));
 await expectDenied('turno con hora inválida', () => updateDoc(doc(db, 'drivers', 'D1'), { shiftStart: '25:00' }));
 // C48/C49: ni el despachador puede crear cuentas de despacho, motoristas de zonas que no existen ni estados inventados
@@ -183,13 +178,11 @@ await expectDenied('dar acceso a un motorista que no existe', () =>
 );
 await expectDenied('crear un motorista en una zona que no existe', () =>
   setDoc(doc(db, 'drivers', 'DREVISION'), {
-    name: 'Revisión', initials: 'RV', phone: null, zoneId: 'Z-NO-EXISTE', active: true, vehicleId: null,
-    shiftStart: '07:00', shiftEnd: '18:00', absentDates: [],
+    name: 'Revisión', initials: 'RV', phone: null, zoneId: 'Z-NO-EXISTE', active: true,
+    shiftStart: '07:00', shiftEnd: '18:00',
   }),
 );
-await expectDenied('vehículo con estado inventado', () => updateDoc(doc(db, 'vehicles', v1), { status: 'robado' }));
-await expectDenied('libreta con campos inventados', () => setDoc(doc(db, 'addresses', '70000000_abc'), { hack: true }));
-await expectDenied('borrar una entrada de la libreta', () => deleteDoc(doc(db, 'addresses', '00000000_revision')));
+await expectDenied('borrar un motorista', () => deleteDoc(doc(db, 'drivers', 'D1')));
 if (enCurso)
   await expectDenied('cambiar las paradas de una ruta en curso', () => updateDoc(enCurso.ref, { stops: [] }));
 

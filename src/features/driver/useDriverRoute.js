@@ -9,14 +9,19 @@ import { listenRouteShipments } from '../shipments/shipmentsService';
 import { useSession } from '../../lib/auth';
 import { useAppStore } from '../../store/useAppStore';
 
+/** Motorista que usa la vista: el de la sesión de motorista; si no, el elegido en "Más" (pruebas). */
+export function useCurrentDriverId() {
+  const { user } = useSession();
+  const pickedId = useAppStore((s) => s.currentDriverId);
+  return user?.role === 'motorista' && user.driverId ? user.driverId : pickedId;
+}
+
 /**
  * Motorista elegido, su ruta de hoy y los envíos de esa ruta, en tiempo real.
  * route es null si el motorista no tiene ruta en la fecha. zone es la del motorista (color del avatar).
  */
 export function useDriverRoute() {
-  const { user } = useSession();
-  const pickedId = useAppStore((s) => s.currentDriverId);
-  const driverId = user?.role === 'motorista' && user.driverId ? user.driverId : pickedId;
+  const driverId = useCurrentDriverId();
   const date = useAppStore((s) => s.date);
 
   const [drivers, setDrivers] = useState([]);

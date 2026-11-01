@@ -10,8 +10,8 @@ import { parseOrdersFile } from '../src/features/orders/parseOrdersFile';
 import { validateOrders } from '../src/features/orders/validateOrders';
 import { importOrders, listOrderNumbers } from '../src/features/orders/importOrders';
 import { resolveLocations } from '../src/features/geo/resolveLocations';
-import { confirmLocation } from '../src/features/geo/addressBook';
-import { updateDriverSetup, upsertVehicle } from '../src/features/fleet/fleetService';
+import { confirmLocation } from '../src/features/geo/confirmLocation';
+import { updateDriverShift } from '../src/features/fleet/fleetService';
 import { carryOverRetries } from '../src/features/shipments/carryOver';
 import { changeStatus } from '../src/features/shipments/statusMachine';
 import { getShipment } from '../src/features/shipments/shipmentsService';
@@ -56,7 +56,7 @@ test('importar el Excel con las reglas de la nube', async () => {
   date = (await getShipment(ids[0])).scheduledDate;
 }, 60000);
 
-test('confirmar una ubicación (envío + libreta)', async () => {
+test('confirmar una ubicación', async () => {
   let target;
   for (const id of ids) {
     const s = await getShipment(id);
@@ -69,10 +69,8 @@ test('confirmar una ubicación (envío + libreta)', async () => {
   expect((await getShipment(target.id)).location.status).toBe('confirmada');
 });
 
-test('vehículos y turnos', async () => {
-  await upsertVehicle({ id: 'V1', type: 'moto', label: 'Moto 1', maxKg: 45, capabilities: [] });
-  await upsertVehicle({ type: 'camion', label: 'Camión 2', maxKg: 1500, capabilities: ['carga_grande'] });
-  await updateDriverSetup('D1', { vehicleId: 'V1', shiftStart: '07:00', shiftEnd: '17:00' });
+test('turno del motorista', async () => {
+  await updateDriverShift('D1', { shiftStart: '07:00', shiftEnd: '17:00' });
 });
 
 test('traer reintentos (reprogramar)', async () => {
@@ -86,10 +84,9 @@ test('optimizar el día y mover una parada', async () => {
   const unassigned = [];
   for (const id of ids) {
     const s = await getShipment(id);
-    if (s.status === 'pendiente' && s.unassignedReason === 'capacidad' && !(s.requires ?? []).length)
-      unassigned.push(s);
+    if (s.status === 'pendiente' && s.unassignedReason) unassigned.push(s);
   }
-  const target = res.routeIds.find((r) => r.endsWith('-Z4')) ?? res.routeIds[0]; // Z4 va en camión
+  const target = res.routeIds[0];
   if (unassigned[0]) await moveStop(unassigned[0].id, target).catch((err) => expect(err.message).toBeTruthy());
   started = target;
 }, 60000);
@@ -125,38 +122,35 @@ test('ningún pedido queda "asignado" a una ruta que no lo tiene en sus paradas 
   expect(orphans.map((s) => s.id)).toEqual([]);
 });
 
-test('pasar a otro día con las reglas de la nube: solo pendientes sin ruta y hacia adelante (C44)', async () => {
+test('la fecha de un pedido no cambia salvo al reprogramar un reintento', async () => {
   const { getDocs, collection, doc, updateDoc } = require('firebase/firestore');
-  const { postponeShipments } = require('../src/features/shipments/statusMachine');
   const ships = (await getDocs(collection(db, 'shipments'))).docs.map((d) => ({ id: d.id, ...d.data() }));
-  const loose = ships.filter((s) => s.status === 'pendiente' && !s.routeId).slice(0, 3);
-  expect(loose.length).toBeGreaterThan(0);
-  const next = '2099-12-31';
-  await postponeShipments(loose.map((s) => s.id), next);
-  for (const s of loose) expect((await getShipment(s.id)).scheduledDate).toBe(next);
-  // Hacia atrás no: la regla lo rechaza aunque se salte la app
-  await expect(updateDoc(doc(db, 'shipments', loose[0].id), { scheduledDate: '2020-01-01' })).rejects.toThrow();
-  // Un pedido con ruta tampoco cambia de fecha
-  const routed = ships.find((s) => s.routeId && s.status === 'asignado');
-  if (routed) await expect(updateDoc(doc(db, 'shipments', routed.id), { scheduledDate: next })).rejects.toThrow();
+  const loose = ships.find((x) => x.status === 'pendiente' && !x.routeId);
+  await expect(updateDoc(doc(db, 'shipments', loose.id), { scheduledDate: '2099-12-31' })).rejects.toThrow();
+  const routed = ships.find((x) => x.routeId && x.status === 'asignado');
+  if (routed) await expect(updateDoc(doc(db, 'shipments', routed.id), { scheduledDate: '2099-12-31' })).rejects.toThrow();
 });
 
-test('disponibilidad y flota con las reglas de la nube (C49)', async () => {
-  const { setDoc, doc, updateDoc } = require('firebase/firestore');
+test('motoristas con las reglas de la nube: crear, turno, baja', async () => {
+  const { setDoc, doc, updateDoc, deleteDoc } = require('firebase/firestore');
   const fleet = require('../src/features/fleet/fleetService');
-  const id = await fleet.createDriver({ name: 'Ana Pérez', zoneId: 'Z1', vehicleId: 'V1' });
-  await fleet.setDriverAbsent(id, '2099-01-01', true);
+  const id = await fleet.createDriver({ name: 'Ana Pérez', zoneId: 'Z1' });
+  await fleet.updateDriverShift(id, { shiftStart: '08:00', shiftEnd: '16:00' });
   await fleet.setDriverActive(id, false);
-  await fleet.setVehicleStatus('V1', 'taller');
-  await fleet.setVehicleStatus('V1', 'disponible');
-  // Bloqueado: motorista incompleto, en una zona que no existe, o borrar; estado de vehículo inventado
+  // Bloqueado: motorista incompleto, en una zona que no existe, con campos de más, cambiar el nombre o borrar
   await expect(setDoc(doc(db, 'drivers', 'D9'), { name: 'X' })).rejects.toThrow();
   await expect(
     setDoc(doc(db, 'drivers', 'DZZ'), {
-      name: 'Zona falsa', initials: 'ZF', phone: null, zoneId: 'Z99', active: true, vehicleId: null,
-      shiftStart: '07:00', shiftEnd: '18:00', absentDates: [],
+      name: 'Zona falsa', initials: 'ZF', phone: null, zoneId: 'Z99', active: true,
+      shiftStart: '07:00', shiftEnd: '18:00',
+    }),
+  ).rejects.toThrow();
+  await expect(
+    setDoc(doc(db, 'drivers', 'DVV'), {
+      name: 'Con vehículo', initials: 'CV', phone: null, zoneId: 'Z1', active: true, vehicleId: 'V1',
+      shiftStart: '07:00', shiftEnd: '18:00',
     }),
   ).rejects.toThrow();
   await expect(updateDoc(doc(db, 'drivers', id), { name: 'Otro' })).rejects.toThrow();
-  await expect(updateDoc(doc(db, 'vehicles', 'V1'), { status: 'roto' })).rejects.toThrow();
+  await expect(deleteDoc(doc(db, 'drivers', id))).rejects.toThrow();
 });

@@ -97,6 +97,7 @@ try {
 
   console.log(`2/3 borrando y cargando datos del ${date}…`);
   const deletes = [];
+  // vehicles y addresses ya no se usan: se borran si quedaron de una carga anterior
   for (const name of ['depots', 'zones', 'drivers', 'vehicles', 'addresses', 'routes', 'shipments', 'evidence']) {
     const snap = await retry(() => getDocs(collection(db, name)), `leer ${name}`);
     for (const d of snap.docs) {
@@ -115,8 +116,6 @@ try {
   put('depots', data.depot);
   data.zones.forEach((z) => put('zones', z));
   data.drivers.forEach((d) => put('drivers', d));
-  data.vehicles.forEach((v) => put('vehicles', v));
-  JSON.parse(readFileSync(join(root, 'src/mocks/addresses.json'), 'utf8')).forEach((x) => put('addresses', x));
   data.routes.forEach((r) => put('routes', r));
   const driverOfZone = Object.fromEntries(data.zones.map((z) => [z.id, z.driverId]));
   let events = 0;

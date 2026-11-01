@@ -58,20 +58,19 @@ describe('validateOrders (S4-01)', () => {
     expect(rows[5].errors[0]).toMatch('ya existe');
   });
 
-  it('carga grande y servicio por defecto', () => {
-    const [r] = validateOrders([row({ peso_kg: 45 })]);
-    expect(r.order.requires).toEqual(['carga_grande']);
-    expect(r.order.serviceMin).toBe(20);
+  it('bultos y servicio por defecto', () => {
+    const [r] = validateOrders([row({ bultos: 3 })]);
+    expect(r.order).toMatchObject({ packages: 3, serviceMin: 5 });
+    expect(r.order).not.toHaveProperty('weightKg');
   });
 });
 
-describe('ubicación, importación y libreta (S4-02 a S4-04)', () => {
-  it('Excel → alta; Geoapify mock → revisar; importar; confirmar; la libreta evita la API', async () => {
+describe('ubicación e importación (S4-02 a S4-04)', () => {
+  it('Excel → alta; Geoapify mock → revisar; importar; confirmar', async () => {
     const { validateOrders } = require('../src/features/orders/validateOrders');
     const { resolveLocations } = require('../src/features/geo/resolveLocations');
     const { importOrders } = require('../src/features/orders/importOrders');
-    const { confirmLocation } = require('../src/features/geo/addressBook');
-    const geo = require('../src/features/geo/geocodeAddress');
+    const { confirmLocation } = require('../src/features/geo/confirmLocation');
 
     const valid = validateOrders([
       row({ Municipio: 'San Salvador Centro', lat: 13.7, lng: -89.19 }),
@@ -91,33 +90,26 @@ describe('ubicación, importación y libreta (S4-02 a S4-04)', () => {
 
     await confirmLocation(ids[1], { lat: 13.699, lng: -89.19 }, 'despacho');
     expect(mockDb.get('shipments', ids[1]).location.status).toBe('confirmada');
-
-    const spy = jest.spyOn(geo, 'geocodeAddress');
-    const again = await resolveLocations(
-      validateOrders([
-        row({
-          Pedido: 'WEB-9',
-          Teléfono: '2222-3333',
-          Dirección: 'Colonia Miramonte',
-          Municipio: 'San Salvador Centro',
-        }),
-      ]),
-    );
-    expect(again[0].order.location).toMatchObject({ status: 'confirmada', source: 'libreta' });
-    expect(spy).not.toHaveBeenCalled();
   });
 });
 
-describe('flota, reintentos y Geoapify (S4-04, S4-05)', () => {
-  it('vehículos y turno', async () => {
-    const { listenVehicles, upsertVehicle, updateDriverSetup } = require('../src/features/fleet/fleetService');
-    const list = await new Promise((r) => listenVehicles(r));
-    expect(list.map((v) => v.id)).toEqual(['V1', 'V2', 'V3', 'V4', 'V5']);
-    await upsertVehicle({ id: 'V1', type: 'moto', label: 'Moto 1', maxKg: 45 });
-    expect(mockDb.get('vehicles', 'V1').maxKg).toBe(45);
-    await updateDriverSetup('D1', { vehicleId: 'V4', shiftStart: '08:00', shiftEnd: '17:00' });
-    expect(mockDb.get('drivers', 'D1')).toMatchObject({ vehicleId: 'V4', shiftStart: '08:00' });
-    await expect(updateDriverSetup('D1', { shiftStart: '9' })).rejects.toThrow('use HH:MM');
+describe('motoristas, reintentos y Geoapify (S4-04, S4-05)', () => {
+  it('turno, alta y baja de motoristas', async () => {
+    const { createDriver, setDriverActive, updateDriverShift } = require('../src/features/fleet/fleetService');
+    await updateDriverShift('D1', { shiftStart: '08:00', shiftEnd: '17:00' });
+    expect(mockDb.get('drivers', 'D1')).toMatchObject({ shiftStart: '08:00', shiftEnd: '17:00' });
+    await expect(updateDriverShift('D1', { shiftStart: '9', shiftEnd: '17:00' })).rejects.toThrow('use HH:MM');
+    await setDriverActive('D1', false);
+    expect(mockDb.get('drivers', 'D1').active).toBe(false);
+    const id = await createDriver({
+      name: 'Ana Pérez',
+      phone: '7000-1234',
+      zoneId: 'Z2',
+      shiftStart: '07:00',
+      shiftEnd: '15:00',
+    });
+    expect(mockDb.get('drivers', id)).toMatchObject({ name: 'Ana Pérez', zoneId: 'Z2', active: true });
+    expect(mockDb.get('drivers', id)).not.toHaveProperty('vehicleId');
   });
 
   it('carryOverRetries trae los no entregados de días anteriores', async () => {
@@ -155,10 +147,10 @@ describe('pedidos de P2 y P3 (miércoles, C30)', () => {
       routeId: `R-${today}-Z1`,
       stops: [{ shipmentId: 'SIM-0403', seq: 1, etaMin: 10 }],
       route: { code: 'Ruta B', date: today, zoneId: 'Z1', driverId: 'D1', status: 'asignada', stops: [] },
-      unassigned: [{ shipmentId: 'SIM-0400', reason: 'requisito' }],
+      unassigned: [{ shipmentId: 'SIM-0400', reason: 'capacidad' }],
     });
     expect(mockDb.get('shipments', 'SIM-0403')).toMatchObject({ status: 'asignado', unassignedReason: null });
-    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'requisito' });
+    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'capacidad' });
     await expect(
       assignToRoute({ routeId: 'R-x', stops: [], unassigned: [{ shipmentId: 'SIM-0404', reason: 'otro' }] }),
     ).rejects.toThrow('Motivo de sin asignar desconocido');
@@ -179,21 +171,26 @@ describe('pedidos de P2 y P3 (miércoles, C30)', () => {
     expect(res).toHaveProperty('gps');
   });
 
-  it('mock del Route Planner: la grabación de P2 para Z1 y sin asignar en el sintético', async () => {
+  it('mock del Route Planner: con la forma de la API, y sin asignar lo que no alcanza el turno', async () => {
     const { geoapifyFetch } = require('../src/lib/geoapify');
-    const request = require('../src/mocks/geoapify/routeplanner-zona-a.request.json');
-    const rec = await geoapifyFetch('/v1/routeplanner', { method: 'POST', body: request });
-    expect(rec.properties.issues.unassigned_jobs).toEqual([0, 1, 3, 6, 8, 9]);
+    const far = [-89.6, 13.98];
     const syn = await geoapifyFetch('/v1/routeplanner', {
       method: 'POST',
       body: {
         mode: 'drive',
-        agents: [{ id: 'D5', start_location: [-89.22, 13.699], delivery_capacity: 40, capabilities: [] }],
+        agents: [
+          {
+            id: 'D5',
+            start_location: [-89.22, 13.699],
+            end_location: [-89.22, 13.699],
+            time_windows: [[25200, 30600]],
+          },
+        ],
         jobs: [
-          { id: 'A', location: [-89.21, 13.74], delivery_amount: 30 },
-          { id: 'B', location: [-89.21, 13.74], delivery_amount: 20 },
-          { id: 'C', location: [-89.21, 13.74], delivery_amount: 5, requirements: ['carga_grande'] },
-          { id: 'D', location: [-89.21, 13.74], delivery_amount: 5 },
+          { id: 'A', location: [-89.21, 13.74], duration: 300 },
+          { id: 'B', location: far, duration: 300 },
+          { id: 'C', location: [-89.21, 13.74], duration: 300, time_windows: [[0, 25000]] },
+          { id: 'D', location: [-89.21, 13.741], duration: 300 },
         ],
       },
     });
@@ -275,7 +272,7 @@ describe('replanRoutes (S4-07 reemplazo y S4-08 mover parada, C33)', () => {
       released: ['SIM-0404'],
       unassigned: [
         { shipmentId: 'SIM-0404', reason: 'capacidad' },
-        { shipmentId: 'SIM-0400', reason: 'requisito' },
+        { shipmentId: 'SIM-0400', reason: 'capacidad' },
       ],
     });
     expect(mockDb.get('shipments', 'SIM-0405')).toMatchObject({ status: 'asignado', routeId: r1, stopSequence: 1 });
@@ -285,7 +282,7 @@ describe('replanRoutes (S4-07 reemplazo y S4-08 mover parada, C33)', () => {
       routeId: null,
       unassignedReason: 'capacidad',
     });
-    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'requisito' });
+    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'capacidad' });
     expect(mockDb.get('routes', r1).stops).toHaveLength(1);
     expect(mockDb.all('events').some((e) => e.kind === 'liberado' && e.shipmentId === 'SIM-0404')).toBe(true);
   });

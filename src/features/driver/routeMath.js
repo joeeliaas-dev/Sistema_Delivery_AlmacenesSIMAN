@@ -13,9 +13,11 @@ export const isClosed = (shipment) => CLOSED.includes(shipment.status);
  * Una parada cuyo envío ya no está en esta ruta (pasó a otra como reintento) cuenta como
  * cerrada, igual que N4 y remainingEtas: así "X de N" coincide con el Centro de despacho.
  * Cada parada abierta trae `eta`: minutos que faltan desde la última parada cerrada (N24, C21).
- * @returns {{ next, remaining, completed, done, total, percent }}  cada parada: { ...stop, shipment|null, moved, eta? }
+ * Sin señal: las paradas guardadas en la bandeja del teléfono (queued, ids de envío) cuentan como
+ * hechas y traen `queued: true`, para que el motorista siga con la siguiente.
+ * @returns {{ next, remaining, completed, done, total, percent }}  cada parada: { ...stop, shipment|null, moved, queued, eta? }
  */
-export function splitStops(route, shipments) {
+export function splitStops(route, shipments, queued = new Set()) {
   const byId = Object.fromEntries(shipments.map((s) => [s.id, s]));
   const etas = remainingEtas(route, byId);
   const ordered = [...(route?.stops ?? [])]
@@ -23,7 +25,9 @@ export function splitStops(route, shipments) {
     .map((stop) => {
       const shipment = byId[stop.shipmentId] ?? null;
       const moved = !shipment || shipment.routeId !== route.id;
-      return { ...stop, shipment, moved, closed: moved || isClosed(shipment), eta: etas[stop.shipmentId] };
+      const closed = moved || isClosed(shipment);
+      const inOutbox = !closed && queued.has(stop.shipmentId);
+      return { ...stop, shipment, moved, queued: inOutbox, closed: closed || inOutbox, eta: etas[stop.shipmentId] };
     });
 
   const completed = ordered.filter((s) => s.closed);

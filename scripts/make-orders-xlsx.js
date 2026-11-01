@@ -1,12 +1,11 @@
 // scripts/make-orders-xlsx.js  (dueño: P1)
 // Genera, con la fecha de mañana:
-//   assets/pedidos-prueba-100.xlsx  100 pedidos desordenados (S4-05): 60 buenos, 10 de la libreta,
-//                                   12 vagos, 6 con lat/lng, 5 de línea blanca, 3 fuera de zona y 4 con error
+//   assets/pedidos-prueba-100.xlsx  100 pedidos desordenados (S4-05): 75 buenos, 12 vagos, 6 con lat/lng,
+//                                   3 fuera de zona y 4 con error
 //   assets/plantilla-pedidos.xlsx   la plantilla vacía con una fila de ejemplo
 //   src/mocks/geoapify/geocode.json respuestas del geocodificador de mocks para esas direcciones
-//   src/mocks/addresses.json        los 10 clientes que ya están en la libreta
 // Uso: npm run orders:xlsx   (vuelva a correrlo cada día: la fecha es la de mañana)
-// La normalización y djb2 son copia de src/features/geo/normalize.js (lo verifica __tests__/testOrders.test.js).
+// La normalización es copia de src/features/geo/normalize.js.
 const { mkdirSync, readFileSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const XLSX = require('xlsx');
@@ -31,10 +30,7 @@ const COLUMNS = [
   'desde',
   'hasta',
   'prioridad',
-  'peso_kg',
-  'volumen_m3',
   'bultos',
-  'minutos_servicio',
   'lat',
   'lng',
 ];
@@ -46,12 +42,6 @@ const normalizeText = (s = '') =>
     .toLowerCase()
     .replace(/[^a-z0-9#]+/g, ' ')
     .trim();
-function djb2(text) {
-  let h = 5381;
-  for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
-  return h.toString(36);
-}
-
 function mulberry32(seed) {
   return () => {
     seed |= 0;
@@ -236,10 +226,7 @@ function baseRow(zid, { text, municipio } = {}) {
     desde: '',
     hasta: '',
     prioridad: 'normal',
-    peso_kg: round(0.3 + rand() * 12, 1),
-    volumen_m3: round(0.01 + rand() * 0.08, 2),
     bultos: 1 + Math.floor(rand() * 3),
-    minutos_servicio: '',
     lat: '',
     lng: '',
   };
@@ -257,31 +244,11 @@ const addGeocode = (row, point, { type = 'building', confidence = 0.92 } = {}) =
 };
 
 const rows = [];
-// 60 buenos dentro de zona
-for (let i = 0; i < 60; i++) {
+// 75 buenos dentro de zona
+for (let i = 0; i < 75; i++) {
   const zid = ZONE_IDS[i % 5];
   const r = baseRow(zid);
   addGeocode(r, inZone(zid));
-  rows.push(r);
-}
-// 10 clientes que ya están en la libreta
-const addresses = [];
-for (let i = 0; i < 10; i++) {
-  const zid = ZONE_IDS[i % 5];
-  const r = baseRow(zid);
-  const p = inZone(zid);
-  const phone = r.telefono.replace(/\D/g, '');
-  const norm = normalizeText(`${r.direccion} ${r.municipio}`);
-  addresses.push({
-    id: `${phone}_${djb2(norm)}`,
-    phone,
-    addressNorm: norm,
-    lat: p.lat,
-    lng: p.lng,
-    source: 'despacho',
-    confirmedAt: '2026-10-20T10:00:00-06:00',
-    uses: 1,
-  });
   rows.push(r);
 }
 // 12 vagos: solo colonia o municipio (el geocodificador de mocks responde 0.5, tipo suburb)
@@ -296,24 +263,6 @@ for (let i = 0; i < 6; i++) {
   const p = inZone(zid);
   r.lat = p.lat;
   r.lng = p.lng;
-  rows.push(r);
-}
-// 5 de línea blanca (más de 30 kg): Z1 y Z5 son motos, así que esos quedan sin asignar por requisito
-const BIG = [
-  ['Z1', 62],
-  ['Z3', 48],
-  ['Z4', 75],
-  ['Z5', 55],
-  ['Z2', 38],
-];
-for (const [zid, kg] of BIG) {
-  const r = baseRow(zid);
-  r.peso_kg = kg;
-  r.volumen_m3 = 0.6;
-  r.bultos = 1;
-  r.minutos_servicio = 30;
-  r.referencia = 'Refrigeradora o lavadora: subir por escaleras';
-  addGeocode(r, inZone(zid));
   rows.push(r);
 }
 // 3 fuera de las zonas de reparto (bien ubicados, pero el punto no cae en ninguna zona)
@@ -373,10 +322,7 @@ writeBook(join(root, 'assets/plantilla-pedidos.xlsx'), [
     desde: '09:00',
     hasta: '12:00',
     prioridad: 'normal',
-    peso_kg: 14.2,
-    volumen_m3: 0.1,
     bultos: 1,
-    minutos_servicio: '',
     lat: '',
     lng: '',
   },
@@ -388,8 +334,7 @@ const keep = Object.fromEntries(
   Object.entries(recorded).filter(([k]) => k.startsWith('calle la mascota 26 colonia escalon')),
 );
 writeFileSync(geoFile, JSON.stringify({ ...keep, ...geocode }, null, 2) + '\n');
-writeFileSync(join(root, 'src/mocks/addresses.json'), JSON.stringify(addresses, null, 2) + '\n');
 
 console.log(
-  `pedidos-prueba-100.xlsx: ${ordered.length} filas para el ${tomorrow}; geocode.json: ${Object.keys(geocode).length + Object.keys(keep).length}; libreta: ${addresses.length}`,
+  `pedidos-prueba-100.xlsx: ${ordered.length} filas para el ${tomorrow}; geocode.json: ${Object.keys(geocode).length + Object.keys(keep).length}`,
 );

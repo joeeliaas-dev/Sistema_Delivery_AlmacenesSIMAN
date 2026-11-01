@@ -6,7 +6,6 @@
     "phone": "+50370000001",
     "zoneId": "Z1",
     "active": true,
-    "vehicleId": "V1",
     "shiftStart": "07:00",
     "shiftEnd": "18:00"
   },
@@ -17,7 +16,6 @@
     "phone": "+50370000002",
     "zoneId": "Z2",
     "active": true,
-    "vehicleId": "V2",
     "shiftStart": "07:00",
     "shiftEnd": "18:00"
   },
@@ -28,7 +26,6 @@
     "phone": "+50370000003",
     "zoneId": "Z3",
     "active": true,
-    "vehicleId": "V4",
     "shiftStart": "07:00",
     "shiftEnd": "18:00"
   },
@@ -39,7 +36,6 @@
     "phone": "+50370000004",
     "zoneId": "Z4",
     "active": true,
-    "vehicleId": "V5",
     "shiftStart": "07:00",
     "shiftEnd": "18:00"
   },
@@ -50,7 +46,6 @@
     "phone": "+50370000005",
     "zoneId": "Z5",
     "active": true,
-    "vehicleId": "V3",
     "shiftStart": "07:00",
     "shiftEnd": "18:00"
   }

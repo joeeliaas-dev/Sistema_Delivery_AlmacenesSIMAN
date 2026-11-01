@@ -1,7 +1,7 @@
 // src/features/orders/importOrders.js  (dueño: P1)
 // Crea los envíos de las filas validadas (S4-04): por lotes de 400, en estado pendiente
 // y con un evento "importado". Las filas rojas no se cargan.
-import { collection, doc, getDocs, increment, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { DEFAULT_SHIFT, ROW_STATUS, STATUS } from '../../constants';
 import { USE_MOCKS, db } from '../../lib/firebase';
 import { mockDb } from '../../mocks';
@@ -46,12 +46,9 @@ export function shipmentFromOrder(order, { id, date, now }) {
     customer: order.customer,
     address: order.address,
     location,
-    weightKg: order.weightKg ?? 0,
-    volumeM3: order.volumeM3 ?? null,
     packages: order.packages ?? 1,
     serviceMin: order.serviceMin,
-    requires: order.requires ?? [],
-    items: [{ sku: null, name: 'Bultos del pedido', weightKg: order.weightKg ?? 0, qty: order.packages ?? 1 }],
+    items: [{ sku: null, name: 'Bultos del pedido', qty: order.packages ?? 1 }],
     status: STATUS.PENDIENTE,
     attempts: 0,
     routeId: null,
@@ -94,10 +91,6 @@ export async function importOrders(validatedRows, { date } = {}) {
     for (const { id, row } of docs) {
       mockDb.upsert('shipments', { id, ...shipmentFromOrder(row.order, { id, date, now }) });
       mockDb.add('events', { shipmentId: id, ...importedEvent(now) });
-      if (row.order.addressId) {
-        const cur = mockDb.get('addresses', row.order.addressId);
-        if (cur) mockDb.upsert('addresses', { id: cur.id, uses: (cur.uses ?? 0) + 1 });
-      }
     }
     return { created: docs.length, skipped, ids: docs.map((d) => d.id) };
   }
@@ -108,8 +101,6 @@ export async function importOrders(validatedRows, { date } = {}) {
     for (const { id, row } of docs.slice(i, i + BATCH / 2)) {
       batch.set(doc(db, 'shipments', id), shipmentFromOrder(row.order, { id, date, now }));
       batch.set(doc(collection(db, 'shipments', id, 'events')), importedEvent(now));
-      if (row.order.addressId)
-        batch.set(doc(db, 'addresses', row.order.addressId), { uses: increment(1) }, { merge: true });
     }
     await batch.commit();
   }

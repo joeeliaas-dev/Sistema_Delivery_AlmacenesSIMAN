@@ -94,7 +94,7 @@ export function ShipmentDetail({ shipment, assignment, routeCode, routeColor, ca
   const n = itemCount(s);
   const facts = [
     `${s.code} · ${s.scheduledTime}`,
-    `${n} ${n === 1 ? 'artículo' : 'artículos'}${s.weightKg ? ` · ${Math.round(s.weightKg)} kg` : ''}`,
+    `${n} ${n === 1 ? 'artículo' : 'artículos'}`,
     carriedFrom ? `Desde el ${carriedFrom}` : null,
   ].filter(Boolean);
   return (

@@ -17,7 +17,6 @@ const write = (rel, obj) => {
 write('src/mocks/depot.json', data.depot);
 write('src/mocks/zones.json', data.zones);
 write('src/mocks/drivers.json', data.drivers);
-write('src/mocks/vehicles.json', data.vehicles);
 write('src/mocks/shipments.json', data.shipments);
 write('src/mocks/routes.json', data.routes);
 

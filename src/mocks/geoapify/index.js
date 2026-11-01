@@ -2,13 +2,9 @@
 // Respuestas de Geoapify sin internet, con la misma forma que la API real.
 //   Geocodificación: busca el texto normalizado en geocode.json; si no está, un punto
 //   cerca del centro de la zona del municipio con confianza 0.5 (queda para revisar).
-//   Route Planner: si la solicitud es la grabada por P2 (Z1, mismos jobs) responde la grabación real;
-//   si no, una respuesta sintética: jobs en el orden recibido, línea recta, y deja sin asignar
-//   (issues.unassigned_jobs) los que no cumplen requisitos o ya no caben en la capacidad.
+//   Route Planner: respuesta sintética con la forma real: jobs en el orden recibido, línea recta a
+//   20 km/h, y deja sin asignar (issues.unassigned_jobs) los que ya no alcanzan el turno o su horario.
 import geocodeTable from './geocode.json';
-import { fleetRoutePlanner } from './fleetPlanner';
-import zonaA from './routeplanner-zona-a.json';
-import zonaARequest from './routeplanner-zona-a.request.json';
 import zones from '../zones.json';
 import depot from '../depot.json';
 import { MUNICIPIO_TO_ZONE } from '../../features/zones/municipios';
@@ -51,80 +47,53 @@ const km = (a, b) => {
   return 2 * 6371 * Math.asin(Math.sqrt(h));
 };
 
-// La grabación solo se usa si la solicitud es la misma: mismos jobs y el agente completo
-// (capacidad, capacidades, turno y salida); con otro vehículo u otra hora sale la sintética
-const sortKeys = (v) =>
-  Array.isArray(v)
-    ? v.map(sortKeys)
-    : v && typeof v === 'object'
-      ? Object.fromEntries(
-          Object.keys(v)
-            .sort()
-            .map((k) => [k, sortKeys(v[k])]),
-        )
-      : v;
-const jobKey = (b) =>
-  (b?.jobs ?? [])
-    .map((j) => j.id)
-    .sort()
-    .join(',') +
-  '|' +
-  JSON.stringify(sortKeys(b?.agents ?? []));
-
 function routePlanner(body = {}) {
-  // Optimización conjunta (varios motoristas en una llamada): reparte entre todos los agentes
-  if ((body.agents?.length ?? 0) > 1) return fleetRoutePlanner(body);
-  if (jobKey(body) === jobKey(zonaARequest)) return zonaA;
   const unassigned = [];
-  const agent0 = body.agents?.[0] ?? {};
-  let load = 0;
-  const fits = (body.jobs ?? []).filter((job, i) => {
-    const caps = agent0.capabilities ?? [];
-    const amount = job.delivery_amount ?? 0;
-    const okReq = (job.requirements ?? []).every((r) => caps.includes(r));
-    const okCap = agent0.delivery_capacity == null || load + amount <= agent0.delivery_capacity;
-    if (!okReq || !okCap) {
+  const agent = body.agents?.[0] ?? {};
+  const [t0, shiftEnd] = agent.time_windows?.[0] ?? [7 * 3600, 18 * 3600];
+  const home = agent.end_location ?? agent.start_location;
+  const leg = (a, b) => km(a, b) * 1.35;
+  const travel = (d) => Math.round((d / 20) * 3600);
+  let t = t0;
+  let pos = agent.start_location;
+  let distance = 0;
+  const coords = [pos];
+  const actions = [{ type: 'start', start_time: t, duration: 0, index: 0 }];
+  (body.jobs ?? []).forEach((job, i) => {
+    const d = leg(pos, job.location);
+    let at = t + travel(d);
+    const [from, to] = job.time_windows?.[0] ?? [0, Infinity];
+    at = Math.max(at, from);
+    const done = at + (job.duration ?? 300);
+    if (at > to || done + travel(leg(job.location, home)) > shiftEnd) {
       unassigned.push(i);
-      return false;
+      return;
     }
-    load += amount;
-    return true;
-  });
-  const indexOf = new Map((body.jobs ?? []).map((j, i) => [j, i]));
-  const features = (body.agents ?? []).map((agent, agentIndex) => {
-    const jobs = agentIndex === 0 ? fits : [];
-    let t = agent.time_windows?.[0]?.[0] ?? 7 * 3600;
-    let pos = agent.start_location;
-    let distance = 0;
-    const coords = [pos];
-    const actions = [{ type: 'start', start_time: t, duration: 0, index: 0 }];
-    jobs.forEach((job, i) => {
-      const d = km(pos, job.location) * 1.35;
-      distance += d * 1000;
-      t += Math.round((d / 20) * 3600);
-      actions.push({
-        type: 'job',
-        start_time: t,
-        duration: job.duration ?? 300,
-        job_index: indexOf.get(job),
-        job_id: job.id,
-        index: i + 1,
-      });
-      t += job.duration ?? 300;
-      pos = job.location;
-      coords.push(pos);
+    distance += d * 1000;
+    actions.push({
+      type: 'job',
+      start_time: at,
+      duration: job.duration ?? 300,
+      job_index: i,
+      job_id: job.id,
+      index: actions.length,
     });
-    const back = km(pos, agent.end_location ?? agent.start_location) * 1.35;
-    distance += back * 1000;
-    t += Math.round((back / 20) * 3600);
-    coords.push(agent.end_location ?? agent.start_location);
-    actions.push({ type: 'end', start_time: t, duration: 0, index: jobs.length + 1 });
-    const start = actions[0].start_time;
-    return {
+    t = done;
+    pos = job.location;
+    coords.push(pos);
+  });
+  const back = leg(pos, home);
+  distance += back * 1000;
+  t += travel(back);
+  coords.push(home);
+  actions.push({ type: 'end', start_time: t, duration: 0, index: actions.length });
+  const start = actions[0].start_time;
+  const features = [
+    {
       type: 'Feature',
       geometry: { type: 'MultiLineString', coordinates: [coords] },
       properties: {
-        agent_index: agentIndex,
+        agent_index: 0,
         agent_id: agent.id,
         distance: Math.round(distance),
         mode: body.mode ?? 'drive',
@@ -135,8 +104,8 @@ function routePlanner(body = {}) {
         waypoints: [],
         legs: [],
       },
-    };
-  });
+    },
+  ];
   return {
     type: 'FeatureCollection',
     properties: {

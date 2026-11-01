@@ -1,4 +1,4 @@
-// src/features/vehicles/TimeField.js (dueño: P3)
+// src/features/drivers/TimeField.js (dueño: P3)
 // Campo de hora "HH:MM" con etiqueta visible. En web la letra es de 16 px (Safari no hace zoom)
 // y sin el contorno del navegador: el foco lo marca el borde morado.
 import { useState } from 'react';

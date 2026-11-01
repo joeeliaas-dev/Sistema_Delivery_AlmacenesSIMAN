@@ -11,6 +11,22 @@ import { getCurrentGps } from '../evidence/getCurrentGps';
 import { uploadEvidence } from '../evidence/uploadEvidence';
 import { getShipment } from './shipmentsService';
 
+// Sin señal, Firestore no falla: espera la red. Pasado este tiempo, Confirmar entrega y No entregado
+// fallan con code 'unavailable' y la pantalla del motorista lo guarda en la bandeja (src/lib/outbox.js).
+export const SEND_TIMEOUT_MS = 20000;
+function inTime(promise) {
+  if (USE_MOCKS) return promise;
+  let timer;
+  const late = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error('Sin señal: no se pudo enviar a tiempo');
+      err.code = 'unavailable';
+      reject(err);
+    }, SEND_TIMEOUT_MS);
+  });
+  return Promise.race([promise, late]).finally(() => clearTimeout(timer));
+}
+
 export const TRANSITIONS = {
   pendiente: ['asignado'],
   asignado: ['en_ruta', 'pendiente'], // pendiente: solo replanRoutes (liberar de una ruta no iniciada)
@@ -82,7 +98,7 @@ const event = (shipment, fromStatus, toStatus, data) => ({
  *   (entregado | no_entregado | devuelto) y el GPS guardado (S4-14: corrección de ubicación al entregar)
  */
 export async function changeStatus({ shipment: given, to, payload = {}, driverId = null }) {
-  const shipment = await fresh(given);
+  const shipment = await inTime(fresh(given));
   if (!canTransition(shipment.status, to)) throw new Error(`No se puede pasar de ${shipment.status} a ${to}`);
   if (!REQUIRED_EVIDENCE[to]) throw new Error(`Para pasar a ${to} use changeStatusMany o assignToRoute`);
   validate(to, payload);
@@ -93,12 +109,14 @@ export async function changeStatus({ shipment: given, to, payload = {}, driverId
   const gps = await getCurrentGps();
   // { photoUrl, signatureUrl?, inline? }: con evidencia en Firestore (N35), las imágenes vienen en
   // `inline` y se guardan abajo, en la misma transacción que el cambio de estado
-  const { inline, ...files } = await uploadEvidence({
-    code: shipment.code,
-    attempt,
-    photoUri: payload.photoUri,
-    signatureBase64: failed ? undefined : payload.signatureBase64,
-  });
+  const { inline, ...files } = await inTime(
+    uploadEvidence({
+      code: shipment.code,
+      attempt,
+      photoUri: payload.photoUri,
+      signatureBase64: failed ? undefined : payload.signatureBase64,
+    }),
+  );
   const record = { ...files, description: payload.description.trim(), gps, at: new Date().toISOString() };
   const returned = failed && attempts >= MAX_ATTEMPTS;
   const status = returned ? STATUS.DEVUELTO : to;
@@ -121,7 +139,7 @@ export async function changeStatus({ shipment: given, to, payload = {}, driverId
       data: { ...inline.data, shipmentId: shipment.id, createdAt: NOW },
       existsError: `Ya existe evidencia del intento ${attempt} de ${shipment.code}`,
     });
-  await commitOps(ops);
+  await inTime(commitOps(ops));
   return { status, gps };
 }
 
@@ -230,37 +248,6 @@ export async function reprogramShipment(id, newDate) {
     }),
   ]);
   return { status: STATUS.PENDIENTE };
-}
-
-/**
- * "Pasar a otro día" (C44): pedidos pendientes y sin ruta que no cupieron pasan a una fecha
- * posterior, sin motivo de sin asignar, con un evento "reprogramado". Todos o ninguno.
- * @param {string[]} ids
- * @param {string} newDate  'AAAA-MM-DD', posterior a la fecha de cada pedido
- * @returns {Promise<{ moved: number }>}
- */
-export async function postponeShipments(ids, newDate) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate ?? '')) throw new Error('Fecha inválida');
-  const list = await Promise.all([...new Set(ids)].map((id) => fresh(id)));
-  const bad = list.filter((s) => s.status !== STATUS.PENDIENTE || s.routeId || !(newDate > s.scheduledDate));
-  if (bad.length)
-    throw new Error(
-      `No se pueden pasar al ${newDate}: ${bad.map((s) => `${s.code} (${s.routeId ? 'en ruta' : s.status})`).join(', ')}`,
-    );
-  // Lotes de 150 pedidos (300 escrituras): lejos del límite de 500 de una transacción
-  for (let i = 0; i < list.length; i += 150) {
-    await commitOps(
-      list.slice(i, i + 150).flatMap((s) => [
-        shipmentUpdate(s, { scheduledDate: newDate, unassignedReason: null, updatedAt: NOW }),
-        event(s, s.status, STATUS.PENDIENTE, {
-          kind: 'reprogramado',
-          attempt: s.attempts,
-          description: `Pasado al ${newDate}: no cupo en ningún vehículo el ${s.scheduledDate}`,
-        }),
-      ]),
-    );
-  }
-  return { moved: list.length };
 }
 
 /**

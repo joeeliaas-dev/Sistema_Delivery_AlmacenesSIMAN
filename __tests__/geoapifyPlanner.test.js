@@ -12,16 +12,12 @@ import {
 
 const depot = { location: { lat: 13.699, lng: -89.22 } };
 const driver = { id: 'D1', shiftStart: '07:00', shiftEnd: '18:00' };
-const moto = { id: 'V1', type: 'moto', maxKg: 40, capabilities: [] };
-const pickup = { id: 'V4', type: 'pickup', maxKg: 600, capabilities: ['carga_grande'] };
 
 const ship = (over = {}) => ({
   id: 'SIM-0401',
   code: 'SIM-0401',
   location: { lat: 13.6971, lng: -89.1882, status: 'alta' },
   priority: 'normal',
-  weightKg: 2.5,
-  requires: [],
   serviceMin: 5,
   timeWindow: null,
   ...over,
@@ -40,9 +36,9 @@ describe('toSeconds', () => {
   });
 });
 
-describe('agente (motorista y vehículo)', () => {
-  it('sale y vuelve al depósito, con [lng, lat], turno, capacidad y capacidades', () => {
-    const { mode, agents } = buildRoutePlannerRequest({ shipments: [], driver, vehicle: pickup, depot });
+describe('agente (motorista)', () => {
+  it('sale y vuelve al depósito, con [lng, lat] y su turno; sin capacidad', () => {
+    const { mode, agents } = buildRoutePlannerRequest({ shipments: [], driver, depot });
     expect(mode).toBe('drive');
     expect(agents).toEqual([
       {
@@ -50,57 +46,38 @@ describe('agente (motorista y vehículo)', () => {
         start_location: [-89.22, 13.699],
         end_location: [-89.22, 13.699],
         time_windows: [[25200, 64800]],
-        delivery_capacity: 600,
-        capabilities: ['carga_grande'],
       },
     ]);
   });
 
-  it('sin turno usa DEFAULT_SHIFT; una moto no lleva capabilities', () => {
-    const { agents } = buildRoutePlannerRequest({ shipments: [], driver: { id: 'D9' }, vehicle: moto, depot });
+  it('sin turno usa DEFAULT_SHIFT', () => {
+    const { agents } = buildRoutePlannerRequest({ shipments: [], driver: { id: 'D9' }, depot });
     expect(agents[0].time_windows).toEqual([[25200, 64800]]);
-    expect(agents[0].delivery_capacity).toBe(40);
-    expect(agents[0]).not.toHaveProperty('capabilities');
     expect(shiftWindow({ shiftStart: '08:30', shiftEnd: '16:00' })).toEqual([30600, 57600]);
-  });
-
-  it('sin vehículo no manda capacidad (no se inventa un límite)', () => {
-    const { agents } = buildRoutePlannerRequest({ shipments: [], driver, vehicle: null, depot });
-    expect(agents[0]).not.toHaveProperty('delivery_capacity');
   });
 });
 
 describe('jobs (envíos)', () => {
-  it('id, [lng, lat], servicio en segundos, kg redondeados hacia arriba y prioridad normal', () => {
-    const { jobs } = buildRoutePlannerRequest({ shipments: [ship()], driver, vehicle: moto, depot });
+  it('id, [lng, lat], servicio en segundos y prioridad normal', () => {
+    const { jobs } = buildRoutePlannerRequest({ shipments: [ship()], driver, depot });
     expect(jobs).toEqual([
       {
         id: 'SIM-0401',
         location: [-89.1882, 13.6971],
         duration: 300,
         priority: JOB_PRIORITY.NORMAL,
-        delivery_amount: 3,
       },
     ]);
   });
 
-  it('línea blanca pide carga_grande; sin minutos de servicio usa DEFAULT_SERVICE_MIN', () => {
-    const big = ship({ weightKg: 76.2, requires: ['carga_grande'], serviceMin: undefined });
-    const [job] = buildRoutePlannerRequest({ shipments: [big], driver, vehicle: pickup, depot }).jobs;
-    expect(job.requirements).toEqual(['carga_grande']);
-    expect(job.delivery_amount).toBe(77);
-    expect(job.duration).toBe(20 * 60);
+  it('sin minutos de servicio usa DEFAULT_SERVICE_MIN', () => {
+    expect(serviceMinOf(ship({ serviceMin: undefined }))).toBe(5);
     expect(serviceMinOf(ship({ serviceMin: 0 }))).toBe(5);
-  });
-
-  it('sin peso no manda delivery_amount', () => {
-    const [job] = buildRoutePlannerRequest({ shipments: [ship({ weightKg: 0 })], driver, vehicle: moto, depot }).jobs;
-    expect(job).not.toHaveProperty('delivery_amount');
   });
 
   it('ventana propia en segundos', () => {
     const s = ship({ timeWindow: { from: '09:00', to: '11:30' } });
-    const [job] = buildRoutePlannerRequest({ shipments: [s], driver, vehicle: moto, depot }).jobs;
+    const [job] = buildRoutePlannerRequest({ shipments: [s], driver, depot }).jobs;
     expect(job.time_windows).toEqual([[32400, 41400]]);
   });
 
@@ -108,7 +85,6 @@ describe('jobs (envíos)', () => {
     const [job] = buildRoutePlannerRequest({
       shipments: [ship({ priority: 'express' })],
       driver,
-      vehicle: moto,
       depot,
     }).jobs;
     expect(job.time_windows).toEqual([[25200, 43200]]);
@@ -129,22 +105,22 @@ describe('jobs (envíos)', () => {
 
   it('rechaza un envío sin ubicación y una zona sin motorista o sin depósito', () => {
     expect(() =>
-      buildRoutePlannerRequest({ shipments: [ship({ location: null })], driver, vehicle: moto, depot }),
+      buildRoutePlannerRequest({ shipments: [ship({ location: null })], driver, depot }),
     ).toThrow('El envío SIM-0401 no tiene ubicación');
-    expect(() => buildRoutePlannerRequest({ shipments: [], driver: null, vehicle: moto, depot })).toThrow(
+    expect(() => buildRoutePlannerRequest({ shipments: [], driver: null, depot })).toThrow(
       'Falta el motorista de la zona',
     );
-    expect(() => buildRoutePlannerRequest({ shipments: [], driver, vehicle: moto, depot: null })).toThrow(
+    expect(() => buildRoutePlannerRequest({ shipments: [], driver, depot: null })).toThrow(
       'Falta la ubicación del depósito',
     );
   });
 
   it('con los datos de prueba de Z1: un job por envío, ordenados por id (solicitud estable)', () => {
     const z1 = require('../src/mocks/shipments.json').filter((s) => s.zoneId === 'Z1');
-    const body = buildRoutePlannerRequest({ shipments: z1, driver, vehicle: moto, depot });
+    const body = buildRoutePlannerRequest({ shipments: z1, driver, depot });
     expect(body.jobs.map((j) => j.id)).toEqual(z1.map((s) => s.id).sort());
     const shuffled = [...z1].reverse();
-    expect(buildRoutePlannerRequest({ shipments: shuffled, driver, vehicle: moto, depot })).toEqual(body);
+    expect(buildRoutePlannerRequest({ shipments: shuffled, driver, depot })).toEqual(body);
     expect(body.jobs.every((j) => j.location[0] < -89 && j.location[1] > 13)).toBe(true);
   });
 });
@@ -154,12 +130,11 @@ describe('respuesta del Route Planner (grabación real de Z1, 27 oct)', () => {
     flattenGeometry,
     parseRoutePlannerResponse,
     secondsToISO,
-    unassignedReason,
   } = require('../src/optimizer/geoapify');
   const response = require('../src/mocks/geoapify/routeplanner-zona-a.json');
   const request = require('../src/mocks/geoapify/routeplanner-zona-a.request.json');
   const shipments = require('../src/mocks/shipments.json').filter((s) => s.zoneId === 'Z1');
-  const parsed = parseRoutePlannerResponse(response, { request, shipments, vehicle: moto, date: '2026-10-29' });
+  const parsed = parseRoutePlannerResponse(response, { request, shipments, date: '2026-10-29' });
 
   it('orden de paradas, stopSequence y ETA con la hora de El Salvador', () => {
     expect(parsed.stops.map((s) => s.shipmentId)).toEqual([
@@ -200,28 +175,21 @@ describe('respuesta del Route Planner (grabación real de Z1, 27 oct)', () => {
     expect(flattenGeometry(null)).toBeNull();
   });
 
-  it('sin asignar con su motivo (N41): línea blanca → requisito; los que ya no caben en lo libre → capacidad', () => {
-    expect(Object.fromEntries(parsed.unassigned.map((u) => [u.shipmentId, u.reason]))).toEqual({
-      'SIM-0400': 'requisito',
-      'SIM-0403': 'requisito',
-      'SIM-0406': 'requisito',
-      'SIM-0401': 'capacidad', // 12 kg, pero la moto ya lleva 39 de 40
-      'SIM-0408': 'capacidad',
-      'SIM-0409': 'capacidad',
-    });
-  });
-
-  it('unassignedReason: requisito, capacidad contra lo libre, y ventana si no es ninguna', () => {
-    const light = { weightKg: 3, requires: [] };
-    expect(unassignedReason({ weightKg: 5, requires: ['carga_grande'] }, moto, 0)).toBe('requisito');
-    expect(unassignedReason({ weightKg: 12, requires: [] }, moto, 39)).toBe('capacidad');
-    expect(unassignedReason(light, moto, 30)).toBe('ventana');
-    expect(unassignedReason(light, pickup, 0)).toBe('ventana');
+  it('lo que Geoapify no metió en la ruta queda sin asignar por ventana (turno u horario)', () => {
+    expect(parsed.unassigned.map((u) => u.shipmentId).sort()).toEqual([
+      'SIM-0400',
+      'SIM-0401',
+      'SIM-0403',
+      'SIM-0406',
+      'SIM-0408',
+      'SIM-0409',
+    ]);
+    expect(new Set(parsed.unassigned.map((u) => u.reason))).toEqual(new Set(['ventana']));
   });
 
   it('respuesta sin ruta para el agente: todo lo enviado queda sin asignar', () => {
     const empty = { type: 'FeatureCollection', properties: { issues: { unassigned_jobs: [0] } }, features: [] };
-    const r = parseRoutePlannerResponse(empty, { request, shipments, vehicle: moto, date: '2026-10-29' });
+    const r = parseRoutePlannerResponse(empty, { request, shipments, date: '2026-10-29' });
     expect(r.stops).toEqual([]);
     expect(r.unassigned).toHaveLength(12);
     expect(r).toMatchObject({ km: 0, geometry: null, endISO: null });
@@ -230,8 +198,8 @@ describe('respuesta del Route Planner (grabación real de Z1, 27 oct)', () => {
 
 describe('respuesta mal formada', () => {
   const { parseRoutePlannerResponse } = require('../src/optimizer/geoapify');
-  const ctx = { request: { jobs: [] }, shipments: [], vehicle: moto, date: '2026-10-29' };
-  it('sin features o sin acciones lanza error (optimizeRoute cae al cálculo local)', () => {
+  const ctx = { request: { jobs: [] }, shipments: [], date: '2026-10-29' };
+  it('sin features o sin acciones lanza error (optimizeDay avisa que Geoapify falló)', () => {
     expect(() => parseRoutePlannerResponse({}, ctx)).toThrow('sin features');
     expect(() => parseRoutePlannerResponse({ features: [{ properties: { actions: 'x' } }] }, ctx)).toThrow(
       'sin acciones',

@@ -36,24 +36,12 @@
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
-        "qty": 1
-      },
-      {
-        "sku": "LB-REF14",
-        "name": "Refrigeradora Mabe 14 pies",
-        "weightKg": 62,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 76.2,
-    "volumeM3": null,
-    "packages": 2,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "packages": 1,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -104,21 +92,16 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       }
     ],
     "status": "no_entregado",
-    "weightKg": 11.1,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -170,15 +153,11 @@
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       }
     ],
     "status": "no_entregado",
-    "weightKg": 12.5,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -220,42 +199,27 @@
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
-        "qty": 1
-      },
-      {
-        "sku": "LB-REF14",
-        "name": "Refrigeradora Mabe 14 pies",
-        "weightKg": 62,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 65.7,
-    "volumeM3": null,
-    "packages": 5,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "packages": 4,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -296,15 +260,11 @@
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 0.3,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -346,15 +306,11 @@
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 14.2,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -396,36 +352,27 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       },
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 48.7,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -466,15 +413,11 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -516,27 +459,21 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 14.4,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -578,33 +515,26 @@
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 16.5,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -646,21 +576,16 @@
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 4.6,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -702,21 +627,16 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 2.7,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -758,33 +678,26 @@
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       },
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 21.3,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -826,15 +739,11 @@
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 0.1,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -876,15 +785,11 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.5,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -926,21 +831,16 @@
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 15.9,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -982,33 +882,26 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 7,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1060,15 +953,11 @@
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "entregado",
-    "weightKg": 2.2,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1120,21 +1009,16 @@
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "entregado",
-    "weightKg": 5.6,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1176,27 +1060,21 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       }
     ],
     "status": "en_ruta",
-    "weightKg": 4,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1238,15 +1116,11 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       }
     ],
     "status": "en_ruta",
-    "weightKg": 1.5,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1288,27 +1162,21 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 2
       }
     ],
     "status": "en_ruta",
-    "weightKg": 4.9,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1350,21 +1218,16 @@
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       }
     ],
     "status": "en_ruta",
-    "weightKg": 3.3,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1406,27 +1269,21 @@
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       }
     ],
     "status": "en_ruta",
-    "weightKg": 3.2,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1468,21 +1325,16 @@
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       }
     ],
     "status": "en_ruta",
-    "weightKg": 3.7,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1524,30 +1376,17 @@
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
-        "qty": 1
-      },
-      {
-        "sku": "LB-REF14",
-        "name": "Refrigeradora Mabe 14 pies",
-        "weightKg": 62,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 65.3,
-    "volumeM3": null,
-    "packages": 3,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "packages": 2,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -1588,42 +1427,27 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       },
       {
         "sku": "HOG-8812",
         "name": "Set de ollas Tramontina 5 piezas",
-        "weightKg": 4.8,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
-        "qty": 1
-      },
-      {
-        "sku": "LB-REF14",
-        "name": "Refrigeradora Mabe 14 pies",
-        "weightKg": 62,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 91.8,
-    "volumeM3": null,
-    "packages": 5,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "packages": 4,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -1664,33 +1488,26 @@
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 22.5,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1732,36 +1549,27 @@
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       },
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       },
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 55,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -1802,27 +1610,21 @@
       {
         "sku": "HOG-8812",
         "name": "Set de ollas Tramontina 5 piezas",
-        "weightKg": 4.8,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 19.5,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1864,33 +1666,26 @@
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       },
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 24,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -1932,33 +1727,26 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 7.9,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2000,15 +1788,11 @@
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 2.1,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2050,15 +1834,11 @@
       {
         "sku": "HOG-8812",
         "name": "Set de ollas Tramontina 5 piezas",
-        "weightKg": 4.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 4.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2100,30 +1880,22 @@
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 31.9,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -2164,33 +1936,26 @@
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "HOG-8812",
         "name": "Set de ollas Tramontina 5 piezas",
-        "weightKg": 4.8,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 16.3,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2232,21 +1997,16 @@
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 3.6,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2298,33 +2058,26 @@
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "devuelto",
-    "weightKg": 13,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2366,21 +2119,16 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 11.2,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2422,27 +2170,21 @@
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       },
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 11.4,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2484,33 +2226,26 @@
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       },
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 21.9,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2552,36 +2287,27 @@
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       },
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 39.2,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -2622,15 +2348,11 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2672,24 +2394,17 @@
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       },
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 31.4,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -2730,36 +2445,27 @@
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       },
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 51.9,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -2800,15 +2506,11 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2850,21 +2552,16 @@
       {
         "sku": "HOG-3344",
         "name": "Licuadora Oster 3 velocidades",
-        "weightKg": 2.1,
         "qty": 1
       },
       {
         "sku": "BEL-7720",
         "name": "Secadora de cabello Remington",
-        "weightKg": 0.7,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 2.8,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2906,15 +2603,11 @@
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.2,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -2956,15 +2649,11 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 9,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3006,15 +2695,11 @@
       {
         "sku": "HOG-8812",
         "name": "Set de ollas Tramontina 5 piezas",
-        "weightKg": 4.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 4.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3056,27 +2741,21 @@
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       },
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 7.1,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3118,27 +2797,21 @@
       {
         "sku": "HOG-1201",
         "name": "Microondas Panasonic 1.2 pies",
-        "weightKg": 12.5,
         "qty": 1
       },
       {
         "sku": "ELE-4410",
         "name": "Barra de sonido LG 2.1",
-        "weightKg": 3.4,
         "qty": 1
       },
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 17.1,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3180,24 +2853,17 @@
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       },
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 37,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -3238,15 +2904,11 @@
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 1.8,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3288,15 +2950,11 @@
       {
         "sku": "MUE-3302",
         "name": "Mesa de noche de pino",
-        "weightKg": 9,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 9,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3338,15 +2996,11 @@
       {
         "sku": "MUE-7710",
         "name": "Silla de oficina ergonómica",
-        "weightKg": 11,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 11,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3388,15 +3042,11 @@
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 2.2,
-    "volumeM3": null,
     "packages": 1,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3438,36 +3088,27 @@
       {
         "sku": "ELE-9921",
         "name": "TV Samsung 55\" QLED 4K",
-        "weightKg": 14.2,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       },
       {
         "sku": "ELE-2230",
         "name": "Audífonos Sony inalámbricos",
-        "weightKg": 0.3,
         "qty": 1
       },
       {
         "sku": "DEP-4501",
         "name": "Bicicleta estática Kettler",
-        "weightKg": 28,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 42.6,
-    "volumeM3": null,
     "packages": 4,
-    "requires": [
-      "carga_grande"
-    ],
-    "serviceMin": 20,
+    "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
   },
@@ -3508,21 +3149,16 @@
       {
         "sku": "HOG-5521",
         "name": "Juego de sábanas queen",
-        "weightKg": 1.5,
         "qty": 1
       },
       {
         "sku": "HOG-2205",
         "name": "Cafetera Black+Decker 12 tazas",
-        "weightKg": 2.2,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 3.7,
-    "volumeM3": null,
     "packages": 2,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null
@@ -3564,27 +3200,21 @@
       {
         "sku": "JUG-6610",
         "name": "Set de bloques de construcción",
-        "weightKg": 1.2,
         "qty": 1
       },
       {
         "sku": "ELE-1192",
         "name": "Mouse inalámbrico Logitech",
-        "weightKg": 0.1,
         "qty": 1
       },
       {
         "sku": "ELE-1180",
         "name": "Laptop HP 15\" Ryzen 5",
-        "weightKg": 1.8,
         "qty": 1
       }
     ],
     "status": "pendiente",
-    "weightKg": 3.1,
-    "volumeM3": null,
     "packages": 3,
-    "requires": [],
     "serviceMin": 5,
     "timeWindow": null,
     "unassignedReason": null

@@ -1,7 +1,7 @@
 // app/despacho/ubicaciones.js (dueño: P3) — Revisar ubicaciones (S4-12)
 // Pedidos pendientes de la fecha elegida con ubicación "revisar" o "sin_ubicacion": se elige uno,
 // se arrastra su pin en el mapa y "Confirmar ubicación" llama a confirmLocation(id, punto, 'despacho')
-// de P1 (lo guarda en el envío y en la libreta). "Siguiente" pasa al otro sin confirmar.
+// de P1 (lo guarda en el envío). "Siguiente" pasa al otro sin confirmar.
 // La pantalla no decide la confianza (N40): solo lee location.status.
 // Rediseño (30 oct): motivo corto ("Dirección dudosa") y el detalle al tocarlo; sin párrafos;
 // "Confirmar ubicación" es la única acción principal.
@@ -19,7 +19,7 @@ import { Skeleton } from '../../src/components/Skeleton';
 import { LOCATION_SOURCE, LOCATION_STATUS } from '../../src/constants';
 import { getDepot, listenZones } from '../../src/features/catalog/catalogService';
 import { ErrorBanner } from '../../src/features/driver/ErrorBanner';
-import { confirmLocation } from '../../src/features/geo/addressBook';
+import { confirmLocation } from '../../src/features/geo/confirmLocation';
 import {
   remainingLabel,
   reviewDetail,

@@ -6,8 +6,7 @@ import depotMock from '../../mocks/depot.json';
 /**
  * @param {{ text: string, municipio: string }} address
  * @param {{ depot?: { location: {lat, lng} } }} [opts]  sesgo de proximidad (por defecto, el depósito de prueba)
- * @returns {Promise<{ lat, lng, confidence, resultType, label, area } | null>} null si no hay resultado;
- *   area: colonia, distrito y barrio que reporta Geoapify (para comparar con la colonia del Excel)
+ * @returns {Promise<{ lat, lng, confidence, resultType, label } | null>} null si no hay resultado
  * @throws {GeoapifyError} si la API no responde (timeout, quota, http, offline)
  */
 export async function geocodeAddress({ text, municipio }, { depot = depotMock } = {}) {
@@ -30,6 +29,5 @@ export async function geocodeAddress({ text, municipio }, { depot = depotMock } 
     confidence: r.rank?.confidence ?? 0,
     resultType: r.result_type ?? null,
     label: r.formatted ?? null,
-    area: [r.suburb, r.district, r.neighbourhood, r.quarter].filter(Boolean).join(', ') || null,
   };
 }

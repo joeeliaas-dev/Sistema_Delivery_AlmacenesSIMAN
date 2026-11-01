@@ -6,7 +6,25 @@ const today = todayISO();
 const tomorrowOf = (d) => require('../src/features/dispatch/dispatchMath').addDays(d, 1);
 let svc, mockDb;
 
+// Reloj fijo a las 08:00 de hoy: Geoapify respeta el horario de los express (hasta las 12:00) y el
+// turno, así que lo que entra en una ruta de hoy no puede depender de la hora a la que se corre la prueba
+const at8 = () => {
+  const d = new Date();
+  d.setHours(8, 0, 0, 0);
+  return d;
+};
+const ONLY_DATE = [
+  'nextTick',
+  'setImmediate',
+  'queueMicrotask',
+  'setTimeout',
+  'clearTimeout',
+  'setInterval',
+  'clearInterval',
+];
+afterEach(() => jest.useRealTimers());
 beforeEach(() => {
+  jest.useFakeTimers({ now: at8(), doNotFake: ONLY_DATE });
   jest.resetModules();
   svc = require('../src/features/routes/routesService');
   mockDb = require('../src/mocks').mockDb;
@@ -19,15 +37,6 @@ const next = (subscribe) =>
       resolve(value);
     });
   });
-// Sprint 4: la capacidad del vehículo manda. Para probar lo que no es capacidad (orden, -2,
-// reintentos), el motorista de la zona maneja el camión V5 (2 000 kg, carga grande).
-// El mock de Geoapify devuelve la grabación de la moto para los jobs de Z1 con D1 aunque cambie el
-// vehículo (compara solo ids; pedido a P1): estas pruebas calculan local con Geoapify "sin conexión".
-const withTruck = (driverId) => {
-  mockDb.upsert('drivers', { id: driverId, vehicleId: 'V5' });
-  const geo = require('../src/lib/geoapify');
-  jest.spyOn(geo, 'geoapifyFetch').mockRejectedValue(new geo.GeoapifyError('offline', 'Sin conexión a internet.'));
-};
 const shipmentsOf = (zoneId) => mockDb.all('shipments').filter((s) => s.zoneId === zoneId);
 
 describe('lecturas', () => {
@@ -81,11 +90,10 @@ describe('nombres e ids', () => {
 
 describe('createRoute', () => {
   it('en Z1 deja los 12 envíos en asignado con stopSequence y etaMin, incluidos los 2 reintentos', async () => {
-    withTruck('D1');
-    const { routeId, engine, warning } = await svc.createRoute({ zoneId: 'Z1', date: today });
-    expect(engine).toBe('local');
-    expect(warning).toMatch(/San Salvador Centro se calculó en el teléfono/);
-    expect(mockDb.get('routes', routeId)).toMatchObject({ vehicleId: 'V5', engine: 'local', geometry: null });
+    const { routeId, engine } = await svc.createRoute({ zoneId: 'Z1', date: today });
+    expect(engine).toBe('geoapify');
+    expect(mockDb.get('routes', routeId)).toMatchObject({ engine: 'geoapify' });
+    expect(mockDb.get('routes', routeId).geometry.length).toBeGreaterThan(2);
     expect(routeId).toBe(`R-${today}-Z1`);
 
     const route = mockDb.get('routes', routeId);
@@ -100,45 +108,34 @@ describe('createRoute', () => {
     const ids = route.stops.map((st) => st.shipmentId);
     expect(ids).toEqual(expect.arrayContaining(['SIM-0401', 'SIM-0402']));
 
-    // Express primero
-    const priorities = route.stops.map((st) => mockDb.get('shipments', st.shipmentId).priority);
-    expect(priorities.indexOf('normal')).toBeGreaterThan(priorities.lastIndexOf('express'));
+    // Express antes de las 12:00 (ventana que se le pide a Geoapify)
+    const express = route.stops.filter((st) => mockDb.get('shipments', st.shipmentId).priority === 'express');
+    expect(express.length).toBeGreaterThan(0);
+    expect(express.every((st) => st.etaISO.slice(11, 16) <= '12:00')).toBe(true);
 
     // Un evento por envío
     expect(mockDb.all('events').filter((e) => e.toStatus === 'asignado')).toHaveLength(12);
   });
 
-  it('Z1 con la moto de 40 kg (grabación real): 6 paradas; los otros 6 quedan pendientes con su motivo (N41)', async () => {
-    // Mañana: la salida es el inicio del turno, así la solicitud es idéntica a la grabada
+  it('turno corto: lo que ya no alcanza queda pendiente con motivo ventana, en la misma escritura (C30)', async () => {
+    mockDb.upsert('drivers', { id: 'D1', shiftStart: '07:00', shiftEnd: '08:00' });
     const { routeId, skipped } = await svc.createRoute({ zoneId: 'Z1', date: tomorrowOf(today) });
     const route = mockDb.get('routes', routeId);
-    expect(route.stops.map((st) => st.shipmentId)).toEqual([
-      'SIM-0405',
-      'SIM-0407',
-      'SIM-0404',
-      'SIM-0411',
-      'SIM-0402',
-      'SIM-0410',
-    ]);
-    expect(route).toMatchObject({ vehicleId: 'V1', engine: 'geoapify', totalKm: 14.66, minutes: 51 });
-    expect(route.geometry.length).toBeGreaterThan(2);
-    expect(route.geometry[0]).toEqual({ lat: expect.any(Number), lng: expect.any(Number) }); // sin arreglos anidados
-    const reasons = Object.fromEntries(skipped.map((u) => [u.shipmentId, u.reason]));
-    expect(reasons).toEqual({
-      'SIM-0400': 'requisito',
-      'SIM-0403': 'requisito',
-      'SIM-0406': 'requisito',
-      'SIM-0401': 'capacidad',
-      'SIM-0408': 'capacidad',
-      'SIM-0409': 'capacidad',
+    expect(route.stops.length).toBeGreaterThan(0);
+    expect(skipped.length).toBeGreaterThan(0);
+    expect(route.stops.length + skipped.length).toBe(12);
+    expect(new Set(skipped.map((u) => u.reason))).toEqual(new Set(['ventana']));
+    expect(mockDb.get('shipments', skipped[0].shipmentId)).toMatchObject({
+      status: 'pendiente',
+      unassignedReason: 'ventana',
     });
-    // El motivo queda escrito en el envío, en la misma escritura que la ruta (C30)
-    expect(mockDb.get('shipments', 'SIM-0400')).toMatchObject({ status: 'pendiente', unassignedReason: 'requisito' });
-    expect(mockDb.get('shipments', 'SIM-0405')).toMatchObject({ status: 'asignado', unassignedReason: null });
+    expect(mockDb.get('shipments', route.stops[0].shipmentId)).toMatchObject({
+      status: 'asignado',
+      unassignedReason: null,
+    });
   });
 
   it('si assignToRoute falla, la ruta no queda guardada y ningún envío cambia', async () => {
-    withTruck('D1');
     // Entre la lectura de createRoute y la asignación, otro dispositivo entrega SIM-0400
     const realGet = mockDb.get;
     jest.spyOn(mockDb, 'get').mockImplementation((name, id) => {
@@ -154,7 +151,6 @@ describe('createRoute', () => {
   });
 
   it('crearla dos veces da error', async () => {
-    withTruck('D1');
     await svc.createRoute({ zoneId: 'Z1', date: today });
     await expect(svc.createRoute({ zoneId: 'Z1', date: today })).rejects.toThrow(
       'La zona ya tiene una ruta abierta hoy',
@@ -168,11 +164,11 @@ describe('createRoute', () => {
   });
 
   it('con la ruta anterior cerrada crea -2, sigue la letra y el motorista ve la nueva', async () => {
-    withTruck('D1');
     const { routeId: first } = await svc.createRoute({ zoneId: 'Z1', date: today });
     // Se cierran todas sus paradas como no entregado (1.er intento): quedan como reintentos
     for (const s of shipmentsOf('Z1')) mockDb.upsert('shipments', { id: s.id, status: 'no_entregado', attempts: 1 });
 
+    jest.setSystemTime(new Date(Date.now() + 60000)); // el reloj de la prueba está quieto: la nueva es más reciente
     const { routeId: second } = await svc.createRoute({ zoneId: 'Z1', date: today });
     expect(second).toBe(`${first}-2`);
     expect(mockDb.get('routes', second).code).toBe('Ruta C');
@@ -200,13 +196,11 @@ describe('createRoute', () => {
 
 describe('createRoute: errores de lectura y skipped (C18, C20)', () => {
   it('devuelve skipped vacío cuando caben todas', async () => {
-    withTruck('D1');
     const { skipped } = await svc.createRoute({ zoneId: 'Z1', date: today });
     expect(skipped).toEqual([]);
   });
 
   it('con más de 25 candidatos devuelve los que no entraron en skipped', async () => {
-    withTruck('D1');
     const base = mockDb.get('shipments', 'SIM-0400');
     for (let i = 0; i < 14; i++) {
       mockDb.upsert('shipments', {
@@ -309,10 +303,6 @@ describe('hora de salida (N12)', () => {
       jest.resetModules(); // los mocks toman la fecha "de hoy" del reloj falso
       const s = require('../src/features/routes/routesService');
       const db = require('../src/mocks').mockDb;
-      const geo = require('../src/lib/geoapify');
-      jest
-        .spyOn(geo, 'geoapifyFetch')
-        .mockRejectedValue(new geo.GeoapifyError('timeout', 'Geoapify no respondió a tiempo.'));
       const { routeId: id } = await s.createRoute({ zoneId: 'Z1', date: day });
       return db.get('routes', id);
     }
@@ -359,7 +349,9 @@ describe('días anteriores: lo abierto no desaparece al cambiar de día', () => 
     expect(routeId).toBe(`R-${tomorrow}-Z2`);
     expect(mockDb.get('routes', routeId).code).not.toBe('Ruta A');
     expect(mockDb.get('routes', `R-${today}-Z2`).status).toBe('en_curso');
-    await expect(svc.createRoute({ zoneId: 'Z2', date: today })).rejects.toThrow('La zona ya tiene una ruta abierta hoy');
+    await expect(svc.createRoute({ zoneId: 'Z2', date: today })).rejects.toThrow(
+      'La zona ya tiene una ruta abierta hoy',
+    );
   });
 
   it('terminada la ruta, ya no se arrastra', async () => {
@@ -370,7 +362,6 @@ describe('días anteriores: lo abierto no desaparece al cambiar de día', () => 
   });
 
   it('los pendientes de hoy entran a la ruta del día siguiente, sin repetir la letra de la Ruta A que sigue abierta', async () => {
-    withTruck('D1');
     const pending = shipmentsOf('Z1').filter((s) => s.status === 'pendiente' || s.status === 'no_entregado');
     const { routeId } = await svc.createRoute({ zoneId: 'Z1', date: tomorrow });
     const route = mockDb.get('routes', routeId);

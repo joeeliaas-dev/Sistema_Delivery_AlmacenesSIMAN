@@ -1,9 +1,9 @@
 // src/features/driver/gpsCorrection.js (dueño: P3)
 // S4-14: al entregar, si el GPS fue preciso (menos de 50 m) y la ubicación del envío no estaba
 // confirmada, se confirma con el punto del GPS (confirmLocation de P1, fuente 'gps_entrega').
-// Así la libreta aprende la casa real del cliente. Si falla, el motorista no ve nada: solo consola.
+// Así el pedido queda con la casa real del cliente (C53: sin libreta). Si falla, el motorista no ve nada: solo consola.
 import { LOCATION_SOURCE, LOCATION_STATUS } from '../../constants';
-import { confirmLocation } from '../geo/addressBook';
+import { confirmLocation } from '../geo/confirmLocation';
 
 export const GPS_MAX_ACCURACY_M = 50;
 

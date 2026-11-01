@@ -1,4 +1,4 @@
-// src/features/vehicles/AccessStep.js (dueño: P3)
+// src/features/drivers/AccessStep.js (dueño: P3)
 // Paso "Darle acceso a la app" (C48): correo y contraseña inicial (mínimo 8, con mostrar/ocultar).
 // Llama a createDriverAccess de P1; la sesión del despacho no cambia. Su error (en español) va junto
 // al campo, o debajo del botón si no es de un campo. Al terminar: "Ana ya puede entrar con …".
