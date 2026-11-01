@@ -58,19 +58,6 @@ function once(subscribe) {
   });
 }
 
-/**
- * Hora de salida para ETA y estEnd (N12): ahora, si está entre 07:00 y 18:00 del día de
- * la ruta; si no (de noche, o una ruta de otro día), las 08:00 de ese día.
- * @param {string} date  "2026-10-12"
- * @param {Date} [now]
- * @returns {Date}
- */
-export function routeStartAt(date, now = new Date()) {
-  const [y, m, d] = date.split('-').map(Number);
-  const at = (h) => new Date(y, m - 1, d, h, 0, 0, 0);
-  return now >= at(7) && now <= at(18) ? now : at(8);
-}
-
 /** "Ruta A", "Ruta B"… en orden de creación del día (después de la Z: "Ruta 27"). */
 export const routeCode = (index) => `Ruta ${index < 26 ? String.fromCharCode(65 + index) : index + 1}`;
 
@@ -482,12 +469,6 @@ export async function optimizeAndSaveDay(date) {
     unassigned: saved.unassigned,
   };
 }
-
-/**
- * Rutas de una fecha para el mapa del despacho (contrato S4): las de la fecha y las de días
- * anteriores sin terminar (N37). Es la misma lectura que listenRoutes.
- */
-export const listenRoutesByDate = (date, cb, onError) => listenRoutes({ date }, cb, onError);
 
 // ---------- Mover una parada (S4-08) ----------
 

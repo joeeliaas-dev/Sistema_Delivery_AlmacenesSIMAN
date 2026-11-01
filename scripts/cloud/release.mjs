@@ -9,7 +9,7 @@
 //      npm run release:cloud -- --solo-revisar   ensayo: pasos 1 a 3, sin subir nada
 //      npm run release:cloud -- --sin-datos      se salta el paso 5 (no recarga datos ni sube reglas)
 import { spawnSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,6 +17,12 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const keepData = process.argv.includes('--sin-datos');
 const dryRun = process.argv.includes('--solo-revisar');
 const step = (n, title) => console.log(`\n=== ${n}. ${title}`);
+// Las pruebas viven fuera del proyecto (../siman-pruebas, no van a GitHub)
+const PRUEBAS = join(root, '..', 'siman-pruebas', 'correr.mjs');
+if (!existsSync(PRUEBAS)) {
+  console.error(`✗ No encuentro las pruebas en ${PRUEBAS}: sin ellas no se publica.`);
+  process.exit(1);
+}
 const run = (cmd, args) => {
   const r = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
   if (r.status !== 0) {
@@ -26,7 +32,7 @@ const run = (cmd, args) => {
 };
 
 step(1, 'Pruebas y lint');
-run('npx', ['jest', '--silent']);
+run('node', [PRUEBAS, 'unidad']);
 run('npm', ['run', 'lint']);
 
 step(2, 'Compilar la versión nube');
@@ -80,9 +86,9 @@ else {
 }
 
 step(6, 'Revisar reglas en producción');
-run('node', ['scripts/cloud/checkRules.mjs']);
+run('node', [PRUEBAS, 'reglas']);
 
 step(7, 'Chequeo de humo');
-run('node', ['scripts/cloud/smoke.mjs']);
+run('node', [PRUEBAS, 'humo']);
 
 console.log('\n✓ Publicado y verificado en https://trazzasv.web.app');

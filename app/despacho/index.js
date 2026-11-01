@@ -996,7 +996,7 @@ const styles = StyleSheet.create({
   stackedText: { paddingTop: spacing.sm },
   noticeActions: { flexDirection: 'row', justifyContent: 'flex-end', flexWrap: 'wrap', columnGap: spacing.lg },
   noticeMore: { borderTopWidth: 1, borderTopColor: colors.outlineVariant, paddingVertical: spacing.xs },
-  noticeAction: { minHeight: 44, justifyContent: 'center' },
+  noticeAction: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }, // tocable con el dedo
   noticeActionText: { ...typography.label, textDecorationLine: 'underline' },
   statusRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: spacing.md },
   flash: { ...typography.label, color: tones.success.fg },

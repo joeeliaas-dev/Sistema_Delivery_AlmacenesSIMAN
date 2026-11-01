@@ -13,27 +13,14 @@
     "mocks": "node scripts/genMocks.mjs",
     "orders:xlsx": "node scripts/make-orders-xlsx.js",
     "deploy:preview": "expo export --platform web --clear && firebase hosting:channel:deploy sprint1 --project proyecto-mad-9bdd2 --expires 30d",
-    "test": "jest",
-    "test:emulator": "jest -c jest.emulator.config.js",
     "lint": "eslint .",
+    "pruebas": "node ../siman-pruebas/correr.mjs",
     "format": "prettier --write .",
-    "e2e": "node scripts/e2e/demoPhone.mjs",
-    "e2e:despacho": "node scripts/e2e/dispatchFlow.mjs",
-    "e2e:emulator": "node scripts/e2e/emulatorRun.mjs",
-    "tour": "node scripts/e2e/visualTour.mjs",
     "seed:cloud": "node scripts/cloud/seedCloud.mjs",
-    "check:cloud": "node scripts/cloud/checkRules.mjs",
     "build:cloud": "node scripts/cloud/buildCloud.mjs",
     "deploy:live": "node scripts/cloud/buildCloud.mjs && firebase deploy --config firebase.cloud.json --only hosting --project proyecto-mad-9bdd2",
     "release:cloud": "node scripts/cloud/release.mjs",
-    "smoke:cloud": "node scripts/cloud/smoke.mjs",
     "emulators:auth": "firebase emulators:start --config firebase.auth-emu.json --only auth --project demo-siman-logistica"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
-    ]
   },
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.4.3",

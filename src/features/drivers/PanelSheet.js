@@ -109,7 +109,6 @@ export function Notice({ text }) {
 // Estilos que comparten los formularios de los paneles
 export const panelStyles = StyleSheet.create({
   body: { gap: spacing.lg },
-  flex: { flex: 1, minWidth: 0 },
   pressed: { backgroundColor: colors.surfaceContainer },
   input: {
     ...typography.bodyLarge,

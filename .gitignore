@@ -68,3 +68,13 @@ docs/
 AGENTS.md
 assets/pedidos-demo.xlsx
 .claude/
+
+# Pruebas: viven en ../siman-pruebas (npm run pruebas -- unidad)
+__tests__/
+__integration__/
+scripts/e2e/
+scripts/cloud/smoke.mjs
+scripts/cloud/checkRules.mjs
+jest.setup.js
+jest.emulator.config.js
+jest.config.js

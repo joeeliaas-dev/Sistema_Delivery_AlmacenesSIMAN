@@ -55,10 +55,3 @@ export function missingText(missing) {
 }
 
 export const itemCount = (shipment) => (shipment.items ?? []).reduce((sum, i) => sum + (i.qty ?? 1), 0);
-
-export function greeting(date = new Date()) {
-  const h = date.getHours();
-  if (h < 12) return 'Buenos días';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
