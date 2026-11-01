@@ -1,0 +1,42 @@
+[
+  {
+    "id": "D1",
+    "name": "Kevin Rivas",
+    "initials": "KR",
+    "phone": "+50370000001",
+    "zoneId": "Z1",
+    "active": true
+  },
+  {
+    "id": "D2",
+    "name": "Jorge Martínez",
+    "initials": "JM",
+    "phone": "+50370000002",
+    "zoneId": "Z2",
+    "active": true
+  },
+  {
+    "id": "D3",
+    "name": "Daniela Flores",
+    "initials": "DF",
+    "phone": "+50370000003",
+    "zoneId": "Z3",
+    "active": true
+  },
+  {
+    "id": "D4",
+    "name": "Mario Castro",
+    "initials": "MC",
+    "phone": "+50370000004",
+    "zoneId": "Z4",
+    "active": true
+  },
+  {
+    "id": "D5",
+    "name": "Sofía Guzmán",
+    "initials": "SG",
+    "phone": "+50370000005",
+    "zoneId": "Z5",
+    "active": true
+  }
+]

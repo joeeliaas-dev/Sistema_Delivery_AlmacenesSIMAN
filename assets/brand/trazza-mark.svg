@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Marca Trazza (dueño: P1): una ruta optimizada del depósito a la entrega -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7A68B8"/>
+      <stop offset="1" stop-color="#4A3A86"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+  <circle cx="860" cy="170" r="210" fill="#FFFFFF" opacity="0.06"/>
+  <!-- recorrido -->
+  <path d="M332 300 H612 a118 118 0 0 1 0 236 H412 a118 118 0 0 0 0 236 H692"
+        fill="none" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- depósito -->
+  <circle cx="300" cy="300" r="74" fill="#FFFFFF"/>
+  <circle cx="300" cy="300" r="30" fill="#5B4A9C"/>
+  <!-- entrega -->
+  <circle cx="724" cy="772" r="86" fill="#FBDDF0"/>
+  <path d="M684 772 l28 28 l52 -58" fill="none" stroke="#9A5B8A" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,127 @@
+[
+  {
+    "id": "Z1",
+    "code": "Z1",
+    "name": "San Salvador Centro",
+    "color": "#6B5AA6",
+    "polygon": [
+      {
+        "lat": 13.6869,
+        "lng": -89.2034
+      },
+      {
+        "lat": 13.6869,
+        "lng": -89.1794
+      },
+      {
+        "lat": 13.7109,
+        "lng": -89.1794
+      },
+      {
+        "lat": 13.7109,
+        "lng": -89.2034
+      }
+    ],
+    "driverId": "D1"
+  },
+  {
+    "id": "Z2",
+    "code": "Z2",
+    "name": "Escalón / San Benito",
+    "color": "#9A5B8A",
+    "polygon": [
+      {
+        "lat": 13.6915,
+        "lng": -89.252
+      },
+      {
+        "lat": 13.6915,
+        "lng": -89.228
+      },
+      {
+        "lat": 13.7155,
+        "lng": -89.228
+      },
+      {
+        "lat": 13.7155,
+        "lng": -89.252
+      }
+    ],
+    "driverId": "D2"
+  },
+  {
+    "id": "Z3",
+    "code": "Z3",
+    "name": "Antiguo Cuscatlán / Santa Tecla",
+    "color": "#2F7D5B",
+    "polygon": [
+      {
+        "lat": 13.663,
+        "lng": -89.272
+      },
+      {
+        "lat": 13.663,
+        "lng": -89.248
+      },
+      {
+        "lat": 13.687,
+        "lng": -89.248
+      },
+      {
+        "lat": 13.687,
+        "lng": -89.272
+      }
+    ],
+    "driverId": "D3"
+  },
+  {
+    "id": "Z4",
+    "code": "Z4",
+    "name": "Soyapango / Ilopango",
+    "color": "#C26A1B",
+    "polygon": [
+      {
+        "lat": 13.698,
+        "lng": -89.162
+      },
+      {
+        "lat": 13.698,
+        "lng": -89.138
+      },
+      {
+        "lat": 13.722,
+        "lng": -89.138
+      },
+      {
+        "lat": 13.722,
+        "lng": -89.162
+      }
+    ],
+    "driverId": "D4"
+  },
+  {
+    "id": "Z5",
+    "code": "Z5",
+    "name": "Mejicanos / Apopa",
+    "color": "#2B6CB0",
+    "polygon": [
+      {
+        "lat": 13.728,
+        "lng": -89.225
+      },
+      {
+        "lat": 13.728,
+        "lng": -89.201
+      },
+      {
+        "lat": 13.752,
+        "lng": -89.201
+      },
+      {
+        "lat": 13.752,
+        "lng": -89.225
+      }
+    ],
+    "driverId": "D5"
+  }
+]
