@@ -1,0 +1,51 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "us-east1",
+    "rules": "firestore.cloud.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.cloud.rules"
+  },
+  "hosting": [
+    {
+      "site": "trazzasv",
+      "public": "dist-cloud",
+      "ignore": [
+        "**/.*"
+      ],
+      "headers": [
+        {
+          "source": "/assets/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "site": "trazza-web",
+      "public": "dist-cloud",
+      "ignore": [
+        "**/.*"
+      ],
+      "redirects": [
+        {
+          "source": "/:path*",
+          "destination": "https://trazzasv.web.app/:path",
+          "type": 301
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+rules_version = '2';
+// firestore.cloud.rules  (dueño: P1) — reglas de la nube (proyecto-mad-9bdd2).
+// Entorno de confianza: solo el equipo, SIN login (decisión de Andrés, 8 oct 2026).
+// Lectura abierta; escritura LIMITADA a lo que hace la app:
+//   - catálogos (depósito, zonas, motoristas): solo lectura
+//   - envíos: no se crean ni se borran; solo se cambian los campos de estado, con
+//     transiciones válidas (las mismas de statusMachine.js) y textos de tamaño acotado
+//   - eventos: solo se agregan (historial inmutable)
+//   - rutas: se crean con su forma completa; después solo cambia su estado a en_curso
+//   - evidencia: fotos y firmas comprimidas, solo se agregan (plan Spark, N35)
+// Los datos iniciales se cargan con `npm run seed:cloud` (pone reglas de carga y las retira).
+// Cuando exista login, aquí se agrega request.auth != null.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- ayudas ----------
+    function statuses() {
+      return ['pendiente', 'asignado', 'en_ruta', 'entregado', 'no_entregado', 'devuelto'];
+    }
+    function failReasons() {
+      return ['Cliente ausente', 'Dirección incorrecta', 'Cliente rechaza el pedido', 'Zona inaccesible', 'Paquete dañado'];
+    }
+    // TRANSITIONS de statusMachine.js (no_entregado → devuelto es automático en el 2.º fallo)
+    function canTransition(from, to) {
+      return (from == 'pendiente' && to == 'asignado')
+        || (from == 'asignado' && to in ['en_ruta', 'pendiente'])
+        || (from == 'en_ruta' && to in ['entregado', 'no_entregado', 'devuelto'])
+        || (from == 'no_entregado' && to in ['asignado', 'devuelto', 'pendiente']);
+    }
+    // ---------- Sprint 4 ----------
+    function unassignedReasons() {
+      return ['capacidad', 'ventana', 'sin_ubicacion'];
+    }
+    function validLocation(l) {
+      return l == null || (l is map
+        && l.keys().hasOnly(['lat', 'lng', 'status', 'source', 'confidence', 'label'])
+        && l.status in ['alta', 'revisar', 'confirmada', 'sin_ubicacion']
+        && (l.lat == null || (l.lat is number && l.lat > 13.0 && l.lat < 14.6))
+        && (l.lng == null || (l.lng is number && l.lng > -90.3 && l.lng < -87.5))
+        && shortText(l.get('label', null), 300));
+    }
+    function hhmm(v) {
+      return v is string && v.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+    }
+    function shortText(v, max) {
+      return v == null || (v is string && v.size() <= max);
+    }
+    function validEvidence(e) {
+      return e == null || (e is map
+        && e.keys().hasOnly(['photoUrl', 'signatureUrl', 'description', 'gps', 'at', 'reason'])
+        && shortText(e.get('description', null), 500)
+        && shortText(e.get('photoUrl', null), 200)
+        && shortText(e.get('signatureUrl', null), 200)
+        && (e.get('reason', null) == null || e.reason in failReasons()));
+    }
+
+    // ---------- catálogos: solo lectura ----------
+    match /depots/{id} { allow read: if true; }
+    match /zones/{id} { allow read: if true; }
+    // Motoristas: solo cambia su turno
+    match /drivers/{id} {
+      allow read: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['shiftStart', 'shiftEnd'])
+        && (!('shiftStart' in request.resource.data) || hhmm(request.resource.data.shiftStart))
+        && (!('shiftEnd' in request.resource.data) || hhmm(request.resource.data.shiftEnd));
+    }
+
+    // ---------- envíos ----------
+    match /shipments/{id} {
+      allow read: if true;
+      allow delete: if false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'attempts', 'updatedAt', 'lastEvidence', 'lastFailure', 'routeId', 'stopSequence', 'etaMin',
+                      'unassignedReason', 'location', 'zoneId', 'scheduledDate'])
+        // reprogramar (no_entregado → pendiente) solo con 1 intento; la fecha solo cambia al reprogramar
+        && (!(request.resource.data.status == 'pendiente' && resource.data.status == 'no_entregado') || resource.data.attempts == 1)
+        && (request.resource.data.get('scheduledDate', null) == resource.data.get('scheduledDate', null)
+            || (resource.data.status == 'no_entregado' && request.resource.data.status == 'pendiente'))
+        && (request.resource.data.get('unassignedReason', null) == null
+            || request.resource.data.unassignedReason in unassignedReasons())
+        && validLocation(request.resource.data.get('location', null))
+        && request.resource.data.status in statuses()
+        && (request.resource.data.status == resource.data.status
+            || canTransition(resource.data.status, request.resource.data.status))
+        && request.resource.data.attempts is int
+        && request.resource.data.attempts >= resource.data.attempts
+        && request.resource.data.attempts <= 2
+        && validEvidence(request.resource.data.get('lastEvidence', null))
+        && validEvidence(request.resource.data.get('lastFailure', null));
+
+      // Historial: solo se agregan eventos de un envío que existe
+      match /events/{eventId} {
+        allow read: if true;
+        allow update, delete: if false;
+        allow create: if existsAfter(/databases/$(database)/documents/shipments/$(id))
+          && request.resource.data.keys().hasOnly(['fromStatus', 'toStatus', 'at', 'driverId', 'attempt',
+               'reason', 'description', 'photoUrl', 'signatureUrl', 'gps', 'automatic', 'kind'])
+          && request.resource.data.get('kind', null) in [null, 'reprogramado', 'liberado']
+          && request.resource.data.toStatus in statuses()
+          && request.resource.data.fromStatus in statuses()
+          && shortText(request.resource.data.get('description', null), 500)
+          && shortText(request.resource.data.get('photoUrl', null), 200)
+          && shortText(request.resource.data.get('signatureUrl', null), 200);
+      }
+    }
+
+    // ---------- evidencia comprimida (N35, plan Spark: sin Storage) ----------
+    // Un documento por intento: evidence/SIM-0419_intento-1. Solo se agrega; nunca se cambia ni se borra.
+    match /evidence/{id} {
+      allow read: if true;
+      allow update, delete: if false;
+      allow create: if id.matches('^SIM-[0-9]{4}_intento-[12]$')
+        && request.resource.data.keys().hasOnly(['code', 'attempt', 'photo', 'signature', 'shipmentId', 'createdAt'])
+        && request.resource.data.photo is string
+        && request.resource.data.photo.size() < 750000
+        && request.resource.data.photo.matches('^data:image/jpeg;base64,.+')
+        && (request.resource.data.signature == null
+            || (request.resource.data.signature is string
+                && request.resource.data.signature.size() < 250000
+                && request.resource.data.signature.matches('^data:image/png;base64,.+')))
+        && exists(/databases/$(database)/documents/shipments/$(request.resource.data.shipmentId));
+    }
+
+    // ---------- rutas ----------
+    match /routes/{id} {
+      allow read: if true;
+      allow delete: if false;
+      allow create: if id.matches('^R-[0-9]{4}-[0-9]{2}-[0-9]{2}-Z[0-9]+(-[0-9]+)?$')
+        && request.resource.data.keys().hasOnly(['code', 'date', 'zoneId', 'driverId', 'status', 'stops',
+             'totalKm', 'baselineKm', 'estEnd', 'createdAt', 'engine', 'geometry', 'minutes'])
+        && (request.resource.data.get('geometry', null) == null || request.resource.data.geometry is list)
+        && request.resource.data.status == 'asignada'
+        && request.resource.data.stops is list
+        && request.resource.data.stops.size() <= 25;
+      allow update: if (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && resource.data.status == 'asignada'
+          && request.resource.data.status == 'en_curso')
+        // S4-07/S4-08: una ruta que no ha iniciado se puede reemplazar o reoptimizar
+        || (resource.data.status == 'asignada' && request.resource.data.status == 'asignada'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['stops', 'totalKm', 'baselineKm', 'estEnd', 'engine', 'geometry', 'minutes', 'driverId'])
+          && request.resource.data.stops is list && request.resource.data.stops.size() <= 25);
+    }
+  }
+}
