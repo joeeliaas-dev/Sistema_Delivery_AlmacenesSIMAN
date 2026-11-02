@@ -1,0 +1,87 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# firebase emulators
+.firebase/
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log
+emulator-data/
+.npm-cache/
+.e2e/
+dist-emu/
+.tour/
+dist-cloud/
+
+# Respaldos (incluyen .env.local)
+respaldos/
+
+# Compilaciones locales de cada uno (P1 sube el link de prueba desde dist-preview)
+dist-*/
+
+# Configuración local: no va al repositorio (ver los .example)
+.env
+scripts/cloud/cloudConfig.json
+
+# Solo código en el repositorio
+docs/
+AGENTS.md
+assets/pedidos-demo.xlsx
+.claude/
+
+# Pruebas: viven en ../siman-pruebas (npm run pruebas -- unidad)
+__tests__/
+__integration__/
+scripts/e2e/
+scripts/cloud/smoke.mjs
+scripts/cloud/checkRules.mjs
+jest.setup.js
+jest.emulator.config.js
+jest.config.js
+firebase.json
+firebase.auth-emu.json
+firestore.rules
+storage.rules
+scripts/seed.js
+scripts/make-orders-xlsx.js
+assets/pedidos-prueba-100.xlsx

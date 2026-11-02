@@ -1,0 +1,44 @@
+[
+  {
+    "key": "despacho",
+    "email": "despacho@trazzasv.test",
+    "name": "Despachador",
+    "role": "despacho",
+    "driverId": null
+  },
+  {
+    "key": "kevin",
+    "email": "kevin@trazzasv.test",
+    "name": "Kevin Rivas",
+    "role": "motorista",
+    "driverId": "D1"
+  },
+  {
+    "key": "jorge",
+    "email": "jorge@trazzasv.test",
+    "name": "Jorge Martínez",
+    "role": "motorista",
+    "driverId": "D2"
+  },
+  {
+    "key": "daniela",
+    "email": "daniela@trazzasv.test",
+    "name": "Daniela Flores",
+    "role": "motorista",
+    "driverId": "D3"
+  },
+  {
+    "key": "mario",
+    "email": "mario@trazzasv.test",
+    "name": "Mario Castro",
+    "role": "motorista",
+    "driverId": "D4"
+  },
+  {
+    "key": "sofia",
+    "email": "sofia@trazzasv.test",
+    "name": "Sofía Guzmán",
+    "role": "motorista",
+    "driverId": "D5"
+  }
+]
