@@ -18,6 +18,7 @@ permissions:
   contents: read
   pull-requests: write   # para comentar el enlace de la vista previa
   checks: write
+  deployments: write     # para registrar la vista previa en Deployments
 
 # Una publicación a la vez por rama: si llegan dos pushes seguidos, no se pisan
 concurrency:
@@ -63,6 +64,9 @@ jobs:
     name: Publicar en Firebase Hosting
     needs: revisar
     runs-on: ubuntu-24.04   # versión fija: ubuntu-latest cambia de sistema sin aviso
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }}
+      url: ${{ github.event_name == 'pull_request' && steps.previa.outputs.details_url || steps.vivo.outputs.details_url }}
     # Las vistas previas solo para PR del mismo repositorio (los forks no reciben secretos)
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     env:
