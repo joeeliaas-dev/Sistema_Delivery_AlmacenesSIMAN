@@ -8,9 +8,8 @@ import { MAX_ATTEMPTS, ROUTE_STATUS, STATUS, UNASSIGNED_REASON } from '../../con
 import { combine } from '../../lib/combine';
 import { blocksZoneOn } from '../../lib/routeDay';
 import { toStoredGeometry } from '../../lib/geometry';
-import { USE_MOCKS, db } from '../../lib/firebase';
+import { db } from '../../lib/firebase';
 import { ROUTING } from '../../config/routing';
-import { mockDb } from '../../mocks';
 import { hasTrustedLocation, isPlannable, optimizeDay, optimizeRoute } from '../../optimizer';
 import { getDepot, listenDrivers, listenZones } from '../catalog/catalogService';
 import { assignToRoute, changeStatusMany, replanRoutes } from '../shipments/statusMachine';
@@ -100,7 +99,6 @@ export function isRouteOpen(route, shipmentsById) {
  * @returns {() => void} cancelar
  */
 export function listenRoute(routeId, cb, onError) {
-  if (USE_MOCKS) return mockDb.listen('routes', (docs) => docs.find((r) => r.id === routeId) ?? null, cb);
   return onSnapshot(
     doc(db, 'routes', routeId),
     (snap) => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null),
@@ -131,15 +129,6 @@ export function withCarriedRoutes(routes, shipments, date) {
 export function listenRoutes({ date }, cb, onError) {
   const byZone = (a, b) => a.zoneId.localeCompare(b.zoneId) || a.id.localeCompare(b.id);
   const merge = (routes, shipments) => withCarriedRoutes(routes, shipments, date).sort(byZone);
-  if (USE_MOCKS)
-    return combine(
-      [
-        (next) => mockDb.listen('routes', (docs) => docs, next),
-        (next) => mockDb.listen('shipments', (docs) => docs, next),
-      ],
-      merge,
-      cb,
-    );
   const onErr = readError('listenRoutes', onError);
   const toDocs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   return combine(
@@ -170,7 +159,6 @@ export function listenRoutes({ date }, cb, onError) {
  */
 export async function getRoutesOfDay(date) {
   const byZone = (a, b) => a.zoneId.localeCompare(b.zoneId) || a.id.localeCompare(b.id);
-  if (USE_MOCKS) return withCarriedRoutes(mockDb.all('routes'), mockDb.all('shipments'), date).sort(byZone);
   const toDocs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   const [ofDate, open, onRoute] = await Promise.all([
     getDocs(query(collection(db, 'routes'), where('date', '==', date))),
@@ -191,7 +179,7 @@ export async function getRoutesOfDay(date) {
  * @returns {() => void} cancelar
  */
 export function listenDriverRoute({ driverId, date }, cb, onError) {
-  // createdAt es ISO en mocks y Timestamp en Firestore
+  // createdAt es Timestamp de Firestore (o ISO en una ruta vieja)
   const ms = (v) => (typeof v?.toMillis === 'function' ? v.toMillis() : Date.parse(v) || 0);
   const latest = (list) => list.sort((a, b) => ms(b.createdAt) - ms(a.createdAt))[0] ?? null;
   return listenRoutes(
@@ -474,7 +462,6 @@ export async function optimizeAndSaveDay(date) {
 
 /** Una ruta leída del servidor (no la primera respuesta de un listener, que puede venir de la caché). */
 async function readRoute(id) {
-  if (USE_MOCKS) return mockDb.get('routes', id) ?? null;
   const snap = await getDoc(doc(db, 'routes', id));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }

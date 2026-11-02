@@ -1,7 +1,6 @@
 // src/features/driver/useDriverRoute.js (dueño: P3)
 // Única puerta de la Vista motorista y de Entrega a los datos. Las pantallas no cambian cuando cambia la fuente.
-// Con sesión de motorista, el motorista es el de la sesión (user.driverId); si no (despachador en
-// modo datos de prueba, o sin sesión), el elegido en "Más" (useAppStore).
+// El motorista es el de la sesión (user.driverId).
 import { useEffect, useState } from 'react';
 import { listenDrivers, listenZones } from '../catalog/catalogService';
 import { listenDriverRoute } from '../routes/routesService';
@@ -12,8 +11,7 @@ import { useAppStore } from '../../store/useAppStore';
 /** Motorista que usa la vista: el de la sesión de motorista; si no, el elegido en "Más" (pruebas). */
 export function useCurrentDriverId() {
   const { user } = useSession();
-  const pickedId = useAppStore((s) => s.currentDriverId);
-  return user?.role === 'motorista' && user.driverId ? user.driverId : pickedId;
+  return user?.role === 'motorista' ? (user.driverId ?? null) : null;
 }
 
 /**

@@ -1,9 +1,0 @@
-rules_version = '2';
-// Sprint 1: SOLO emulador. Evidencia en evidence/{code}/intento-{n}/
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /evidence/{allPaths=**} {
-      allow read, write: if true;
-    }
-  }
-}

@@ -15,7 +15,7 @@ module.exports = defineConfig([
     rules: { 'import/first': 'off' },
   },
   {
-    // Scripts de seed y mocks: corren en Node, no en el teléfono
+    // Scripts: corren en Node, no en el teléfono
     files: ['scripts/**/*.{js,mjs}', 'jest.emulator.config.js', '__integration__/reseed.js'],
     languageOptions: { globals: globals.node },
   },

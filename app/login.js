@@ -3,7 +3,6 @@
 // de P1 (src/lib/auth.js y app/_layout.js): esta pantalla solo llama a signIn, y _layout lleva a
 // cada rol a su vista. Errores: vacío o correo mal escrito debajo de su campo; el de signIn debajo del botón.
 // Enter envía. A 360 px el formulario va arriba, para que el teclado abierto no tape "Entrar".
-// En modo datos de prueba (USE_MOCKS), "Entrar como…" con las cuentas de prueba, sin escribir.
 import { useRef, useState } from 'react';
 import {
   Image,
@@ -20,8 +19,7 @@ import {
 import { Button } from '../src/components/Button';
 import { Icon } from '../src/components/Icon';
 import { loginFieldErrors } from '../src/features/session/loginMath';
-import { DEMO_ACCOUNTS, DEMO_PASSWORD, ROLE, signIn } from '../src/lib/auth';
-import { USE_MOCKS } from '../src/lib/firebase';
+import { signIn } from '../src/lib/auth';
 import { colors, radius, spacing, tones, typography } from '../src/theme';
 
 const WIDE = 760;
@@ -70,15 +68,6 @@ export default function Entrar() {
     if (errors.email || errors.password) return;
     enter(email, password, 'form');
   };
-
-  const demo = (account) => {
-    if (busy) return;
-    setFieldErrors({});
-    enter(account.email, DEMO_PASSWORD, account.key);
-  };
-
-  const dispatcher = DEMO_ACCOUNTS.find((a) => a.role === ROLE.DESPACHO);
-  const riders = DEMO_ACCOUNTS.filter((a) => a.role === ROLE.MOTORISTA);
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -159,32 +148,7 @@ export default function Entrar() {
             ) : null}
           </View>
 
-          {USE_MOCKS ? (
-            <View style={styles.demo}>
-              <Text style={styles.demoTitle}>Datos de prueba</Text>
-              <Button
-                title={busy === dispatcher.key ? 'Entrando…' : 'Entrar como despachador'}
-                variant="secondary"
-                disabled={!!busy}
-                onPress={() => demo(dispatcher)}
-              />
-              <Text style={styles.demoCaption}>Entrar como motorista</Text>
-              <View style={styles.riders}>
-                {riders.map((a) => (
-                  <Pressable
-                    key={a.key}
-                    onPress={() => demo(a)}
-                    disabled={!!busy}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Entrar como ${a.name.split(' ')[0]}`}
-                    style={({ pressed }) => [styles.rider, pressed && styles.pressed, busy && styles.dim]}
-                  >
-                    <Text style={styles.riderText}>{busy === a.key ? 'Entrando…' : a.name.split(' ')[0]}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          ) : null}
+          {null}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

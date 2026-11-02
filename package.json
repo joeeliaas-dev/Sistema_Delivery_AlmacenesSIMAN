@@ -8,19 +8,13 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "emulators": "firebase emulators:start --only firestore,storage --project demo-siman-logistica",
-    "seed": "node scripts/seed.js",
-    "mocks": "node scripts/genMocks.mjs",
-    "orders:xlsx": "node scripts/make-orders-xlsx.js",
-    "deploy:preview": "expo export --platform web --clear && firebase hosting:channel:deploy sprint1 --project proyecto-mad-9bdd2 --expires 30d",
     "lint": "eslint .",
     "pruebas": "node ../siman-pruebas/correr.mjs",
     "format": "prettier --write .",
     "seed:cloud": "node scripts/cloud/seedCloud.mjs",
     "build:cloud": "node scripts/cloud/buildCloud.mjs",
     "deploy:live": "node scripts/cloud/buildCloud.mjs && firebase deploy --config firebase.cloud.json --only hosting --project proyecto-mad-9bdd2",
-    "release:cloud": "node scripts/cloud/release.mjs",
-    "emulators:auth": "firebase emulators:start --config firebase.auth-emu.json --only auth --project demo-siman-logistica"
+    "release:cloud": "node scripts/cloud/release.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.4.3",

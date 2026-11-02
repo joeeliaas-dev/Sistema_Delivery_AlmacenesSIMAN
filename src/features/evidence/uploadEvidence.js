@@ -4,13 +4,12 @@
 //   firestore  comprimidas dentro de Firestore, en evidence/{code}_intento-{n} (gratis en plan Spark).
 //              No se escriben aquí: se devuelven en `inline` y changeStatus las guarda en la MISMA
 //              transacción que la entrega (o se guarda todo junto, o nada)
-//   none       no se guardan las imágenes, solo sus rutas (mocks)
 // En el envío solo queda la referencia (photoUrl / signatureUrl), nunca la imagen.
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { ref, uploadBytes } from 'firebase/storage';
-import { USE_MOCKS, storage } from '../../lib/firebase';
+import { storage } from '../../lib/firebase';
 
-export const EVIDENCE_STORE = USE_MOCKS ? 'none' : (process.env.EXPO_PUBLIC_EVIDENCE_STORE ?? 'storage');
+export const EVIDENCE_STORE = process.env.EXPO_PUBLIC_EVIDENCE_STORE ?? 'storage';
 
 const STORAGE_PHOTO = { maxSide: 1280, quality: 0.6 };
 // En Firestore un documento mide como máximo 1 MiB: foto más chica y, si aún pesa, un segundo intento

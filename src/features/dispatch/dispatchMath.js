@@ -184,11 +184,6 @@ export const REASON_LABEL = {
   [UNASSIGNED_REASON.SIN_UBICACION]: 'Sin ubicación confirmada',
 };
 
-/**
- * Motor que calculó la ruta (siempre Geoapify, C53). Con la API apagada (mocks) Geoapify responde con
- * la grabación: se dice "(prueba)" para que nadie lo tome por un cálculo real.
- */
-export const engineLabel = (engine, { live = true } = {}) => (live ? 'Geoapify' : 'Geoapify (prueba)');
 
 const OPEN = [STATUS.PENDIENTE, STATUS.NO_ENTREGADO];
 const REVIEW = [LOCATION_STATUS.REVISAR, LOCATION_STATUS.SIN_UBICACION];

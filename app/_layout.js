@@ -8,12 +8,10 @@ import { Roboto_400Regular, Roboto_500Medium, Roboto_700Bold, useFonts } from '@
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../src/components/Icon';
 import { ROLE, canOpen, homeOf, signOut, useSession } from '../src/lib/auth';
-import { USE_MOCKS } from '../src/lib/firebase';
-import { MOCKS_PERSISTED, mockDb } from '../src/mocks';
 import { colors, elevation, radius, spacing, typography } from '../src/theme';
 
 // Barra de la cuenta del despachador: quién entró y "Salir" (ya no hay pestaña de motorista: roles estrictos)
@@ -44,38 +42,7 @@ function NoAccess({ email }) {
       <Text style={styles.noAccessTitle}>Su cuenta no tiene acceso</Text>
       <Text style={styles.noAccessText}>{email} todavía no tiene un rol asignado. Hable con el despacho.</Text>
       <Pressable accessibilityRole="button" onPress={signOut} style={styles.noAccessButton}>
-        <Text style={styles.mockReset}>Cerrar sesión</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-// Solo en modo mocks: aviso de datos de prueba y botón para volver al inicio de la demo
-function MockBar() {
-  const router = useRouter();
-  const reset = () => {
-    mockDb.reset();
-    router.replace('/despacho');
-  };
-  const confirmReset = () => {
-    const message = 'Se borran las entregas y rutas de esta prueba y se vuelve a los datos iniciales.';
-    if (Platform.OS === 'web') {
-      if (window.confirm(`¿Reiniciar los datos de prueba?\n\n${message}`)) reset();
-    } else {
-      Alert.alert('¿Reiniciar los datos de prueba?', message, [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Reiniciar', style: 'destructive', onPress: reset },
-      ]);
-    }
-  };
-  return (
-    <View style={styles.mockBar}>
-      <View style={styles.mockDot} />
-      <Text style={styles.mockTag}>
-        {MOCKS_PERSISTED ? 'Datos de prueba locales' : 'Datos de prueba'}
-      </Text>
-      <Pressable onPress={confirmReset} accessibilityRole="button" style={styles.mockResetHit}>
-        <Text style={styles.mockReset}>Reiniciar datos</Text>
+        <Text style={styles.signOut}>Cerrar sesión</Text>
       </Pressable>
     </View>
   );
@@ -121,7 +88,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
         {status === 'signedIn' && role === ROLE.DESPACHO && pathname !== '/login' ? <AccountBar user={user} /> : null}
-        {USE_MOCKS ? <MockBar /> : null}
+        {null}
         {/* El navegador siempre montado (router.replace lo necesita); encima, la espera o el aviso */}
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
         {status === 'signedIn' && !role ? (
@@ -188,17 +155,5 @@ const styles = StyleSheet.create({
   noAccessText: { ...typography.body, color: colors.onSurfaceVariant, textAlign: 'center', maxWidth: 320 },
   noAccessButton: { minHeight: 44, justifyContent: 'center' },
   cover: { ...StyleSheet.absoluteFillObject, zIndex: 10, backgroundColor: colors.surface },
-  mockBar: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  // Aviso discreto: una línea gris, sin fondo (revisión visual del 30 oct)
-  mockDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.onSurfaceVariant },
-  mockTag: { ...typography.caption, color: colors.onSurfaceVariant },
-  mockReset: { ...typography.captionStrong, color: colors.primary, paddingHorizontal: spacing.xs, paddingVertical: spacing.xxs },
-  // Área táctil de 44 px sin agrandar la franja (en web no existe hitSlop)
-  mockResetHit: { minHeight: 44, justifyContent: 'center', marginVertical: -12 },
+  signOut: { ...typography.captionStrong, color: colors.primary, paddingHorizontal: spacing.xs, paddingVertical: spacing.xxs },
 });

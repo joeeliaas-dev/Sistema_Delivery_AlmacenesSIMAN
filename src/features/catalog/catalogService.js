@@ -1,8 +1,7 @@
 // src/features/catalog/catalogService.js  (dueño: P1)
 // Zonas, motoristas y depósito. Los listen* devuelven la función para cancelar.
 import { collection, getDocs, limit, onSnapshot, query } from 'firebase/firestore';
-import { USE_MOCKS, db } from '../../lib/firebase';
-import { mockDb } from '../../mocks';
+import { db } from '../../lib/firebase';
 
 const toDocs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 const byId = (a, b) => a.id.localeCompare(b.id);
@@ -14,7 +13,6 @@ const readError = (where_, onError) => (err) => {
 };
 
 function listenCollection(name, cb, onError) {
-  if (USE_MOCKS) return mockDb.listen(name, (docs) => docs.sort(byId), cb);
   return onSnapshot(collection(db, name), (snap) => cb(toDocs(snap).sort(byId)), readError(name, onError));
 }
 
@@ -26,7 +24,6 @@ export const listenDrivers = (cb, onError) => listenCollection('drivers', cb, on
 
 /** Depósito SIMAN de salida: { id, name, location{lat,lng}, address } */
 export async function getDepot() {
-  if (USE_MOCKS) return mockDb.all('depots')[0] ?? null;
   const snap = await getDocs(query(collection(db, 'depots'), limit(1)));
   return toDocs(snap)[0] ?? null;
 }

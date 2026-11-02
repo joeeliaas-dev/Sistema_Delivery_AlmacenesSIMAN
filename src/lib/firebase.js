@@ -1,21 +1,20 @@
 // src/lib/firebase.js  (dueño: P1)
-// Expone app, db y storage (la sesión vive en src/lib/auth.js). En desarrollo se conectan al Emulator Suite de la PC
-// que corre `npx expo start`; el teléfono la encuentra por la IP de Metro.
+// Expone app, db y storage (la sesión vive en src/lib/auth.js), con la configuración de .env.
+// Solo con EXPO_PUBLIC_USE_EMULATORS=true se conecta al Emulator Suite (las pruebas de ../siman-pruebas).
 import Constants from 'expo-constants';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { connectFirestoreEmulator, getFirestore, initializeFirestore } from 'firebase/firestore';
 import { connectStorageEmulator, getStorage } from 'firebase/storage';
 
-export const USE_MOCKS = process.env.EXPO_PUBLIC_USE_MOCKS !== 'false';
-export const USE_EMULATORS = process.env.EXPO_PUBLIC_USE_EMULATORS !== 'false';
+export const USE_EMULATORS = process.env.EXPO_PUBLIC_USE_EMULATORS === 'true';
 
-const projectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? 'demo-siman-logistica';
+const projectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
 const config = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? 'demo-api-key',
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: `${projectId}.firebaseapp.com`,
   projectId,
   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ?? `${projectId}.appspot.com`,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ?? 'demo-app-id',
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
 // IP de la PC: la misma que usa Metro (ej. "192.168.1.20:8081"), o la que se fije en .env

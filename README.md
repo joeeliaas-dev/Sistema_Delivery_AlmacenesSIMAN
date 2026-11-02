@@ -22,9 +22,9 @@ En la nube: https://trazzasv.web.app
 | `app/` | Pantallas (expo-router): `login`, `despacho/` (centro, importar, ubicaciones, motoristas, seguimiento de ruta), `motorista/`, `entrega/` |
 | `src/features/` | Una carpeta por tema: `routes`, `shipments`, `orders` (Excel), `geo` (ubicación), `zones`, `dispatch` (piezas del despacho), `driver` (piezas del motorista), `drivers` y `fleet` (motoristas), `evidence` (foto, firma, GPS), `importer`, `review`, `catalog`, `session` |
 | `src/optimizer/` | Traductor a Geoapify (`geoapify.js`) y armado del día (`index.js`) |
+| `src/config/` | Zonas, depósito y reglas de ruteo (máximo de paradas) |
 | `src/lib/` | Firebase, sesión y roles (`auth.js`), Geoapify con su límite, bandeja sin señal (`outbox.js`), escrituras en lote (`writer.js`) |
 | `src/components/`, `src/theme/` | Botones, tarjetas, mapas y el tema visual |
-| `src/mocks/` | Datos de prueba en memoria (modo sin Firebase) |
 | `scripts/cloud/` | Compilar, recargar datos y publicar en la nube |
 | `firestore.cloud.rules` | Reglas de seguridad de la nube (por rol: despacho / motorista) |
 
@@ -35,6 +35,8 @@ npm install
 npm start          # Expo; npm run web para el navegador
 ```
 
+La app trabaja siempre contra Firebase: corrida en local escribe en los mismos datos que trazzasv.
+
 Configuración local (no se sube): copia `.env.example` a `.env` y `scripts/cloud/cloudConfig.example.json` a `scripts/cloud/cloudConfig.json`, y pon la clave de Geoapify en `.env.local` (`EXPO_PUBLIC_GEOAPIFY_KEY=`).
 
 ## Comandos
@@ -43,7 +45,7 @@ Configuración local (no se sube): copia `.env.example` a `.env` y `scripts/clou
 | --- | --- |
 | `npm start` / `npm run web` | Servidor de Expo / versión web |
 | `npm run lint` | ESLint |
-| `npm run pruebas -- unidad` | Pruebas (viven fuera del repositorio, en `../siman-pruebas`) |
+| `npm run pruebas -- unidad` | Pruebas sin servidor; también `emulador` y `navegador` con los emuladores (viven fuera del repositorio, en `../siman-pruebas`) |
 | `npm run build:cloud` | Compila la versión para la nube en `dist-cloud/` |
 | `npm run seed:cloud` | Recarga los datos de prueba del día y sube las reglas |
 | `npm run release:cloud` | Pruebas, compilación, hosting, datos, reglas y chequeo de humo, en orden (`-- --solo-revisar` para ensayar sin subir) |

@@ -1,10 +1,10 @@
 // scripts/data/buildDataset.mjs  (dueño: P1)
 // Arma el set de datos de prueba con la forma exacta de Firestore. Lo usan
-// scripts/genMocks.mjs (src/mocks/*.json, días 1 y 2) y scripts/seed.js (emulador).
+// scripts/cloud/seedCloud.mjs (la nube) y las pruebas con emulador (../siman-pruebas).
 // Determinista: la misma semilla produce siempre los mismos envíos.
 // Todos los datos son ficticios (regla de oro: ningún cliente real de Siman).
 
-export const MOCK_DATE = '2026-10-12'; // fecha fija de los mocks; src/mocks la cambia por "hoy" al cargar
+export const MOCK_DATE = '2026-10-12'; // fecha fija del set; quien lo carga la cambia por la de hoy
 
 const STATUS = {
   PENDIENTE: 'pendiente',

@@ -1,7 +1,6 @@
 // src/lib/auth.js  (dueño: P1) — sesión y rol de quien usa la app (C48)
-// Con Firebase: correo y contraseña (Firebase Auth); el rol sale de users/{uid}
+// Correo y contraseña (Firebase Auth); el rol sale de users/{uid}
 // ({ role: 'despacho' | 'motorista', driverId, name, email }), que solo P1 crea con su script.
-// Con datos de prueba (USE_MOCKS): cuentas de prueba sin servidor; la sesión se guarda en el navegador.
 import {
   connectAuthEmulator,
   createUserWithEmailAndPassword,
@@ -12,17 +11,9 @@ import {
 } from 'firebase/auth';
 import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useSyncExternalStore } from 'react';
-import demoAccounts from './demoAccounts.json';
-import { EMULATOR_HOST, USE_EMULATORS, USE_MOCKS, app, db, secondaryApp } from './firebase';
+import { EMULATOR_HOST, USE_EMULATORS, app, db, secondaryApp } from './firebase';
 
 export const ROLE = { DESPACHO: 'despacho', MOTORISTA: 'motorista' };
-
-// Cuentas de prueba: las de los botones "Entrar como…" (datos de prueba) y las que crea el script de
-// cuentas en el emulador. Con datos de prueba la contraseña no se revisa; en el emulador es DEMO_PASSWORD.
-// En la nube las contraseñas son otras y no están en el código.
-export const DEMO_PASSWORD = 'trazza-prueba';
-// La lista vive en demoAccounts.json: la usan también los scripts de la nube (cuentas y revisión de reglas)
-export const DEMO_ACCOUNTS = demoAccounts;
 
 const MESSAGES = {
   'auth/invalid-email': 'El correo no es válido.',
@@ -57,54 +48,6 @@ export const useSession = () => useSyncExternalStore(subscribe, () => state, () 
 /** La sesión en este momento, fuera de React (servicios). */
 export const currentSession = () => state;
 
-// ---------- datos de prueba ----------
-const SESSION_KEY = 'siman-logistica:sesion';
-const storage = (() => {
-  try {
-    return typeof window !== 'undefined' && window.localStorage ? window.localStorage : null;
-  } catch {
-    return null;
-  }
-})();
-const mockUser = (account) => ({ uid: `demo-${account.email.split('@')[0]}`, ...account });
-const EXTRA_KEY = 'siman-logistica:cuentas';
-let extraAccounts = [];
-try {
-  extraAccounts = JSON.parse(storage?.getItem(EXTRA_KEY) ?? '[]');
-} catch {
-  extraAccounts = [];
-}
-// Acceso quitado en datos de prueba: correos sin acceso (se guarda en el navegador)
-const OFF_KEY = 'siman-logistica:sin-acceso';
-let offEmails = [];
-try {
-  offEmails = JSON.parse(storage?.getItem(OFF_KEY) ?? '[]');
-} catch {
-  offEmails = [];
-}
-const mockAccounts = () =>
-  [...DEMO_ACCOUNTS, ...extraAccounts].map((a) => ({ ...a, uid: mockUser(a).uid, active: !offEmails.includes(a.email) }));
-const accountListeners = new Set();
-const saveMockAccess = () => {
-  try {
-    storage?.setItem(EXTRA_KEY, JSON.stringify(extraAccounts));
-    storage?.setItem(OFF_KEY, JSON.stringify(offEmails));
-  } catch {
-    // sin almacenamiento: dura mientras la página esté abierta
-  }
-  accountListeners.forEach((l) => l());
-};
-
-function startMocks() {
-  let saved = null;
-  try {
-    saved = mockAccounts().find((a) => a.email === storage?.getItem(SESSION_KEY)) ?? null;
-  } catch {
-    saved = null;
-  }
-  setState(saved ? { status: 'signedIn', user: mockUser(saved) } : { status: 'signedOut', user: null });
-}
-
 // ---------- Firebase ----------
 let auth = null;
 function startFirebase() {
@@ -134,30 +77,15 @@ function startFirebase() {
   });
 }
 
-if (USE_MOCKS) startMocks();
-else startFirebase();
+startFirebase();
 
 /**
- * Entrar con correo y contraseña. Con datos de prueba basta una cuenta de DEMO_ACCOUNTS (la contraseña
- * no se revisa). Devuelve el usuario ({ uid, email, name, role, driverId }) ya con su rol.
+ * Entrar con correo y contraseña. Devuelve el usuario ({ uid, email, name, role, driverId }) ya con su rol.
  * Si falla, lanza un Error con el mensaje listo para mostrar.
  */
 export async function signIn(email, password) {
   const clean = String(email ?? '').trim().toLowerCase();
   if (!clean) throw new Error('Escriba su correo.');
-  if (USE_MOCKS) {
-    const account = mockAccounts().find((a) => a.email === clean);
-    if (!account) throw new Error('Correo o contraseña incorrectos.');
-    if (!account.active) throw new Error('Esta cuenta no tiene acceso. Hable con el despacho.');
-    try {
-      storage?.setItem(SESSION_KEY, account.email);
-    } catch {
-      // sin almacenamiento: la sesión dura mientras la página esté abierta
-    }
-    const user = mockUser(account);
-    setState({ status: 'signedIn', user });
-    return user;
-  }
   if (!password) throw new Error('Escriba la contraseña.');
   let uid;
   try {
@@ -178,15 +106,6 @@ export async function signIn(email, password) {
 }
 
 export async function signOut() {
-  if (USE_MOCKS) {
-    try {
-      storage?.removeItem(SESSION_KEY);
-    } catch {
-      // nada que borrar
-    }
-    setState({ status: 'signedOut', user: null });
-    return;
-  }
   await firebaseSignOut(auth);
 }
 
@@ -203,12 +122,6 @@ export async function createDriverAccess({ driverId, name, email, password }) {
   if (!driverId) throw new Error('Elija el motorista.');
   if (state.user?.role !== ROLE.DESPACHO) throw new Error('Solo el despacho da acceso a los motoristas.');
   const account = { email: clean, name: String(name ?? clean).trim(), role: ROLE.MOTORISTA, driverId };
-  if (USE_MOCKS) {
-    if (mockAccounts().some((a) => a.email === clean)) throw new Error('Ese correo ya tiene una cuenta.');
-    extraAccounts = [...extraAccounts, { key: clean.split('@')[0], ...account }];
-    saveMockAccess();
-    return { uid: mockUser(account).uid, email: clean };
-  }
   const secondAuth = getAuth(secondaryApp('altas'));
   if (USE_EMULATORS && !secondAuth.emulatorConfig)
     connectAuthEmulator(secondAuth, `http://${EMULATOR_HOST}:9099`, { disableWarnings: true });
@@ -227,29 +140,15 @@ export async function createDriverAccess({ driverId, name, email, password }) {
 /** Quita (o devuelve) el acceso de una cuenta de motorista; la cuenta no se borra. */
 export async function setAccessActive(uid, active) {
   if (state.user?.role !== ROLE.DESPACHO) throw new Error('Solo el despacho cambia los accesos.');
-  if (USE_MOCKS) {
-    const account = mockAccounts().find((a) => a.uid === uid);
-    if (!account) throw new Error('No existe esa cuenta.');
-    if (account.role !== ROLE.MOTORISTA) throw new Error('Solo se quita el acceso a cuentas de motorista.');
-    offEmails = active ? offEmails.filter((e) => e !== account.email) : [...new Set([...offEmails, account.email])];
-    saveMockAccess();
-    return;
-  }
   await updateDoc(doc(db, 'users', uid), { active: Boolean(active) });
 }
 
 /**
  * Cuentas con acceso a la app (solo el despacho las ve todas): cb([{ uid, email, name, role, driverId, active }]).
- * Para mostrar en Vehículos y turnos quién tiene acceso y quitarlo o devolverlo.
+ * Para mostrar en Motoristas quién tiene acceso y quitarlo o devolverlo.
  * @returns {() => void} cancelar
  */
 export function listenAccounts(cb, onError) {
-  if (USE_MOCKS) {
-    const emit = () => cb(mockAccounts().map(({ key, ...a }) => a));
-    accountListeners.add(emit);
-    emit();
-    return () => accountListeners.delete(emit);
-  }
   return onSnapshot(
     collection(db, 'users'),
     (snap) => cb(snap.docs.map((d) => ({ uid: d.id, ...d.data() }))),

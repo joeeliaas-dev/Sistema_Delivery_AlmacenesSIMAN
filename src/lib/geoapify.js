@@ -1,17 +1,12 @@
 // src/lib/geoapify.js  (dueño: P1)
 // Única puerta a la API de Geoapify (geocodificación y Route Planner). La clave sale de
 // EXPO_PUBLIC_GEOAPIFY_KEY (.env.local) y nunca se escribe en el código.
-// Con mocks (EXPO_PUBLIC_USE_MOCKS distinto de 'false') no sale a internet: responde
-// src/mocks/geoapify después de 300 ms. EXPO_PUBLIC_GEOAPIFY_LIVE=true fuerza la API real y =false la apaga.
 import { API_TIMEOUT_MS, GEOAPIFY_DAILY_LIMIT } from '../constants';
-import { USE_MOCKS } from './firebase';
-import { mockGeoapify } from '../mocks/geoapify';
 
 const BASE = 'https://api.geoapify.com';
 const KEY = process.env.EXPO_PUBLIC_GEOAPIFY_KEY ?? '';
-// 'true' fuerza la API real; 'false' la apaga aunque se use el emulador (pruebas, desarrollo antes del jueves)
-const LIVE_FLAG = process.env.EXPO_PUBLIC_GEOAPIFY_LIVE;
-export const GEOAPIFY_LIVE = LIVE_FLAG === 'true' || (LIVE_FLAG !== 'false' && !USE_MOCKS);
+// Con clave se usa la API real (y sus mapas en el despacho)
+export const GEOAPIFY_LIVE = Boolean(KEY);
 
 /** Error de Geoapify con code: 'timeout' | 'quota' | 'http' | 'offline'. */
 export class GeoapifyError extends Error {
@@ -74,10 +69,6 @@ function spend(path) {
  * @throws {GeoapifyError}
  */
 export async function geoapifyFetch(path, { method = 'GET', body, params = {}, timeoutMs = API_TIMEOUT_MS } = {}) {
-  if (!GEOAPIFY_LIVE) {
-    await new Promise((r) => setTimeout(r, 300));
-    return mockGeoapify(path, { method, body, params });
-  }
   if (!KEY) throw new GeoapifyError('http', 'Falta la clave de Geoapify (EXPO_PUBLIC_GEOAPIFY_KEY).');
   spend(path);
 

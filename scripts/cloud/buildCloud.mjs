@@ -1,5 +1,5 @@
 // scripts/cloud/buildCloud.mjs  (dueño: P1)
-// Compila la versión web conectada a Firebase EN LA NUBE (sin mocks ni emuladores) en dist-cloud/.
+// Compila la versión web conectada a Firebase EN LA NUBE (sin emuladores) en dist-cloud/.
 // Uso: npm run build:cloud              (fotos y firmas comprimidas en Firestore: plan Spark, N35)
 //      npm run build:cloud -- --storage   (fotos y firmas en Cloud Storage: requiere plan Blaze)
 import { spawnSync } from 'node:child_process';
@@ -13,7 +13,6 @@ const withStorage = process.argv.includes('--storage');
 
 const env = {
   ...process.env,
-  EXPO_PUBLIC_USE_MOCKS: 'false',
   EXPO_PUBLIC_USE_EMULATORS: 'false',
   EXPO_PUBLIC_EVIDENCE_STORE: withStorage ? 'storage' : 'firestore',
   EXPO_PUBLIC_FIREBASE_PROJECT_ID: cfg.projectId,

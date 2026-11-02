@@ -3,7 +3,7 @@
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { point, polygon as turfPolygon } from '@turf/helpers';
 import { SIN_ZONA } from '../../constants';
-import mockZones from '../../mocks/zones.json';
+import defaultZones from '../../config/zones.json';
 import { MUNICIPIO_TO_ZONE } from './municipios';
 
 const normalize = (s = '') =>
@@ -22,7 +22,7 @@ function toTurf(poly) {
 }
 
 // Por defecto, las mismas zonas que siembra el seed
-const DEFAULT_ZONES = mockZones.map((z) => ({ id: z.id, shape: toTurf(z.polygon) }));
+const DEFAULT_ZONES = defaultZones.map((z) => ({ id: z.id, shape: toTurf(z.polygon) }));
 
 /**
  * @param {{ location?: {lat, lng}, municipio?: string }} args

@@ -1,7 +1,7 @@
 // src/features/geo/geocodeAddress.js  (dueño: P1)
 // Dirección + municipio → coordenadas con nivel de confianza (Geoapify, S4-02).
 import { geoapifyFetch } from '../../lib/geoapify';
-import depotMock from '../../mocks/depot.json';
+import defaultDepot from '../../config/depot.json';
 
 /**
  * @param {{ text: string, municipio: string }} address
@@ -9,7 +9,7 @@ import depotMock from '../../mocks/depot.json';
  * @returns {Promise<{ lat, lng, confidence, resultType, label } | null>} null si no hay resultado
  * @throws {GeoapifyError} si la API no responde (timeout, quota, http, offline)
  */
-export async function geocodeAddress({ text, municipio }, { depot = depotMock } = {}) {
+export async function geocodeAddress({ text, municipio }, { depot = defaultDepot } = {}) {
   const { lat, lng } = depot.location;
   const json = await geoapifyFetch('/v1/geocode/search', {
     params: {

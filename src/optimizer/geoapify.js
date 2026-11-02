@@ -43,7 +43,7 @@ export function jobWindow(shipment, shift) {
 
 /**
  * Cuerpo de la solicitud al Route Planner para UNA ruta. Los jobs van en orden fijo (por id): los
- * mismos pedidos dan siempre la misma solicitud (y la misma respuesta grabada en los mocks).
+ * mismos pedidos dan siempre la misma solicitud.
  * @param {{ shipments: object[], driver: object, depot: { location: {lat,lng} }, startSec?: number }} args
  *   startSec: salida más tarde que el inicio del turno (una ruta de hoy que se arma a media jornada)
  */

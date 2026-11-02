@@ -3,8 +3,7 @@
 // y con un evento "importado". Las filas rojas no se cargan.
 import { collection, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { DEFAULT_SHIFT, ROW_STATUS, STATUS } from '../../constants';
-import { USE_MOCKS, db } from '../../lib/firebase';
-import { mockDb } from '../../mocks';
+import { db } from '../../lib/firebase';
 import { resolveZone } from '../zones/zoneResolver';
 
 const BATCH = 400; // cada envío son 2 escrituras (envío + evento); Firestore acepta 500 por lote
@@ -12,7 +11,6 @@ const pad4 = (n) => String(n).padStart(4, '0');
 const codeNumber = (id) => Number(/^SIM-(\d+)$/.exec(id)?.[1] ?? 0);
 
 async function existingIds() {
-  if (USE_MOCKS) return mockDb.all('shipments').map((s) => s.id);
   return (await getDocs(collection(db, 'shipments'))).docs.map((d) => d.id);
 }
 
@@ -22,9 +20,7 @@ async function existingIds() {
  * @returns {Promise<string[]>}
  */
 export async function listOrderNumbers() {
-  const list = USE_MOCKS
-    ? mockDb.all('shipments')
-    : (await getDocs(collection(db, 'shipments'))).docs.map((d) => d.data());
+  const list = (await getDocs(collection(db, 'shipments'))).docs.map((d) => d.data());
   return list.map((s) => s.orderNumber).filter(Boolean);
 }
 
@@ -86,14 +82,6 @@ export async function importOrders(validatedRows, { date } = {}) {
     return { id, row: r };
   });
 
-  if (USE_MOCKS) {
-    const now = new Date().toISOString();
-    for (const { id, row } of docs) {
-      mockDb.upsert('shipments', { id, ...shipmentFromOrder(row.order, { id, date, now }) });
-      mockDb.add('events', { shipmentId: id, ...importedEvent(now) });
-    }
-    return { created: docs.length, skipped, ids: docs.map((d) => d.id) };
-  }
 
   const now = new Date().toISOString();
   for (let i = 0; i < docs.length; i += BATCH / 2) {

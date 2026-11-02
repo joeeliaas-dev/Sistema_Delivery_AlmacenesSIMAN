@@ -4,9 +4,8 @@
 // Cada cambio escribe el envío y su evento en una sola transacción (todo o nada).
 import { FAIL_REASONS, MAX_ATTEMPTS, MIN_DESCRIPTION_LENGTH, STATUS, UNASSIGNED_REASON } from '../../constants';
 import { doc, getDoc } from 'firebase/firestore';
-import { USE_MOCKS, db } from '../../lib/firebase';
+import { db } from '../../lib/firebase';
 import { NOW, commitOps } from '../../lib/writer';
-import { mockDb } from '../../mocks';
 import { getCurrentGps } from '../evidence/getCurrentGps';
 import { uploadEvidence } from '../evidence/uploadEvidence';
 import { getShipment } from './shipmentsService';
@@ -15,7 +14,6 @@ import { getShipment } from './shipmentsService';
 // fallan con code 'unavailable' y la pantalla del motorista lo guarda en la bandeja (src/lib/outbox.js).
 export const SEND_TIMEOUT_MS = 20000;
 function inTime(promise) {
-  if (USE_MOCKS) return promise;
   let timer;
   const late = new Promise((_, reject) => {
     timer = setTimeout(() => {
@@ -347,7 +345,6 @@ export async function replanRoutes({ routes, released = [], unassigned = [], dri
 }
 
 async function getRoute(id) {
-  if (USE_MOCKS) return mockDb.get('routes', id);
   const snap = await getDoc(doc(db, 'routes', id));
   return snap.exists() ? { id, ...snap.data() } : null;
 }

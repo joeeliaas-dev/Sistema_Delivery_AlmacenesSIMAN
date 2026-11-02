@@ -3,15 +3,12 @@
 // en la fecha elegida (reprogramShipment), para entrar a las rutas de ese día.
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { STATUS } from '../../constants';
-import { USE_MOCKS, db } from '../../lib/firebase';
-import { mockDb } from '../../mocks';
+import { db } from '../../lib/firebase';
 import { reprogramShipment } from './statusMachine';
 
 /** Reintentos de días anteriores a la fecha, listos para traer. */
 export async function pendingRetries(toDate) {
-  const list = USE_MOCKS
-    ? mockDb.all('shipments').filter((s) => s.status === STATUS.NO_ENTREGADO)
-    : (await getDocs(query(collection(db, 'shipments'), where('status', '==', STATUS.NO_ENTREGADO)))).docs.map((d) => ({
+  const list = (await getDocs(query(collection(db, 'shipments'), where('status', '==', STATUS.NO_ENTREGADO)))).docs.map((d) => ({
         id: d.id,
         ...d.data(),
       }));

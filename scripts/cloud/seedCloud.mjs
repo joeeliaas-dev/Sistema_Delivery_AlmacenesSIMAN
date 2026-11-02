@@ -24,7 +24,7 @@ const today = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-$
 const argDate = process.argv.indexOf('--date');
 const date = argDate > -1 ? process.argv[argDate + 1] : today();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const ACCOUNTS = JSON.parse(readFileSync(join(root, 'src/lib/demoAccounts.json'), 'utf8'));
+const ACCOUNTS = JSON.parse(readFileSync(join(root, 'scripts/cloud/cuentas.json'), 'utf8'));
 const PASSWORD = /^TRAZZA_CLAVE_CUENTAS=(.+)$/m.exec(readFileSync(join(root, '.env.local'), 'utf8'))?.[1]?.trim();
 
 // Cuentas de prueba (C48): crea las que falten y escribe su rol en users/{uid} (con las reglas de carga)

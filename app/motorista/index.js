@@ -16,7 +16,6 @@ import { Button } from '../../src/components/Button';
 import { Skeleton } from '../../src/components/Skeleton';
 import { StatusBadge } from '../../src/components/StatusBadge';
 import { ROUTE_STATUS, STATUS } from '../../src/constants';
-import { DriverPicker } from '../../src/features/driver/DriverPicker';
 import { EmptyState } from '../../src/features/driver/EmptyState';
 import { DriverRouteSkeleton } from '../../src/features/driver/LoadingSkeletons';
 import { NextStopCard } from '../../src/features/driver/NextStopCard';
@@ -27,13 +26,11 @@ import { SubmitBar } from '../../src/features/driver/SubmitBar';
 import { splitStops } from '../../src/features/driver/routeMath';
 import { OutboxBanner } from '../../src/features/driver/OutboxBanner';
 import { useDriverRoute } from '../../src/features/driver/useDriverRoute';
-import { ROLE, signOut, useSession } from '../../src/lib/auth';
+import { signOut, useSession } from '../../src/lib/auth';
 import { routeTimes } from '../../src/lib/eta';
 import { useOutbox } from '../../src/lib/outbox';
-import { USE_MOCKS } from '../../src/lib/firebase';
 import { useNow } from '../../src/lib/useNow';
 import { routeColorOf } from '../../src/lib/routeColor';
-import { useAppStore } from '../../src/store/useAppStore';
 import { colors, spacing, typography } from '../../src/theme';
 
 // Etiqueta del encabezado según el estado de la ruta
@@ -78,11 +75,9 @@ function RouteBody({ route, shipments, split, driverId, color, onOpenStop }) {
 
 export default function VistaMotorista() {
   const router = useRouter();
-  const setCurrentDriverId = useAppStore((s) => s.setCurrentDriverId);
-  const { drivers, driverId, driver, zone, route, shipments, loading } = useDriverRoute();
+  const { driverId, driver, zone, route, shipments, loading } = useDriverRoute();
   const [menuOpen, setMenuOpen] = useState(false);
   const { status, user } = useSession();
-  const canPick = USE_MOCKS && user?.role === ROLE.DESPACHO;
   const logout = async () => {
     setMenuOpen(false);
     await signOut(); // app/_layout.js (P1) lleva a /login
@@ -129,7 +124,7 @@ export default function VistaMotorista() {
           ) : null}
         </View>
         {ROUTE_BADGE[route?.status] ? <StatusBadge status={ROUTE_BADGE[route.status]} quiet /> : null}
-        {canPick || status === 'signedIn' ? (
+        {status === 'signedIn' ? (
           <Button
             title="Más"
             icon={menuOpen ? 'expand_less' : 'more_vert'}
@@ -145,16 +140,6 @@ export default function VistaMotorista() {
       </View>
       {menuOpen ? (
         <View style={styles.column}>
-          {canPick ? (
-            <DriverPicker
-              drivers={drivers}
-              selectedId={driverId}
-              onSelect={(id) => {
-                setCurrentDriverId(id);
-                setMenuOpen(false);
-              }}
-            />
-          ) : null}
           {status === 'signedIn' ? (
             <View style={styles.session}>
               <Text style={styles.sessionText} numberOfLines={1}>

@@ -1,13 +1,12 @@
 // src/lib/writer.js  (dueño: P1)
-// Aplica una lista de escrituras de una sola vez (todo o nada): una transacción en
-// Firestore, o la base en memoria en modo mocks. Solo lo usan los servicios de P1.
+// Aplica una lista de escrituras de una sola vez (todo o nada) en una transacción de
+// Firestore. Solo lo usan los servicios de P1.
 // Las condiciones se revisan DENTRO de la transacción, así dos teléfonos que escriben
 // al mismo tiempo no se pisan: el segundo recibe un error claro y no se guarda nada.
 import { collection, doc, runTransaction, serverTimestamp } from 'firebase/firestore';
-import { USE_MOCKS, db } from './firebase';
-import { mockDb } from '../mocks';
+import { db } from './firebase';
 
-// Marca para "hora del servidor": serverTimestamp() en Firestore, ISO en mocks
+// Marca para "hora del servidor": serverTimestamp() de Firestore
 export const NOW = Symbol('now');
 
 const fill = (data, now) => Object.fromEntries(Object.entries(data).map(([k, v]) => [k, v === NOW ? now : v]));
@@ -31,15 +30,6 @@ export async function commitOps(ops) {
   };
   const guarded = ops.filter((op) => op.kind === 'create' || op.kind === 'update');
 
-  if (USE_MOCKS) {
-    for (const op of guarded) check(op, mockDb.get(op.col, op.id));
-    const now = new Date().toISOString();
-    for (const op of ops) {
-      if (op.kind === 'addEvent') mockDb.add('events', { shipmentId: op.shipmentId, ...fill(op.data, now) });
-      else mockDb.upsert(op.col, { id: op.id, ...fill(op.data, now) });
-    }
-    return;
-  }
 
   await runTransaction(db, async (tx) => {
     // En una transacción, primero todas las lecturas y después todas las escrituras
