@@ -1,0 +1,17 @@
+rules_version = '2';
+// storage.cloud.rules  (dueño: P1) — evidencia en la nube, sin login (entorno de confianza).
+// Solo evidence/{código}/intento-{1|2}/foto.jpg o firma.png, imágenes de hasta 2 MB.
+// No se borran ni se reemplazan: la evidencia de un intento es definitiva.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /evidence/{code}/{attempt}/{file} {
+      allow read: if true;
+      allow create: if code.matches('^SIM-[0-9]{4}$')
+        && attempt in ['intento-1', 'intento-2']
+        && file in ['foto.jpg', 'firma.png']
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png)');
+      allow update, delete: if false;
+    }
+  }
+}
