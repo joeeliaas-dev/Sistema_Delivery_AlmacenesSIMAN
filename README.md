@@ -14,4 +14,4 @@ en cada push a `main`, en cada pull request hacia `main`, y a mano desde la
 pestaña Actions.
 
 # Entorno
-**En línea:** https://siman-delivery-app.web.app
+**En línea:** https://trazzasv.web.app/ 
