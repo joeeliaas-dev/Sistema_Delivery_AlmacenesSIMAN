@@ -614,7 +614,11 @@ export default function CentroDespacho() {
       style={wide ? null : styles.flex}
     />
   );
-  const dayHint = isPast ? 'Día pasado: solo consulta' : null;
+  const dayHint = isPast
+    ? 'Día pasado: solo consulta'
+    : dayBusy
+      ? 'Geoapify está calculando las rutas: puede tardar hasta un minuto'
+      : null;
   const moreMenu = (
     <Menu
       label="Más"

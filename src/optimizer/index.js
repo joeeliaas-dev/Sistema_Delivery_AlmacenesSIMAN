@@ -2,7 +2,16 @@
 // Única puerta al cálculo de rutas. Todo lo calcula Geoapify Route Planner: calles reales, turno del
 // motorista, ventana de cada cliente y orden de visita. Una ruta por zona, con su motorista.
 // Sin cálculo propio: si Geoapify no responde, "Optimizar día" avisa y se vuelve a intentar.
-import { LOCATION_STATUS, MAX_ATTEMPTS, PRIORITY, ROUTE_STATUS, SIN_ZONA, STATUS, UNASSIGNED_REASON } from '../constants';
+import {
+  LOCATION_STATUS,
+  MAX_ATTEMPTS,
+  PRIORITY,
+  ROUTE_PLANNER_TIMEOUT_MS,
+  ROUTE_STATUS,
+  SIN_ZONA,
+  STATUS,
+  UNASSIGNED_REASON,
+} from '../constants';
 import { ROUTING } from '../config/routing';
 import { geoapifyFetch } from '../lib/geoapify';
 import { todayISO } from '../lib/dates';
@@ -105,12 +114,34 @@ export async function optimizeRoute({ shipments, driver, depot, date, zoneId, no
   if (!depot?.location) throw new Error('Falta la ubicación del depósito');
   const base = { zoneId: zoneId ?? driver?.zoneId ?? null, driverId: driver?.id ?? null, engine: ENGINE };
   if (!shipments.length)
-    return { ...base, stops: [], km: 0, baselineKm: 0, minutes: 0, startISO: null, endISO: null, geometry: null, unassigned: [], warning: null };
+    return {
+      ...base,
+      stops: [],
+      km: 0,
+      baselineKm: 0,
+      minutes: 0,
+      startISO: null,
+      endISO: null,
+      geometry: null,
+      unassigned: [],
+      warning: null,
+    };
   const sorted = [...shipments].sort(byPriorityThenTime);
   const sent = sorted.slice(0, ROUTING.maxStops);
-  const overflow = sorted.slice(ROUTING.maxStops).map((s) => ({ shipmentId: s.id, reason: UNASSIGNED_REASON.CAPACIDAD }));
-  const request = buildRoutePlannerRequest({ shipments: sent, driver, depot, startSec: departureSec(date, driver, now) });
-  const response = await geoapifyFetch('/v1/routeplanner', { method: 'POST', body: request });
+  const overflow = sorted
+    .slice(ROUTING.maxStops)
+    .map((s) => ({ shipmentId: s.id, reason: UNASSIGNED_REASON.CAPACIDAD }));
+  const request = buildRoutePlannerRequest({
+    shipments: sent,
+    driver,
+    depot,
+    startSec: departureSec(date, driver, now),
+  });
+  const response = await geoapifyFetch('/v1/routeplanner', {
+    method: 'POST',
+    body: request,
+    timeoutMs: ROUTE_PLANNER_TIMEOUT_MS,
+  });
   const plan = parseRoutePlannerResponse(response, { request, shipments: sent, date });
   const byId = Object.fromEntries(sent.map((s) => [s.id, s]));
   const routed = plan.stops.map((st) => byId[st.shipmentId]).filter(Boolean);
@@ -130,19 +161,23 @@ export async function optimizeRoute({ shipments, driver, depot, date, zoneId, no
  * a Geoapify) y sus pendientes esperan otra ruta.
  * @param {{ date: string, shipments: object[], drivers: object[], depot: object, zones?: object[],
  *   routes?: object[], now?: Date }} args
- * @returns {Promise<{ engine, warnings: string[], plans: object[], unassigned: Array<{ shipmentId, reason }> }>}
+ * @returns {Promise<{ engine, warnings: string[], plans: object[], unassigned: Array<{ shipmentId, reason }>,
+ *   failedZones: string[] }>} failedZones: zonas que Geoapify no logró calcular (se vuelven a pedir)
  */
 export async function optimizeDay({ date, shipments, drivers, depot, zones = [], routes = [], now }) {
   const warnings = [];
   const unassigned = [];
   const byZone = new Map();
   const zoneName = (id) => zones.find((z) => z.id === id)?.name ?? `zona ${id}`;
-  const replaceable = new Set(routes.filter((r) => r.status === ROUTE_STATUS.ASIGNADA && r.date === date).map((r) => r.id));
+  const replaceable = new Set(
+    routes.filter((r) => r.status === ROUTE_STATUS.ASIGNADA && r.date === date).map((r) => r.id),
+  );
   const startedByZone = startedRoutesByZone(
     routes.filter((r) => blocksZoneOn(r, date, todayISO(now))),
     shipments,
   );
-  for (const [zoneId, r] of startedByZone) warnings.push(`${zoneName(zoneId)} ya salió con la ${r.code}; no se cambió.`);
+  for (const [zoneId, r] of startedByZone)
+    warnings.push(`${zoneName(zoneId)} ya salió con la ${r.code}; no se cambió.`);
 
   for (const s of shipments) {
     const open =
@@ -158,19 +193,33 @@ export async function optimizeDay({ date, shipments, drivers, depot, zones = [],
     byZone.get(s.zoneId).push(s);
   }
 
-  const jobs = [...byZone.entries()].map(([zoneId, list]) => {
+  const zonesToPlan = [];
+  for (const [zoneId, list] of byZone) {
     const driver = drivers.find((d) => d.zoneId === zoneId && d.active !== false);
     if (!driver) {
       warnings.push(`La ${zoneName(zoneId)} no tiene motorista activo: sus ${list.length} pedidos quedan pendientes.`);
-      return null;
+      continue;
     }
-    return optimizeRoute({ shipments: list, driver, depot, date, zoneId, now });
+    zonesToPlan.push({ zoneId, list, driver });
+  }
+  // Una zona que Geoapify no logra calcular no tumba el día: se guardan las demás y la que falló se
+  // vuelve a pedir con "Optimizar día" (sus pedidos siguen pendientes y su ruta anterior no se toca).
+  const results = await Promise.allSettled(
+    zonesToPlan.map(({ zoneId, list, driver }) => optimizeRoute({ shipments: list, driver, depot, date, zoneId, now })),
+  );
+  const plans = [];
+  const failedZones = [];
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') return plans.push(r.value);
+    const { zoneId, list } = zonesToPlan[i];
+    failedZones.push(zoneId);
+    warnings.push(
+      `Geoapify no respondió para la ${zoneName(zoneId)} (${r.reason?.message ?? 'error'}): sus ${list.length} pedidos siguen pendientes. Toque Optimizar día otra vez.`,
+    );
   });
-  let plans;
-  try {
-    plans = (await Promise.all(jobs)).filter(Boolean);
-  } catch (err) {
-    throw new Error(`Geoapify no pudo calcular las rutas (${err.message}). Intente de nuevo en un momento.`);
+  if (zonesToPlan.length && !plans.length) {
+    const why = results.find((r) => r.status === 'rejected')?.reason?.message ?? 'error';
+    throw new Error(`Geoapify no pudo calcular las rutas (${why}). Intente de nuevo en un momento.`);
   }
   plans.sort((a, b) => String(a.zoneId).localeCompare(String(b.zoneId)));
   for (const p of plans) unassigned.push(...p.unassigned);
@@ -181,5 +230,5 @@ export async function optimizeDay({ date, shipments, drivers, depot, zones = [],
       `${noRoom === 1 ? '1 pedido no cabe' : `${noRoom} pedidos no caben`} en su ruta (máximo ${ROUTING.maxStops} ` +
         'paradas o fuera del turno del motorista): use "Pasar a…" para darles otra ruta.',
     );
-  return { engine: ENGINE, warnings, plans, unassigned };
+  return { engine: ENGINE, warnings, plans, unassigned, failedZones };
 }

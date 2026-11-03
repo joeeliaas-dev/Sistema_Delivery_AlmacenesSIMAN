@@ -404,6 +404,7 @@ export async function createRoutesForDay(date, dayPlan) {
   const cleaned = new Set();
   for (const r of routes) {
     if (r.date !== date || r.status !== ROUTE_STATUS.ASIGNADA || handled.has(r.id) || !(r.stops ?? []).length) continue;
+    if (dayPlan.failedZones?.includes(r.zoneId)) continue; // Geoapify no respondió: su ruta se queda como estaba
     if (isRouteStarted(r, shipmentsById)) continue;
     const released = r.stops
       .map((st) => st.shipmentId)

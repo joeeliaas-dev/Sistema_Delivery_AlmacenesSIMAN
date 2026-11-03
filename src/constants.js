@@ -50,6 +50,8 @@ export const UNASSIGNED_REASON = {
 };
 export const DEFAULT_SHIFT = { START: '07:00', END: '18:00' };
 export const API_TIMEOUT_MS = 15000;
+// El Route Planner de Geoapify (plan gratis) a veces encola: medido el 2 nov, de 1 a 60 s por zona
+export const ROUTE_PLANNER_TIMEOUT_MS = 90000;
 // Tope diario de llamadas reales a Geoapify por equipo (N50). Importar 100 pedidos ≈ 80 búsquedas;
 // un "Optimizar día" = 1 llamada al Route Planner por zona. Al llegar al tope se comporta como sin créditos.
 export const GEOAPIFY_DAILY_LIMIT = { geocode: 300, routeplanner: 50 };
