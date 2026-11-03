@@ -1,8 +1,0 @@
-{
-  "firestore": {
-    "database": "(default)",
-    "location": "us-east1",
-    "rules": "firestore.seed.rules",
-    "indexes": "firestore.indexes.json"
-  }
-}
