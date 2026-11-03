@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint .",
-    "pruebas": "node ../siman-pruebas/correr.mjs",
+    "pruebas": "node siman-pruebas/correr.mjs",
     "format": "prettier --write .",
     "seed:cloud": "node scripts/cloud/seedCloud.mjs",
     "build:cloud": "node scripts/cloud/buildCloud.mjs",
