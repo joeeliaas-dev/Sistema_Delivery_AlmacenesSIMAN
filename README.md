@@ -7,6 +7,11 @@ App web y móvil (Expo + Firebase) con dos roles:
 
 En la nube: https://trazzasv.web.app
 
+# Claves de acceso
+Despachador:
+- Correo: despacho@trazzasv.test 
+- Contraseña: pruebas123.
+
 ## Cómo funciona
 
 1. **Importar** (`app/despacho/importar.js`): se lee el Excel, se valida cada fila y se ubica cada dirección (lat/lng del Excel o Geoapify). Lo dudoso queda para **Revisar ubicaciones**.
