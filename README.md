@@ -15,3 +15,8 @@ pestaña Actions.
 
 # Entorno
 **En línea:** https://trazzasv.web.app/ 
+
+# Claves de acceso
+Despachador:
+- Correo: despacho@trazzasv.test 
+- Contraseña: pruebas123.
