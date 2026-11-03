@@ -1,118 +1,64 @@
-name: CI/CD Siman Delivery
+name: CI Trazza
+
+# Revisa la app real (Expo, la que se publica en trazzasv) en cada push y pull request a main:
+# que no se suban claves, lint, pruebas unitarias y que la versión web compile.
+# No publica: la publicación se hace a mano con `npm run release:cloud` (proyecto-mad-9bdd2).
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
-  checks: write
-  deployments: write
 
 concurrency:
-  group: publicar-${{ github.ref }}
-  cancel-in-progress: false
+  group: revisar-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   revisar:
-    name: Revisar el código
+    name: Revisar la app
     runs-on: ubuntu-24.04
     steps:
-      - name: Clonar el repositorio principal
+      - name: Clonar el repositorio
         uses: actions/checkout@v7
 
-      - name: Instalar entorno Node.js
+      - name: Instalar Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '24'
+          cache: npm
 
-      - name: Revisar la sintaxis de JavaScript
+      - name: Comprobar que no se suben claves ni configuración local
         run: |
-          for archivo in "Sprint 1"/static/js/*.js "Sprint 1"/herramientas/*.mjs; do
-            echo "Revisando $archivo"
-            node --input-type=module --check < "$archivo"
-          done
+          prohibidos=$(git ls-files | grep -E '(^|/)\.env($|\.local$|\..*\.local$)|^scripts/cloud/cloudConfig\.json$' || true)
+          if [ -n "$prohibidos" ]; then
+            echo "::error::Estos archivos no deben estar en el repositorio:"
+            echo "$prohibidos"
+            exit 1
+          fi
+          echo "OK: sin claves en el repositorio"
 
       - name: Revisar los archivos JSON
         run: |
-          for archivo in firebase.json .firebaserc "Sprint 1"/datos/*.json; do
+          for archivo in .firebaserc firebase.cloud.json firebase.cloud-seed.json firestore.indexes.json app.json src/config/*.json; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$archivo"
             echo "OK $archivo"
           done
 
-      - name: Revisar que la página use los archivos que existen
-        run: |
-          cd "Sprint 1"
-          for ruta in static/css/styles.css static/js/app.js static/favicon.svg; do
-            grep -q "$ruta" index.html && test -f "$ruta" && echo "OK $ruta"
-          done
-          grep -q 'from "./firebase.js"' static/js/app.js && test -f static/js/firebase.js && echo "OK static/js/firebase.js"
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
 
-  desplegar:
-    name: Publicar en Firebase Hosting
-    needs: revisar
-    runs-on: ubuntu-24.04
-    environment:
-      name: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }}
-      url: ${{ github.event_name == 'pull_request' && 'https://trazzasv.web.app/' || steps.vivo.outputs.details_url }}
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    env:
-      HAY_CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP != '' }}
-      EN_VIVO: ${{ github.event_name != 'pull_request' }}
-    steps:
-      - name: Clonar el repositorio principal
-        uses: actions/checkout@v7
+      - name: Lint
+        run: npm run lint
 
-      - name: Avisar si falta la credencial
-        if: env.HAY_CREDENCIAL != 'true'
-        run: echo "::notice::No se publicó porque falta el secreto FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP."
+      - name: Pruebas unitarias
+        run: npm run pruebas -- unidad
 
-      - name: Despliegue continuo al sitio en vivo
-        id: vivo
-        if: env.HAY_CREDENCIAL == 'true' && env.EN_VIVO == 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP }}
-          projectId: siman-delivery-app
-          channelId: live
-
-      - name: Vista previa del pull request
-        id: previa
-        if: env.HAY_CREDENCIAL == 'true' && env.EN_VIVO != 'true'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIMAN_DELIVERY_APP }}
-          projectId: siman-delivery-app
-          expires: 7d
-
-      - name: Comprobar que el sitio publicado responde con esta versión
-        if: env.HAY_CREDENCIAL == 'true'
+      - name: Compilar la versión web
         env:
-          URL: ${{ env.EN_VIVO == 'true' && 'https://siman-delivery-app.web.app' || steps.previa.outputs.details_url }}
-        run: |
-          URL="${URL%/}"
-          echo "Comprobando $URL"
-          for intento in $(seq 1 12); do
-            if curl -fsS "$URL/?v=$GITHUB_SHA" -o publicado.html && cmp -s publicado.html "Sprint 1/index.html"; then
-              for ruta in static/js/app.js static/js/firebase.js static/css/styles.css static/favicon.svg; do
-                curl -fsS -o /dev/null "$URL/$ruta" && echo "OK /$ruta"
-              done
-              echo "OK: el sitio sirve la versión de este commit"
-              {
-                echo "### Publicado"
-                echo ""
-                echo "$URL"
-              } >> "$GITHUB_STEP_SUMMARY"
-              exit 0
-            fi
-            echo "Intento $intento: todavía no es la versión nueva; espero 10 s"
-            sleep 10
-          done
-          echo "::error::El sitio no respondió con la versión publicada"
-          exit 1
+          EXPO_PUBLIC_USE_EMULATORS: 'false'
+        run: npx expo export --platform web --output-dir dist-ci

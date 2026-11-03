@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "Sprint 1",
+    "public": ".",
     "ignore": ["**/.*", "datos/**", "herramientas/**", "*.md"],
     "headers": [
       { "source": "**/*.@(js|css)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }

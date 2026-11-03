@@ -27,6 +27,9 @@ En la nube: https://trazzasv.web.app
 | `src/components/`, `src/theme/` | Botones, tarjetas, mapas y el tema visual |
 | `scripts/cloud/` | Compilar, recargar datos y publicar en la nube |
 | `firestore.cloud.rules` | Reglas de seguridad de la nube (por rol: despacho / motorista) |
+| `siman-pruebas/` | Pruebas unitarias (Jest), de emulador y de navegador; `correr.mjs` las copia dentro de la app mientras corren |
+| `Sprint 1/` | Prototipo del Sprint 1 (HTML/JS), ya no se publica desde el CI |
+| `docs/` | Decisiones de arquitectura (`adr/`) y el documento de funcionamiento |
 
 ## Arranque
 
@@ -37,7 +40,7 @@ npm start          # Expo; npm run web para el navegador
 
 La app trabaja siempre contra Firebase: corrida en local escribe en los mismos datos que trazzasv.
 
-Configuración local (no se sube): copia `.env.example` a `.env` y `scripts/cloud/cloudConfig.example.json` a `scripts/cloud/cloudConfig.json`, y pon la clave de Geoapify en `.env.local` (`EXPO_PUBLIC_GEOAPIFY_KEY=`).
+Configuración local (no se sube, está en `.gitignore`): copia `.env.example` a `.env` y `scripts/cloud/cloudConfig.example.json` a `scripts/cloud/cloudConfig.json`; los secretos (`EXPO_PUBLIC_GEOAPIFY_KEY`, `TRAZZA_CLAVE_CUENTAS`) van en `.env.local`.
 
 ## Comandos
 
@@ -45,10 +48,16 @@ Configuración local (no se sube): copia `.env.example` a `.env` y `scripts/clou
 | --- | --- |
 | `npm start` / `npm run web` | Servidor de Expo / versión web |
 | `npm run lint` | ESLint |
-| `npm run pruebas -- unidad` | Pruebas sin servidor; también `emulador` y `navegador` con los emuladores (viven fuera del repositorio, en `../siman-pruebas`) |
+| `npm run pruebas -- unidad` | Pruebas sin servidor; también `emulador`, `navegador` y `emuladores` (viven en `siman-pruebas/`) |
 | `npm run build:cloud` | Compila la versión para la nube en `dist-cloud/` |
 | `npm run seed:cloud` | Recarga los datos de prueba del día y sube las reglas |
 | `npm run release:cloud` | Pruebas, compilación, hosting, datos, reglas y chequeo de humo, en orden (`-- --solo-revisar` para ensayar sin subir) |
+
+Todos los comandos de Firebase usan `--config` (`firebase.cloud.json` para publicar, `firebase.cloud-seed.json` para la carga de datos). El proyecto por defecto de `.firebaserc` es `proyecto-mad-9bdd2`; el del prototipo queda con el alias `sprint1`.
+
+## CI
+
+`.github/workflows/ci.yml` corre en cada push y pull request a `main`: comprueba que no se suban claves (`.env`, `.env.local`, `cloudConfig.json`), revisa los JSON, instala, corre `npm run lint`, las pruebas unitarias (`npm run pruebas -- unidad`) y compila la versión web. **No publica**: la publicación en trazzasv se hace a mano con `npm run release:cloud`.
 
 ## Reglas del equipo
 

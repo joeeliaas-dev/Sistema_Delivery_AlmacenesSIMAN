@@ -9,9 +9,10 @@ Aplicación de entregas desarrollado con **HTML, CSS y JavaScript**, priorizando
   el motorista en la calle para ver sus entregas y registrar el resultado.
 
 # CI/CD
-El flujo está en `.github/workflows/ci.yml` y usa GitHub Actions. Se ejecuta
-en cada push a `main`, en cada pull request hacia `main`, y a mano desde la
-pestaña Actions.
+Este prototipo ya no se revisa ni se publica desde GitHub Actions: el CI
+(`.github/workflows/ci.yml`) revisa la app actual (Expo) de la raíz del
+repositorio. Para publicar el prototipo a mano en `siman-delivery-app`:
+`firebase deploy --config "Sprint 1/firebase.json" --project sprint1`.
 
 # Entorno
 **En línea:** https://trazzasv.web.app/ 

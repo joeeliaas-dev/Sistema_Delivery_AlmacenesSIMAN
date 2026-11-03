@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import { todayISO } from '../../lib/dates';
 import { COLUMNS, TEMPLATE_EXAMPLE } from './columns';
 
-/** Libro de la plantilla (también lo usa scripts/make-orders-xlsx.js). */
+/** Libro de la plantilla (también lo usa siman-pruebas/scripts/make-orders-xlsx.js). */
 export function buildTemplateBook(date = todayISO()) {
   const sheet = XLSX.utils.json_to_sheet([{ ...TEMPLATE_EXAMPLE, fecha: date }], { header: COLUMNS });
   sheet['!cols'] = COLUMNS.map((c) => ({ wch: ['direccion', 'referencia'].includes(c) ? 36 : 14 }));
