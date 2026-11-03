@@ -6,7 +6,17 @@ const globals = require('globals');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'dist-*/*', '.expo/*', '.e2e/*', '.tour/*', 'emulator-data/*'],
+    // siman-pruebas se revisa cuando sus pruebas se copian dentro de la app; Sprint 1/ es otra app (la del equipo, en main)
+    ignores: [
+      'dist/*',
+      'dist-*/*',
+      '.expo/*',
+      '.e2e/*',
+      '.tour/*',
+      'emulator-data/*',
+      'siman-pruebas/**',
+      'Sprint 1/**',
+    ],
   },
   {
     // Pruebas: globales de Jest; jest.mock va antes de los import a propósito

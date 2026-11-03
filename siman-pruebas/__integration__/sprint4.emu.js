@@ -30,7 +30,8 @@ let imported = [];
 
 test('importa pedidos-prueba-100.xlsx: 96 en menos de 10 s, 4 rojos y evento importado', async () => {
   const file = readFileSync(require.resolve('../assets/pedidos-prueba-100.xlsx'));
-  const { rows } = await parseOrdersFile(new Uint8Array(file).buffer);
+  const { rows: hoja } = await parseOrdersFile(new Uint8Array(file).buffer);
+  const rows = require('../__tests__/simulaciones/excel.cjs').paraManana(hoja);
   const validated = validateOrders(rows, { existingOrderIds: await listOrderNumbers() });
   const located = await resolveLocations(validated);
   expect(located.filter((r) => r.status === 'roja')).toHaveLength(4);

@@ -6,6 +6,7 @@ const babelPresetExpo = require.resolve('babel-preset-expo', { paths: [require.r
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['<rootDir>/__integration__/**/*.emu.js'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/siman-pruebas/'],
   transform: { '\\.[jt]sx?$': ['babel-jest', { presets: [babelPresetExpo] }] },
   setupFiles: ['<rootDir>/__integration__/setupEnv.js'],
   testTimeout: 30000,

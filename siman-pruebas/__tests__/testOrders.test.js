@@ -13,7 +13,8 @@ it('100 filas: 96 se pueden cargar y 4 rojas explicadas; la ubicación sale en c
   const { validateOrders } = require('../src/features/orders/validateOrders');
   const { resolveLocations } = require('../src/features/geo/resolveLocations');
 
-  const { headers, rows } = await parseOrdersFile(new Uint8Array(file).buffer);
+  const { headers, rows: hoja } = await parseOrdersFile(new Uint8Array(file).buffer);
+  const rows = require('./simulaciones/excel.cjs').paraManana(hoja);
   expect(headers).toContain('pedido');
   expect(rows).toHaveLength(100);
 

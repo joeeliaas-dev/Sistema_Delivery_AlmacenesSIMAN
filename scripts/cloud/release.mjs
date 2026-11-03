@@ -17,10 +17,12 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const keepData = process.argv.includes('--sin-datos');
 const dryRun = process.argv.includes('--solo-revisar');
 const step = (n, title) => console.log(`\n=== ${n}. ${title}`);
-// Las pruebas viven fuera del proyecto (../siman-pruebas, no van a GitHub)
-const PRUEBAS = join(root, '..', 'siman-pruebas', 'correr.mjs');
-if (!existsSync(PRUEBAS)) {
-  console.error(`✗ No encuentro las pruebas en ${PRUEBAS}: sin ellas no se publica.`);
+// Las pruebas viven aparte de la app: ../siman-pruebas en la PC, siman-pruebas/ dentro del repositorio
+const PRUEBAS = [join(root, '..', 'siman-pruebas', 'correr.mjs'), join(root, 'siman-pruebas', 'correr.mjs')].find(
+  existsSync,
+);
+if (!PRUEBAS) {
+  console.error('✗ No encuentro siman-pruebas (al lado de la app o dentro de ella): sin las pruebas no se publica.');
   process.exit(1);
 }
 const run = (cmd, args) => {
@@ -40,7 +42,9 @@ run('node', ['scripts/cloud/buildCloud.mjs']);
 
 step(3, 'Revisar la compilación');
 const js = join(root, 'dist-cloud/_expo/static/js/web');
-const bundle = readdirSync(js).map((f) => readFileSync(join(js, f), 'utf8')).join('\n');
+const bundle = readdirSync(js)
+  .map((f) => readFileSync(join(js, f), 'utf8'))
+  .join('\n');
 const env = readFileSync(join(root, '.env.local'), 'utf8');
 const key = /EXPO_PUBLIC_GEOAPIFY_KEY=(.+)/.exec(env)?.[1]?.trim();
 const problems = [
@@ -61,7 +65,9 @@ const probe = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:si
   method: 'POST',
   headers: { 'Content-Type': 'application/json', Referer: 'https://trazzasv.web.app/' },
   body: JSON.stringify({ email: 'sondeo-no-existe@trazzasv.test', password: 'x12345678', returnSecureToken: true }),
-}).then((r) => r.json()).catch(() => null);
+})
+  .then((r) => r.json())
+  .catch(() => null);
 const why = probe?.error?.message ?? '';
 if (/CONFIGURATION_NOT_FOUND|OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(why)) {
   console.error(
@@ -77,7 +83,16 @@ if (dryRun) {
 }
 
 step(4, 'Subir hosting');
-run('npx', ['firebase', 'deploy', '--config', 'firebase.cloud.json', '--only', 'hosting', '--project', 'proyecto-mad-9bdd2']);
+run('npx', [
+  'firebase',
+  'deploy',
+  '--config',
+  'firebase.cloud.json',
+  '--only',
+  'hosting',
+  '--project',
+  'proyecto-mad-9bdd2',
+]);
 
 if (keepData) console.log('\n(--sin-datos: no se recargan datos ni se suben reglas)');
 else {

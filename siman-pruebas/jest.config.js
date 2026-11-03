@@ -2,4 +2,6 @@
 module.exports = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  // en el repositorio siman-pruebas/ está dentro de la app: solo se corre la copia que hace correr.mjs
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/siman-pruebas/', '<rootDir>/Sprint 1/'],
 };

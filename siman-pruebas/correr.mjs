@@ -1,6 +1,6 @@
 // siman-pruebas/correr.mjs  (dueño: P1)
 // Las pruebas viven aparte de la app (no van en lo que se publica en trazzasv). Este comando las copia dentro de
-// la app (siman-logistica en la PC, Trazza en el repositorio), corre lo pedido y las vuelve a sacar.
+// la app (siman-logistica en la PC; en el repositorio, la carpeta de arriba), corre lo pedido y las vuelve a sacar.
 // Uso (desde cualquier carpeta):
 //   node ../siman-pruebas/correr.mjs unidad            pruebas unitarias (Jest, datos de prueba)
 //   node ../siman-pruebas/correr.mjs emulador          pruebas contra los emuladores (npm run emulators antes)
@@ -14,9 +14,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-// En la PC la app está en ../siman-logistica; en el repositorio, en ../Trazza
+// En la PC la app está en ../siman-logistica; en el repositorio, siman-pruebas/ va dentro de la app
 const project = resolve(
-  process.env.SIMAN_PROYECTO ?? [join(here, '..', 'siman-logistica'), join(here, '..', 'Trazza')].find(existsSync) ?? '',
+  process.env.SIMAN_PROYECTO ??
+    [join(here, '..', 'siman-logistica'), join(here, '..')].find((p) => existsSync(join(p, 'package.json'))) ??
+    '',
 );
 const PIECES = [
   '__tests__',
@@ -41,7 +43,9 @@ const commands = {
   unidad: [['npx', ['jest', '--silent']]],
   emulador: [['npx', ['jest', '-c', 'jest.emulator.config.js']]],
   navegador: [['node', ['scripts/e2e/emulatorRun.mjs']]],
-  emuladores: [['npx', ['firebase', 'emulators:start', '--only', 'firestore,storage,auth', '--project', 'demo-siman-logistica']]],
+  emuladores: [
+    ['npx', ['firebase', 'emulators:start', '--only', 'firestore,storage,auth', '--project', 'demo-siman-logistica']],
+  ],
   reglas: [['node', ['scripts/cloud/checkRules.mjs']]],
   humo: [['node', ['scripts/cloud/smoke.mjs', ...rest]]],
 };
@@ -64,7 +68,11 @@ try {
     copied.push(to);
   }
   for (const [cmd, args] of commands[what]) {
-    const r = spawnSync(cmd, args, { cwd: project, stdio: 'inherit', shell: process.platform === 'win32' });
+    const r = spawnSync(cmd, args, {
+      cwd: project,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    });
     status = r.status ?? 1;
     if (status !== 0) break;
   }

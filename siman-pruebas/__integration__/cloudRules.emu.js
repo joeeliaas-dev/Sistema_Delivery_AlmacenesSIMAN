@@ -46,9 +46,10 @@ afterAll(async () => {
 });
 
 test('importar el Excel con las reglas de la nube', async () => {
-  const { rows } = await parseOrdersFile(
+  const { rows: hoja } = await parseOrdersFile(
     new Uint8Array(readFileSync(require.resolve('../assets/pedidos-prueba-100.xlsx'))).buffer,
   );
+  const rows = require('../__tests__/simulaciones/excel.cjs').paraManana(hoja);
   const located = await resolveLocations(validateOrders(rows, { existingOrderIds: await listOrderNumbers() }));
   const res = await importOrders(located);
   expect(res).toMatchObject({ created: 96, skipped: 4 });
